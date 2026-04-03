@@ -1,0 +1,122 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+}
+
+.brandBlock {
+  padding: 1rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kicker {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.authBlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.authLabel {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.authButton,
+.authButtonAlt {
+  border: 1px solid var(--paper-rule);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.92rem;
+  text-transform: lowercase;
+}
+
+.authButton {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.authButtonAlt {
+  background: rgba(53, 200, 193, 0.15);
+  color: var(--paper-ink);
+}
+
+.title {
+  display: inline-block;
+  font-size: clamp(3rem, 10vw, 5.9rem);
+  line-height: 0.9;
+}
+
+.subtitle {
+  margin-top: 0.6rem;
+  max-width: 56ch;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.15;
+}
+
+.nav {
+  display: flex;
+  border-top: 1px solid var(--paper-rule);
+}
+
+.navLink {
+  flex: 1 1 0;
+  padding: 0.7rem 0.85rem;
+  text-align: center;
+  text-transform: lowercase;
+  font-size: 1.05rem;
+  transition:
+    background-color 0.12s ease-out,
+    color 0.12s ease-out;
+}
+
+.navLink:not(:last-child) {
+  border-right: 1px solid var(--paper-rule);
+}
+
+.navLink:hover,
+.navLink:focus-visible {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+@media (max-width: 800px) {
+  .brandBlock {
+    padding: 0.85rem;
+  }
+
+  .topRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .authBlock {
+    justify-content: flex-start;
+  }
+
+  .nav {
+    flex-direction: column;
+  }
+
+  .navLink:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid var(--paper-rule);
+  }
+}

@@ -1,0 +1,46 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+  box-shadow: var(--page-shadow);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.score {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--paper-rule);
+  background: rgba(53, 200, 193, 0.12);
+  font-size: 1rem;
+  color: var(--paper-ink);
+  text-align: center;
+}
+
+.voteButton {
+  width: 100%;
+  border: 1px solid var(--paper-rule);
+  padding: 0.85rem 1rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  cursor: pointer;
+}
+
+.voteButton:hover {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.voteButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

@@ -1,0 +1,38 @@
+{
+  "realm": "catastrophic-club",
+  "enabled": true,
+  "displayName": "CATastrophic club",
+  "sslRequired": "NONE",
+  "registrationEmailAsUsername": false,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "clients": [
+    {
+      "clientId": "catastrophic-club-web",
+      "name": "CATastrophic club web",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "http://localhost:3000",
+      "secret": "change-me-for-local-dev",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3000/*",
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ]
+}

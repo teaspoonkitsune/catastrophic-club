@@ -1,0 +1,87 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid var(--paper-rule);
+  background: rgba(53, 200, 193, 0.08);
+  box-shadow: var(--page-shadow);
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(53, 200, 193, 0.08) 8%,
+      rgba(74, 35, 122, 0.16) 18%,
+      rgba(53, 200, 193, 0.08) 33%
+    ),
+    rgba(255, 252, 238, 0.94);
+  background-size: 220% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+.actions {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.refreshButton {
+  border: 1px solid var(--paper-rule);
+  padding: 0.7rem 0.9rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  cursor: pointer;
+  transition:
+    background 0.12s ease-out,
+    color 0.12s ease-out;
+}
+
+.refreshButton:hover {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.refreshButton:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.fact {
+  border: 1px solid var(--paper-rule);
+  padding: 0.9rem 1rem;
+  background: rgba(241, 212, 71, 0.14);
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}

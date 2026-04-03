@@ -1,0 +1,52 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.versus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  min-width: 132px;
+  padding-top: 6rem;
+}
+
+.versusBadge {
+  width: 108px;
+  height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--paper-rule);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 237, 115, 0.45), transparent 58%),
+    var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--page-shadow);
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.versusHint {
+  max-width: 120px;
+  text-align: center;
+  font-size: 0.88rem;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .versus {
+    min-width: 0;
+    padding-top: 0;
+  }
+}
