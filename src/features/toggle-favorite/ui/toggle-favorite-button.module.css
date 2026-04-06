@@ -90,11 +90,14 @@
 
 .authLink,
 .authLinkAlt {
+  appearance: none;
   flex: 1 1 0;
   border: 1px solid var(--paper-rule);
   padding: 0.45rem 0.55rem;
   text-align: center;
   text-transform: lowercase;
+  font: inherit;
+  cursor: pointer;
 }
 
 .authLink {

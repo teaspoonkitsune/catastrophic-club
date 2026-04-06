@@ -1,0 +1,145 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(10, 7, 16, 0.88);
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 80vw;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 24rem);
+}
+
+.image {
+  display: block;
+  width: auto;
+  max-width: 80vw;
+  max-height: 80vh;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 20rem);
+  border: 2px solid var(--paper-rule);
+  border-bottom: 0;
+  border-radius: 0;
+  background: #fff;
+  object-fit: contain;
+}
+
+.footer {
+  width: 100%;
+  padding: 0.95rem 1.3rem;
+  border: 2px solid var(--paper-rule);
+  background: var(--paper);
+  color: var(--paper-ink);
+  font-size: 0.88rem;
+  letter-spacing: 0.03em;
+}
+
+.closeButton,
+.favoriteButton,
+.arrowButton {
+  position: fixed;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(22, 20, 28, 0.78);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  backdrop-filter: blur(10px);
+}
+
+.closeButton:hover,
+.favoriteButton:hover,
+.arrowButton:hover,
+.closeButton:focus-visible,
+.favoriteButton:focus-visible,
+.arrowButton:focus-visible {
+  background: rgba(34, 31, 44, 0.92);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.closeButton {
+  top: 1.25rem;
+  left: 1.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.favoriteButton {
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.3rem;
+}
+
+.favoriteButton[aria-pressed='true'] {
+  color: var(--paper-accent);
+}
+
+.favoriteButton:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.arrowButton {
+  top: 50%;
+  width: 3rem;
+  height: 3rem;
+  margin-top: -1.5rem;
+  font-size: 1.3rem;
+}
+
+.arrowLeft {
+  left: 1.25rem;
+}
+
+.arrowRight {
+  right: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .overlay {
+    padding: 1rem;
+  }
+
+  .viewer,
+  .image {
+    max-width: 92vw;
+  }
+
+  .viewer {
+    min-width: min(92vw, 22rem);
+    min-height: min(50vh, 20rem);
+  }
+
+  .image {
+    max-height: 76vh;
+    min-width: min(92vw, 22rem);
+    min-height: min(42vh, 16rem);
+  }
+
+  .footer {
+    font-size: 0.78rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .arrowButton {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-top: -1.25rem;
+  }
+}

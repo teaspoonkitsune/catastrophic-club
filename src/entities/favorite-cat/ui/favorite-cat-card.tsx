@@ -1,34 +1,27 @@
 'use client';
 
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
-import { ZoomableImage } from '@/shared/ui/zoomable-image';
 import styles from './favorite-cat-card.module.css';
 
 type FavoriteCatCardProps = {
   cat: FavoriteCatRecord;
-  onRemove: (id: string) => void;
+  onOpen: () => void;
+  isFavorite?: boolean;
 };
 
-export function FavoriteCatCard({ cat, onRemove }: FavoriteCatCardProps) {
+export function FavoriteCatCard({ cat, onOpen, isFavorite = true }: FavoriteCatCardProps) {
   return (
-    <article className={styles.card}>
-      <ZoomableImage
-        src={cat.imageUrl}
-        alt="Favorite cat"
-        previewSize="full"
-      />
+    <button
+      type="button"
+      className={styles.card}
+      onClick={onOpen}
+      aria-label="Открыть изображение котика"
+      data-favorite={isFavorite ? 'true' : 'false'}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={cat.imageUrl} alt="Котик из избранного" className={styles.image} />
 
-      <p className={styles.meta}>
-        Добавлен: {new Date(cat.addedAt).toLocaleString()}
-      </p>
-
-      <button
-        type="button"
-        className={styles.action}
-        onClick={() => onRemove(cat.id)}
-      >
-        Убрать из избранного
-      </button>
-    </article>
+      {!isFavorite ? <span className={styles.badge}>Убрано из избранного</span> : null}
+    </button>
   );
 }

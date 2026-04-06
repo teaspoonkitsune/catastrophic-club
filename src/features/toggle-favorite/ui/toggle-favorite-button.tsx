@@ -7,7 +7,7 @@ import {
   removeFavoriteCatFromApi,
 } from '@/entities/favorite-cat/api';
 import type { FavoriteCatInput } from '@/entities/favorite-cat';
-import { buildAuthHref } from '@/shared/auth/links';
+import { InlineAuthActions } from '@/shared/auth/inline-auth-actions';
 import { toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
 import styles from './toggle-favorite-button.module.css';
@@ -76,14 +76,6 @@ export function ToggleFavoriteButton({
     };
   }, [id, isAuthenticated]);
 
-  function getCurrentReturnTo() {
-    if (typeof window === 'undefined') {
-      return '/favorites';
-    }
-
-    return `${window.location.pathname}${window.location.search}`;
-  }
-
   async function handleClick() {
     if (!isAuthenticated) {
       setShowAuthPrompt(true);
@@ -139,16 +131,13 @@ export function ToggleFavoriteButton({
 
       {showAuthPrompt ? (
         <div className={styles.authPopup}>
-          <p className={styles.authTitle}>Избранное стало персональным.</p>
-          <p className={styles.authText}>Войди или зарегистрируйся, чтобы сохранять котиков.</p>
-          <div className={styles.authActions}>
-            <a href={buildAuthHref('login', getCurrentReturnTo())} className={styles.authLink}>
-              login
-            </a>
-            <a href={buildAuthHref('register', getCurrentReturnTo())} className={styles.authLinkAlt}>
-              register
-            </a>
-          </div>
+          <p className={styles.authTitle}>Чтобы сохранять котиков, нужно войти.</p>
+          <p className={styles.authText}>Войди в аккаунт или создай новый.</p>
+          <InlineAuthActions
+            className={styles.authActions}
+            loginClassName={styles.authLink}
+            registerClassName={styles.authLinkAlt}
+          />
         </div>
       ) : null}
 
