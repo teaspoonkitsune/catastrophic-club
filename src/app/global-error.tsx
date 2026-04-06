@@ -21,8 +21,8 @@ export default function GlobalError({
         <main>
           <HttpCatErrorState
             status={500}
-            title="Глобальная ошибка приложения"
-            description="Даже корневой слой не пережил ошибку. Можно попробовать перерисовать приложение."
+            title="Сайт споткнулся"
+            description="Попробуй обновить страницу. Обычно этого хватает, чтобы всё вернулось на место."
             actionLabel="Повторить"
             onAction={() => unstable_retry()}
           />

@@ -39,6 +39,11 @@
   font-size: 0.9rem;
 }
 
+.authHint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .authButton,
 .authButtonAlt {
   border: 1px solid var(--paper-rule);

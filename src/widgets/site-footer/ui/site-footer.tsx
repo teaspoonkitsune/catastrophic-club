@@ -1,14 +1,14 @@
 import styles from './site-footer.module.css';
 
-const footerButtons = ['cat stamp', 'club gif', 'soft paws'];
+const footerButtons = ['котопечать', 'клубный gif', 'мягкие лапки'];
 
 export function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.textBlock}>
-        <p className={styles.text}>Contact: kitty-committee@catastrophic.club</p>
-        <p className={styles.text}>Built with Next 16, React 19 and an unreasonable amount of cat energy.</p>
-        <p className={styles.text}>2026 CATastrophic club // do not copy the cats, only admire them.</p>
+        <p className={styles.text}>Почта: kitty-committee@catastrophic.club</p>
+        <p className={styles.text}>Сделано на Next 16 и React 19, с большим запасом любви к котам.</p>
+        <p className={styles.text}>2026 CATastrophic club. Котов не копируем, просто любуемся.</p>
       </div>
 
       <div className={styles.buttonStack}>

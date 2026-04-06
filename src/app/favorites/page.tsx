@@ -1,7 +1,8 @@
 import { getFavoriteCats } from '@/entities/favorite-cat/api/repository';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
-import { buildAuthHref } from '@/shared/auth/links';
+import { InlineAuthActions } from '@/shared/auth/inline-auth-actions';
 import { getAuthSession } from '@/shared/auth';
+import { AuthSidebar } from '@/widgets/auth-sidebar';
 import { FavoritesBrowser } from '@/widgets/favorites-browser';
 import { SiteFooter } from '@/widgets/site-footer';
 import { SiteHeader } from '@/widgets/site-header';
@@ -20,10 +21,10 @@ export default async function Page() {
     <main data-page-tone="yellow">
       <SiteHeader session={session} currentPath="/favorites" />
       <section className="page-intro">
-        <h1>Favorites shelf</h1>
+        <h1>Избранное</h1>
         <p>
-          Здесь живут котики, которым ты выдал звезду. Полка нарочито олдскульная,
-          но действия остаются современными: убираем из избранного прямо со страницы.
+          Здесь собраны котики, которых ты сохранил. Можно открыть фото крупно,
+          полистать соседние картинки и убрать кота из избранного прямо в просмотре.
         </p>
       </section>
 
@@ -31,8 +32,8 @@ export default async function Page() {
         <div className="page-main-column">
           <section className="paper-panel">
             <div className="panel-header">
-              <h2>Saved cats</h2>
-              <p>{session ? `${cats.length} item(s) currently pinned` : 'login required'}</p>
+              <h2>Мои котики</h2>
+              <p>{session ? `Сохранено: ${cats.length}` : 'Нужно войти в аккаунт'}</p>
             </div>
             <div className="page-copy">
               {session ? (
@@ -43,14 +44,11 @@ export default async function Page() {
                     Полка избранного теперь привязана к аккаунту. Войди или зарегистрируйся
                     в клубе, и у тебя появится личная коллекция котиков.
                   </p>
-                  <div className="auth-gate-actions">
-                    <a href={buildAuthHref('login', '/favorites')} className="auth-gate-primary">
-                      login
-                    </a>
-                    <a href={buildAuthHref('register', '/favorites')} className="auth-gate-secondary">
-                      register
-                    </a>
-                  </div>
+                  <InlineAuthActions
+                    className="auth-gate-actions"
+                    loginClassName="auth-gate-primary"
+                    registerClassName="auth-gate-secondary"
+                  />
                 </div>
               )}
             </div>
@@ -58,19 +56,21 @@ export default async function Page() {
         </div>
 
         <aside className="page-sidebar">
+          <AuthSidebar session={session} currentPath="/favorites" />
+
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">curator notes</span>
+            <span className="sidebar-eyebrow">подсказка</span>
             <ul className="sidebar-list">
-              <li>Каждая карточка хранит дату, когда котик попал в коллекцию.</li>
-              <li>Изображение можно открыть в полноразмерном просмотре.</li>
-              <li>Удаление работает без перезагрузки страницы.</li>
+              <li>Картинки удобно смотреть крупно и листать по соседству.</li>
+              <li>На самой полке остаются только фотографии, без лишних кнопок.</li>
+              <li>Если убрать котика из избранного, он исчезнет после обновления страницы.</li>
             </ul>
           </section>
 
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">sorting rule</span>
+            <span className="sidebar-eyebrow">порядок</span>
             <div className="page-copy">
-              <p>Новые любимчики поднимаются вверх. Полка ведет себя как свежий журнал клуба.</p>
+              <p>Новые сохранённые котики появляются выше остальных.</p>
             </div>
           </section>
         </aside>

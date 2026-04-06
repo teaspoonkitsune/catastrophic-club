@@ -1,5 +1,6 @@
 import { getRandomCatFact, getRandomCatImage } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
+import { AuthSidebar } from '@/widgets/auth-sidebar';
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SiteFooter } from '@/widgets/site-footer';
 import { SiteHeader } from '@/widgets/site-header';
@@ -13,13 +14,12 @@ export default async function Page() {
 
   return (
     <main data-page-tone="purple">
-      <SiteHeader session={session} currentPath="/" />
+      <SiteHeader />
       <section className="page-intro">
-        <h1>First time in CATastrophic club?</h1>
+        <h1>Добро пожаловать в CATastrophic club</h1>
         <p>
-          Это наш небольшой уголок интернета про котов: свежая морда дня, коллекция
-          любимчиков и локальный турнирный рейтинг. Всё в духе домашней ретро-страницы,
-          но с текущей логикой проекта.
+          Это маленький сайт про котов: здесь есть кот дня, избранное и простой рейтинг по битвам.
+          Всё сделано легко и по-домашнему.
         </p>
       </section>
 
@@ -27,8 +27,8 @@ export default async function Page() {
         <div className="page-main-column">
           <section className="paper-panel">
             <div className="panel-header">
-              <h2>Cat of the day</h2>
-              <p>fresh transmission from the club archive</p>
+              <h2>Кот дня</h2>
+              <p>сегодняшний главный герой</p>
             </div>
             <FeaturedCatWidget
               id={cat.id}
@@ -39,48 +39,76 @@ export default async function Page() {
           </section>
 
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">club bulletin</span>
+            <span className="sidebar-eyebrow">что можно сделать</span>
             <div className="page-copy">
               <p>Нажми на картинку, чтобы открыть полноразмерный просмотр.</p>
               <p>Кнопка со звездой добавляет котика в избранное без переходов.</p>
-              <p>Если мордочка не зашла, у клуба всегда найдется новая картиночка.</p>
+              <p>Если котик не понравился, можно сразу открыть нового.</p>
             </div>
           </section>
         </div>
 
         <aside className="page-sidebar">
+          <AuthSidebar
+            session={session}
+            currentPath="/"
+          />
+
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">routes</span>
+            <span className="sidebar-eyebrow">разделы</span>
             <ul className="sidebar-list">
-              <li>favorites: личная полка любимых котиков</li>
-              <li>battles: дуэль двух случайных претендентов</li>
-              <li>leaders: таблица славы по итогам боёв</li>
+              <li>Избранное: твоя личная подборка котиков</li>
+              <li>Битвы: выбор победителя из двух случайных котов</li>
+              <li>Рейтинг: таблица лучших по итогам голосований</li>
             </ul>
           </section>
 
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">stamps</span>
+            <span className="sidebar-eyebrow">откуда данные</span>
             <ul className="stamp-list">
-              <li>hand-fed from `cataas.com`</li>
-              <li>facts via `catfact.ninja`</li>
-              <li>favorites stored in postgres</li>
+              <li>Картинки приходят с `cataas.com`</li>
+              <li>Факты о котах берутся с `catfact.ninja`</li>
+              <li>Избранное хранится в Postgres</li>
             </ul>
           </section>
 
           <section className="paper-panel">
             <div className="panel-header">
-              <h2>club buttons</h2>
-              <p>88x31 spirit, cat edition</p>
+              <h2>Кнопки клуба</h2>
+              <p>маленькие бейджи в духе старого интернета</p>
             </div>
             <div className="badge-marquee">
-              <div className="badge-track" aria-hidden="true">
-                {['cat of day', 'feline fan', 'battle mode', 'soft paws', 'zoom me', 'star this'].map((label) => (
-                  <span key={label} className="badge-chip">
+              <div
+                className="badge-track"
+                aria-hidden="true"
+              >
+                {[
+                  'кот дня',
+                  'люблю котов',
+                  'режим битвы',
+                  'мягкие лапки',
+                  'открыть фото',
+                  'в избранное',
+                ].map((label) => (
+                  <span
+                    key={label}
+                    className="badge-chip"
+                  >
                     {label}
                   </span>
                 ))}
-                {['cat of day', 'feline fan', 'battle mode', 'soft paws', 'zoom me', 'star this'].map((label) => (
-                  <span key={`${label}-dup`} className="badge-chip">
+                {[
+                  'кот дня',
+                  'люблю котов',
+                  'режим битвы',
+                  'мягкие лапки',
+                  'открыть фото',
+                  'в избранное',
+                ].map((label) => (
+                  <span
+                    key={`${label}-dup`}
+                    className="badge-chip"
+                  >
                     {label}
                   </span>
                 ))}

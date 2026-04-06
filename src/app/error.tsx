@@ -18,8 +18,8 @@ export default function Error({
     <main>
       <HttpCatErrorState
         status={500}
-        title="Сегмент приложения упал"
-        description="Поймали ошибку в App Router. Можно попробовать повторить запрос."
+        title="Что-то пошло не так"
+        description="Страница не загрузилась как надо. Попробуй открыть её ещё раз."
         actionLabel="Повторить"
         onAction={() => unstable_retry()}
       />

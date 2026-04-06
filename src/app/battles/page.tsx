@@ -1,6 +1,7 @@
 import { getBattlePair } from '@/entities/battle-cat/api/repository';
 import type { BattleCatRecord } from '@/entities/battle-cat';
 import { getAuthSession } from '@/shared/auth';
+import { AuthSidebar } from '@/widgets/auth-sidebar';
 import { CatBattleArena } from '@/widgets/cat-battle';
 import { SiteFooter } from '@/widgets/site-footer';
 import { SiteHeader } from '@/widgets/site-header';
@@ -19,11 +20,10 @@ export default async function Page() {
     <main data-page-tone="red">
       <SiteHeader session={session} currentPath="/battles" />
       <section className="page-intro">
-        <h1>Battle terminal</h1>
+        <h1>Битвы котиков</h1>
         <p>
-          Выбирай победителя дуэли. Турнир специально оформлен как старая домашняя
-          страница с рублеными рамками и громким `VS`, но под капотом всё так же
-          обновляет реальные очки котиков.
+          Выбирай победителя из двух котиков. За каждое голосование один получает очко,
+          а второй его теряет.
         </p>
       </section>
 
@@ -31,8 +31,8 @@ export default async function Page() {
         <div className="page-main-column">
           <section className="paper-panel">
             <div className="panel-header">
-              <h2>Current duel</h2>
-              <p>winner +1 / loser -1</p>
+              <h2>Текущая пара</h2>
+              <p>Победитель +1, проигравший -1</p>
             </div>
             <div className="page-copy">
               <CatBattleArena initialPair={initialPair} isAuthenticated={Boolean(session)} />
@@ -41,8 +41,10 @@ export default async function Page() {
         </div>
 
         <aside className="page-sidebar">
+          <AuthSidebar session={session} currentPath="/battles" />
+
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">rules</span>
+            <span className="sidebar-eyebrow">правила</span>
             <ul className="sidebar-list">
               <li>Оценивай только мордочку, харизму и общий вайб.</li>
               <li>После клика подгрузится новая пара без ручного обновления.</li>
@@ -51,9 +53,9 @@ export default async function Page() {
           </section>
 
           <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">pool status</span>
+            <span className="sidebar-eyebrow">что происходит</span>
             <div className="page-copy">
-              <p>Если база пустая, проект сам добирает новых бойцов в пул перед стартом дуэли.</p>
+              <p>Если котиков в базе мало, система сама подгрузит новых перед следующей битвой.</p>
             </div>
           </section>
         </aside>

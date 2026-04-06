@@ -9,14 +9,16 @@
   --paper-highlight: rgba(241, 212, 71, 0.34);
   --intro-gradient-end: #6c38a1;
   --panel-glow: rgba(53, 200, 193, 0.18);
-  --panel-shadow-main: rgba(53, 200, 193, 0.5);
-  --panel-shadow-offset: var(--paper-highlight);
+  --panel-shadow-main: rgba(108, 56, 161, 0.34);
+  --panel-shadow-offset: rgba(241, 212, 71, 0.28);
   --background: var(--paper);
   --foreground: var(--paper-ink);
   --text: var(--paper-ink);
   --muted: var(--paper-ink-soft);
   --accent: var(--paper-accent);
+  --danger: #a22a2a;
   --page-shadow: 4px 4px 0 var(--panel-shadow-main), -4px -4px 0 var(--panel-shadow-offset);
+  --page-gap: 16px;
 }
 
 html {
@@ -138,11 +140,10 @@ main {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--page-gap);
   background: var(--paper);
   color: var(--paper-ink);
   border: 1px solid var(--paper-rule);
-  box-shadow: var(--page-shadow);
   overflow: clip;
 }
 
@@ -155,10 +156,12 @@ main[data-page-tone='purple'] {
   --paper-accent: #ffd84a;
   --paper-secondary: #47d0c7;
   --paper-highlight: rgba(255, 216, 74, 0.32);
+  --danger: color-mix(in srgb, #b83232 82%, var(--paper-ink) 18%);
   --intro-gradient-end: #7a38b2;
   --panel-glow: rgba(71, 208, 199, 0.18);
-  --panel-shadow-main: rgba(71, 208, 199, 0.45);
-  --panel-shadow-offset: rgba(255, 216, 74, 0.24);
+  --panel-shadow-main: rgba(122, 56, 178, 0.34);
+  --panel-shadow-offset: rgba(255, 216, 74, 0.28);
+  --page-shadow: 4px 4px 0 rgba(122, 56, 178, 0.34), -4px -4px 0 rgba(255, 216, 74, 0.28);
 }
 
 main[data-page-tone='blue'] {
@@ -170,10 +173,12 @@ main[data-page-tone='blue'] {
   --paper-accent: #7bd7ff;
   --paper-secondary: #1d8ee6;
   --paper-highlight: rgba(123, 215, 255, 0.34);
+  --danger: color-mix(in srgb, #b83232 84%, var(--paper-ink) 16%);
   --intro-gradient-end: #2f86d8;
   --panel-glow: rgba(29, 142, 230, 0.16);
-  --panel-shadow-main: rgba(29, 142, 230, 0.28);
-  --panel-shadow-offset: rgba(123, 215, 255, 0.22);
+  --panel-shadow-main: rgba(47, 134, 216, 0.34);
+  --panel-shadow-offset: rgba(255, 159, 92, 0.28);
+  --page-shadow: 4px 4px 0 rgba(47, 134, 216, 0.34), -4px -4px 0 rgba(255, 159, 92, 0.28);
 }
 
 main[data-page-tone='yellow'] {
@@ -185,10 +190,12 @@ main[data-page-tone='yellow'] {
   --paper-accent: #f1c232;
   --paper-secondary: #ffd966;
   --paper-highlight: rgba(255, 217, 102, 0.38);
+  --danger: color-mix(in srgb, #b83232 86%, var(--paper-ink) 14%);
   --intro-gradient-end: #e4b32e;
   --panel-glow: rgba(255, 217, 102, 0.18);
-  --panel-shadow-main: rgba(241, 194, 50, 0.28);
-  --panel-shadow-offset: rgba(255, 217, 102, 0.22);
+  --panel-shadow-main: rgba(241, 194, 50, 0.38);
+  --panel-shadow-offset: rgba(47, 134, 216, 0.28);
+  --page-shadow: 4px 4px 0 rgba(241, 194, 50, 0.38), -4px -4px 0 rgba(47, 134, 216, 0.28);
 }
 
 main[data-page-tone='red'] {
@@ -200,10 +207,12 @@ main[data-page-tone='red'] {
   --paper-accent: #ff9f5c;
   --paper-secondary: #ff6f61;
   --paper-highlight: rgba(255, 159, 92, 0.34);
+  --danger: color-mix(in srgb, #b83232 72%, var(--paper-ink) 28%);
   --intro-gradient-end: #d55353;
   --panel-glow: rgba(255, 111, 97, 0.16);
-  --panel-shadow-main: rgba(255, 111, 97, 0.25);
-  --panel-shadow-offset: rgba(255, 159, 92, 0.2);
+  --panel-shadow-main: rgba(213, 83, 83, 0.34);
+  --panel-shadow-offset: rgba(71, 208, 199, 0.28);
+  --page-shadow: 4px 4px 0 rgba(213, 83, 83, 0.34), -4px -4px 0 rgba(71, 208, 199, 0.28);
 }
 
 main::before,
@@ -223,7 +232,7 @@ main::after {
   letter-spacing: 0.35rem;
   font-size: 3.8rem;
   font-weight: 700;
-  color: rgba(74, 35, 122, 0.1);
+  color: color-mix(in srgb, var(--paper-ink) 12%, transparent);
   pointer-events: none;
   user-select: none;
 }
@@ -276,6 +285,7 @@ p {
 }
 
 .page-intro {
+  margin-top: calc(-1 * var(--page-gap));
   padding: 1rem;
   background: linear-gradient(135deg, var(--paper-ink), var(--intro-gradient-end));
   color: var(--paper);
@@ -320,7 +330,7 @@ p {
   padding: 0.55rem 0.75rem;
   border-bottom: 1px solid var(--paper-rule);
   background:
-    linear-gradient(180deg, var(--panel-glow), rgba(74, 35, 122, 0.04)), var(--paper-strong);
+    linear-gradient(180deg, var(--panel-glow), color-mix(in srgb, var(--paper-ink) 4%, transparent)), var(--paper-strong);
 }
 
 .panel-header p {
@@ -353,9 +363,12 @@ p {
 
 .auth-gate-primary,
 .auth-gate-secondary {
+  appearance: none;
   border: 1px solid var(--paper-rule);
   padding: 0.65rem 0.9rem;
   text-transform: lowercase;
+  font: inherit;
+  cursor: pointer;
 }
 
 .auth-gate-primary {
