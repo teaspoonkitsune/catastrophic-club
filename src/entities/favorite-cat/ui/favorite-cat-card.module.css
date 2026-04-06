@@ -19,23 +19,82 @@
   transform: scale(1.02);
 }
 
+.card[data-loading='true'] .image {
+  opacity: 0.18;
+}
+
+.card[data-favorite='false']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--paper-ink) 34%, transparent);
+  pointer-events: none;
+}
+
 .image {
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  transition: transform 160ms ease;
+  transition:
+    opacity 120ms ease-out,
+    transform 160ms ease;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 8%,
+      color-mix(in srgb, var(--paper-ink) 24%, var(--paper) 76%) 18%,
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 33%
+    ),
+    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
+  background-size: 220% 100%;
+  animation: card-shimmer 1.2s linear infinite;
+  pointer-events: none;
 }
 
 .badge {
   position: absolute;
-  right: 0.7rem;
-  bottom: 0.7rem;
-  padding: 0.35rem 0.55rem;
-  background: rgba(255, 253, 243, 0.9);
+  left: 50%;
+  bottom: 1rem;
+  z-index: 1;
+  box-sizing: border-box;
+  width: calc(100% - 2rem);
+  max-width: calc(100% - 2rem);
+  padding: 0.45rem 0.7rem;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   border: 1px solid var(--paper-rule);
   color: var(--paper-ink);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--paper-rule) 28%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@keyframes card-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .badge {
+    bottom: 0.75rem;
+    width: calc(100% - 1.5rem);
+    max-width: calc(100% - 1.5rem);
+    padding: 0.4rem 0.55rem;
+    font-size: 0.72rem;
+  }
 }
