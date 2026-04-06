@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   clearOauthStateFromResponse,
+  getAppSessionTtlSeconds,
   getAuthCallbackUrl,
   getKeycloakConfig,
   getOauthState,
@@ -13,7 +14,6 @@ import { syncAuthenticatedUser } from '@/shared/auth/users';
 type TokenResponse = {
   access_token: string;
   id_token?: string;
-  expires_in?: number;
 };
 
 type UserInfoResponse = {
@@ -106,6 +106,7 @@ export async function GET(request: Request) {
     });
 
     const response = NextResponse.redirect(new URL(storedState.returnTo, requestUrl.origin));
+    const sessionTtlSeconds = getAppSessionTtlSeconds();
 
     writeAuthSessionToResponse(response, {
       user: {
@@ -114,9 +115,7 @@ export async function GET(request: Request) {
         name,
       },
       idToken: tokenPayload.id_token ?? null,
-      expiresAt: new Date(
-        Date.now() + Math.max(tokenPayload.expires_in ?? 3600, 300) * 1000,
-      ).toISOString(),
+      expiresAt: new Date(Date.now() + sessionTtlSeconds * 1000).toISOString(),
     });
     clearOauthStateFromResponse(response);
 

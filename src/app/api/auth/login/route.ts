@@ -1,47 +1,34 @@
 import { NextResponse } from 'next/server';
-import {
-  createCodeChallenge,
-  createRandomString,
-  getAuthCallbackUrl,
-  getAuthorizationEndpoint,
-  getKeycloakConfig,
-  writeOauthStateToResponse,
-} from '@/shared/auth';
-
-function sanitizeReturnTo(value: string | null) {
-  if (!value || !value.startsWith('/')) {
-    return '/favorites';
-  }
-
-  if (value.startsWith('//')) {
-    return '/favorites';
-  }
-
-  return value;
-}
+import { writeAuthSessionToResponse } from '@/shared/auth';
+import { KeycloakAuthError, loginWithKeycloakPassword } from '@/shared/auth/keycloak';
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const config = getKeycloakConfig();
-  const state = createRandomString();
-  const codeVerifier = createRandomString(48);
+  return NextResponse.redirect(new URL('/', request.url));
+}
 
-  const authorizationUrl = new URL(getAuthorizationEndpoint());
-  authorizationUrl.searchParams.set('client_id', config.clientId);
-  authorizationUrl.searchParams.set('redirect_uri', getAuthCallbackUrl(url.origin));
-  authorizationUrl.searchParams.set('response_type', 'code');
-  authorizationUrl.searchParams.set('scope', config.scope);
-  authorizationUrl.searchParams.set('state', state);
-  authorizationUrl.searchParams.set('code_challenge', createCodeChallenge(codeVerifier));
-  authorizationUrl.searchParams.set('code_challenge_method', 'S256');
+export async function POST(request: Request) {
+  const body = (await request.json().catch(() => null)) as Partial<{
+    username: string;
+    password: string;
+  }> | null;
+  const username = body?.username?.trim();
+  const password = body?.password;
 
-  const response = NextResponse.redirect(authorizationUrl);
+  if (!username || !password) {
+    return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
+  }
 
-  writeOauthStateToResponse(response, {
-    state,
-    codeVerifier,
-    returnTo: sanitizeReturnTo(url.searchParams.get('returnTo')),
-  });
+  try {
+    const { session, user } = await loginWithKeycloakPassword(username, password);
+    const response = NextResponse.json({ ok: true, user });
+    writeAuthSessionToResponse(response, session);
+    return response;
+  } catch (error) {
+    if (error instanceof KeycloakAuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
 
-  return response;
+    console.error('Failed to sign in with Keycloak', error);
+    return NextResponse.json({ error: 'Failed to sign in' }, { status: 500 });
+  }
 }

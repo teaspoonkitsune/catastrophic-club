@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   clearAuthSessionFromResponse,
-  getAuthSession,
-  getKeycloakConfig,
-  getLogoutEndpoint,
+  clearOauthStateFromResponse,
 } from '@/shared/auth';
 
 function sanitizeReturnTo(value: string | null) {
@@ -20,28 +18,17 @@ function sanitizeReturnTo(value: string | null) {
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
-  const session = await getAuthSession();
   const returnTo = sanitizeReturnTo(requestUrl.searchParams.get('returnTo'));
 
-  if (!session) {
-    const response = NextResponse.redirect(new URL(returnTo, requestUrl.origin));
-    clearAuthSessionFromResponse(response);
-    return response;
-  }
-
-  const config = getKeycloakConfig();
-  const logoutUrl = new URL(getLogoutEndpoint());
-  logoutUrl.searchParams.set('client_id', config.clientId);
-  logoutUrl.searchParams.set(
-    'post_logout_redirect_uri',
-    new URL(returnTo, requestUrl.origin).toString(),
-  );
-
-  if (session.idToken) {
-    logoutUrl.searchParams.set('id_token_hint', session.idToken);
-  }
-
-  const response = NextResponse.redirect(logoutUrl);
+  const response = NextResponse.redirect(new URL(returnTo, requestUrl.origin));
   clearAuthSessionFromResponse(response);
+  clearOauthStateFromResponse(response);
+  return response;
+}
+
+export async function POST() {
+  const response = NextResponse.json({ ok: true });
+  clearAuthSessionFromResponse(response);
+  clearOauthStateFromResponse(response);
   return response;
 }

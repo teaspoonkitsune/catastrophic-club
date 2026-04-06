@@ -20,7 +20,7 @@
       "baseUrl": "http://localhost:3000",
       "secret": "change-me-for-local-dev",
       "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "implicitFlowEnabled": false,
       "redirectUris": [

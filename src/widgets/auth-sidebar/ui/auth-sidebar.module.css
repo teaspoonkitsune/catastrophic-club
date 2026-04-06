@@ -1,0 +1,123 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.input {
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  appearance: none;
+  border: 1px solid var(--paper-rule);
+  padding: 0.7rem 0.9rem;
+  font: inherit;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.secondaryButton {
+  background: color-mix(in srgb, var(--paper-secondary) 16%, var(--paper) 84%);
+  color: var(--paper-ink);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.helperText,
+.loggedInLabel,
+.errorText {
+  margin-top: 0.8rem;
+}
+
+.helperText,
+.loggedInLabel {
+  color: var(--muted);
+}
+
+.errorText {
+  color: var(--danger);
+}
+
+.loggedInBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.loggedInValue {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(14, 10, 28, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  width: min(100%, 30rem);
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--page-shadow);
+  padding: 1rem;
+}
+
+.modalEyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.modalTitle {
+  margin-top: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 800px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}
