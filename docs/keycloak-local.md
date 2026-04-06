@@ -1,6 +1,6 @@
 **Local Keycloak**
 
-Локальный Keycloak для проекта лежит в [infra/keycloak/podman-compose.yml](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/infra/keycloak/podman-compose.yml).
+Локальный Keycloak для проекта лежит в [infra/keycloak/podman-compose.yml](../infra/keycloak/podman-compose.yml).
 
 Канонический локальный сценарий:
 - приложение: `http://localhost:3000`
@@ -8,21 +8,24 @@
 
 Лучше не смешивать `localhost`, `127.0.0.1`, IP из локальной сети и нестандартные порты внутри одного auth-flow.
 
-Что уже подготовлено:
+Что уже подготовлено для встроенного входа:
 - realm `catastrophic-club`
 - client `catastrophic-club-web`
-- secret `change-me-for-local-dev`
+- local-only secret `change-me-for-local-dev`
 - разрешённая регистрация пользователей
+- direct access grants для встроенного логина
+
+Что оставлено в настройках клиента для совместимости:
 - PKCE `S256`
 - redirect URI `http://localhost:3000/api/auth/callback`
 - post logout redirect `http://localhost:3000/*`
 - root/base URL клиента `http://localhost:3000`
 
 Файлы:
-- compose: [podman-compose.yml](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/infra/keycloak/podman-compose.yml)
-- import realm: [catastrophic-club-realm.json](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/infra/keycloak/realm-import/catastrophic-club-realm.json)
-- env для контейнера: [.env.example](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/infra/keycloak/.env.example)
-- env для приложения: [/.env.example](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/.env.example)
+- compose: [podman-compose.yml](../infra/keycloak/podman-compose.yml)
+- import realm: [catastrophic-club-realm.json](../infra/keycloak/realm-import/catastrophic-club-realm.json)
+- env для контейнера: [.env.example](../infra/keycloak/.env.example)
+- env для приложения: [.env.example](../.env.example)
 
 Запуск:
 
@@ -54,27 +57,36 @@ podman run -d \
 http://localhost:8080/admin/
 ```
 
-Логин по умолчанию:
+Локальный логин по умолчанию. Эти значения только для разработки, не для общего окружения:
 - username: `admin`
 - password: `admin`
 
-Для приложения создай `.env.local` в корне проекта на основе [/.env.example](/var/mnt/e8a60d94-d9f4-4b60-9f78-1ce555e004cc/Projects/catastrophic-club/.env.example).
+Для приложения создай `.env` в корне проекта на основе [.env.example](../.env.example).
 
 Минимальный набор:
 
 ```env
 AUTH_SECRET=replace-with-a-long-random-string
+AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
 KEYCLOAK_REALM=catastrophic-club
 KEYCLOAK_CLIENT_ID=catastrophic-club-web
 KEYCLOAK_CLIENT_SECRET=change-me-for-local-dev
+KEYCLOAK_ADMIN_USERNAME=admin
+KEYCLOAK_ADMIN_PASSWORD=admin
+# Optional defaults:
+# KEYCLOAK_SCOPE=openid profile email
+# KEYCLOAK_ADMIN_REALM=master
+# KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
 ```
+
+`KEYCLOAK_ADMIN_USERNAME` и `KEYCLOAK_ADMIN_PASSWORD` выше — локальные значения для контейнера из примера. Для другого окружения их нужно заменить.
 
 Проверка после запуска:
 1. Открой приложение только на `http://localhost:3000`.
-2. Нажми `login` или `register`.
-3. После callback должна появиться cookie `catastrophic_club_session` на `localhost:3000`.
-4. В шапке должно появиться `signed in as ...`.
+2. Войди через форму в сайдбаре или открой регистрацию в модальном окне.
+3. После успешного входа должна появиться cookie `catastrophic_club_session` на `localhost:3000`.
+4. В шапке и панели аккаунта должно появиться имя пользователя.
 
 Если нужно переимпортировать realm с нуля:
 

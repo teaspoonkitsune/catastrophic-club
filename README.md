@@ -7,6 +7,7 @@ The project includes:
 - personal favorites
 - cat battles with score updates
 - a leaderboard based on battle results
+- inline login and registration backed by Keycloak
 
 ## Stack
 
@@ -15,7 +16,7 @@ The project includes:
 - `TypeScript`
 - `PostgreSQL`
 - `Kysely`
-- `Keycloak` for the current auth flow
+- `Keycloak` for authentication
 
 ## Project Structure
 
@@ -56,11 +57,20 @@ Minimum app env values:
 ```env
 DATABASE_URL=postgres://user:password@host:5432/database
 AUTH_SECRET=replace-with-a-long-random-string
+AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
 KEYCLOAK_REALM=catastrophic-club
 KEYCLOAK_CLIENT_ID=catastrophic-club-web
 KEYCLOAK_CLIENT_SECRET=change-me-for-local-dev
+KEYCLOAK_ADMIN_USERNAME=admin
+KEYCLOAK_ADMIN_PASSWORD=admin
+# Optional defaults:
+# KEYCLOAK_SCOPE=openid profile email
+# KEYCLOAK_ADMIN_REALM=master
+# KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
 ```
+
+`DATABASE_URL` must point to a running PostgreSQL database before migrations can run. The repository does not currently include a local PostgreSQL compose file.
 
 ### 4. Start local Keycloak
 
@@ -111,7 +121,9 @@ Use only the example env files in the repository:
 
 ## Auth
 
-The current authentication flow uses Keycloak with route handlers under `src/app/api/auth/*` and an encrypted session cookie in the app.
+Authentication uses Keycloak behind inline login and registration forms. Auth route handlers live under `src/app/api/auth/*`, and the app stores its own encrypted session cookie after a successful Keycloak login.
+
+For local development, the Keycloak client must allow direct access grants. The provided realm import already enables this for `catastrophic-club-web`.
 
 ## Database
 
