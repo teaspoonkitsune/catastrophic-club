@@ -20,6 +20,8 @@ export function BattleLeaderboardTable({
     );
   }
 
+  const galleryItems = cats.map((cat) => cat.imageUrl);
+
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
@@ -42,6 +44,7 @@ export function BattleLeaderboardTable({
                     alt={`Leaderboard cat ${index + 1}`}
                     previewSize="full"
                     previewAspectRatio="4 / 3"
+                    galleryItems={galleryItems}
                   >
                     <ToggleFavoriteButton
                       id={cat.id}

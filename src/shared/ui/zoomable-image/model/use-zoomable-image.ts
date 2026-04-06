@@ -1,14 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+type UseZoomableImageOptions = {
+  src: string;
+  galleryItems?: string[];
+};
 
-const MIN_SCALE = 0.5;
-const MAX_SCALE = 3;
-const SCALE_STEP = 0.1;
-
-export function useZoomableImage() {
+export function useZoomableImage({ src, galleryItems = [] }: UseZoomableImageOptions) {
   const [isOpen, setIsOpen] = useState(false);
-  const [scale, setScale] = useState(1);
+  const items = useMemo(() => {
+    if (galleryItems.length === 0) {
+      return [src];
+    }
+
+    return galleryItems.includes(src) ? galleryItems : [src, ...galleryItems.filter((item) => item !== src)];
+  }, [galleryItems, src]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const hasMultiple = items.length > 1;
+  const currentSrc = items[activeIndex] ?? src;
 
   useEffect(() => {
     if (!isOpen) {
@@ -18,14 +28,25 @@ export function useZoomableImage() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsOpen(false);
-        setScale(1);
+        return;
+      }
+
+      if (hasMultiple && event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setActiveIndex((current) => (current === 0 ? items.length - 1 : current - 1));
+        return;
+      }
+
+      if (hasMultiple && event.key === 'ArrowRight') {
+        event.preventDefault();
+        setActiveIndex((current) => (current === items.length - 1 ? 0 : current + 1));
       }
     }
 
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [hasMultiple, isOpen, items.length]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -42,29 +63,38 @@ export function useZoomableImage() {
   }, [isOpen]);
 
   function open() {
+    const initialIndex = items.indexOf(src);
+    setActiveIndex(initialIndex >= 0 ? initialIndex : 0);
     setIsOpen(true);
   }
 
   function close() {
     setIsOpen(false);
-    setScale(1);
   }
 
-  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
-    event.preventDefault();
+  function showPrevious() {
+    if (!hasMultiple) {
+      return;
+    }
 
-    setScale((current) => {
-      const next = event.deltaY < 0 ? current + SCALE_STEP : current - SCALE_STEP;
+    setActiveIndex((current) => (current === 0 ? items.length - 1 : current - 1));
+  }
 
-      return Math.min(MAX_SCALE, Math.max(MIN_SCALE, next));
-    });
+  function showNext() {
+    if (!hasMultiple) {
+      return;
+    }
+
+    setActiveIndex((current) => (current === items.length - 1 ? 0 : current + 1));
   }
 
   return {
     isOpen,
-    scale,
+    currentSrc,
+    hasMultiple,
     open,
     close,
-    handleWheel,
+    showPrevious,
+    showNext,
   };
 }

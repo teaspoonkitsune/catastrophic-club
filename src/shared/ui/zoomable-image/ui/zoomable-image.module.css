@@ -37,19 +37,106 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  padding: 2rem;
+  background: rgba(10, 7, 16, 0.88);
 }
 
-.canvas {
-  position: relative;
-  width: min(90vw, 900px);
-  height: min(90vh, 900px);
+.viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 80vw;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 24rem);
+}
+
+.closeButton,
+.arrowButton {
+  position: fixed;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(22, 20, 28, 0.78);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  backdrop-filter: blur(10px);
+}
+
+.closeButton:hover,
+.arrowButton:hover,
+.closeButton:hover,
+.arrowButton:focus-visible,
+.closeButton:focus-visible {
+  background: rgba(34, 31, 44, 0.92);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.closeButton {
+  top: 1.25rem;
+  left: 1.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.35rem;
+  text-transform: uppercase;
 }
 
 .fullscreenImage {
+  display: block;
+  width: auto;
+  max-width: 80vw;
+  max-height: 80vh;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 20rem);
+  border: 2px solid var(--paper-rule);
+  border-radius: 0;
+  background: #fff;
   object-fit: contain;
-  border: 1px solid var(--paper-rule);
-  background: var(--paper);
-  transition: transform 0.1s ease-out;
-  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.8));
+}
+
+.arrowButton {
+  top: 50%;
+  width: 3rem;
+  height: 3rem;
+  margin-top: -1.5rem;
+  font-size: 1.3rem;
+}
+
+.arrowLeft {
+  left: 1.25rem;
+}
+
+.arrowRight {
+  right: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .overlay {
+    padding: 1rem;
+  }
+
+  .viewer,
+  .fullscreenImage {
+    max-width: 92vw;
+  }
+
+  .viewer {
+    min-width: min(92vw, 22rem);
+    min-height: min(50vh, 20rem);
+  }
+
+  .fullscreenImage {
+    max-height: 76vh;
+    min-width: min(92vw, 22rem);
+    min-height: min(42vh, 16rem);
+  }
+
+  .arrowButton {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-top: -1.25rem;
+  }
 }

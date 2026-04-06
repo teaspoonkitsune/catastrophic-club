@@ -60,10 +60,13 @@ export function CatBattleArena({
     return <p>Для битвы пока не хватает котиков в базе.</p>;
   }
 
+  const galleryItems = pair.map((cat) => cat.imageUrl);
+
   return (
     <section className={styles.wrapper}>
       <BattleCatCard
         cat={pair[0]}
+        galleryItems={galleryItems}
         onVote={handleVote}
         disabled={isSubmitting}
         isAuthenticated={isAuthenticated}
@@ -71,11 +74,12 @@ export function CatBattleArena({
 
       <div className={styles.versus}>
         <div className={styles.versusBadge}>VS</div>
-        <p className={styles.versusHint}>Позже тут можно поставить картинку.</p>
+        <p className={styles.versusHint}>Выбери котика, который забирает раунд.</p>
       </div>
 
       <BattleCatCard
         cat={pair[1]}
+        galleryItems={galleryItems}
         onVote={handleVote}
         disabled={isSubmitting}
         isAuthenticated={isAuthenticated}
