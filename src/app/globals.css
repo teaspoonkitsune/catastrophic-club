@@ -17,6 +17,7 @@
   --muted: var(--paper-ink-soft);
   --accent: var(--paper-accent);
   --danger: #a22a2a;
+  --z-modal: 10000;
   --page-shadow: 4px 4px 0 var(--panel-shadow-main), -4px -4px 0 var(--panel-shadow-offset);
   --page-gap: 16px;
 }
@@ -128,6 +129,81 @@ body:has(main[data-page-tone='red']) {
   background-position: 0 0, 0 0, 0 0, 22px 22px, 0 0;
 }
 
+@media (max-width: 640px) {
+  body {
+    padding: 14px 8px;
+    background:
+      radial-gradient(circle at 18% 10%, rgba(255, 216, 74, 0.34), transparent 0 24%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.16) 0 3px,
+        transparent 3px 18px
+      ),
+      linear-gradient(180deg, #6c38a1 0%, #2e1259 100%);
+    background-size: auto, 42px 42px, 100% 100%;
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  body:has(main[data-page-tone='purple']) {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255, 216, 74, 0.36), transparent 0 26%),
+      radial-gradient(circle at 88% 82%, rgba(71, 208, 199, 0.24), transparent 0 24%),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, transparent 2px),
+      linear-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 2px),
+      linear-gradient(180deg, #7a38b2 0%, #2e1259 100%);
+    background-size: auto, auto, 34px 34px, 34px 34px, 100% 100%;
+  }
+
+  body:has(main[data-page-tone='blue']) {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(123, 215, 255, 0.36), transparent 0 26%),
+      radial-gradient(circle at 88% 80%, rgba(255, 159, 92, 0.24), transparent 0 24%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.16) 0 4px,
+        transparent 4px 24px
+      ),
+      linear-gradient(180deg, #2f86d8 0%, #123f72 100%);
+    background-size: auto, auto, 48px 48px, 100% 100%;
+  }
+
+  body:has(main[data-page-tone='yellow']) {
+    background:
+      radial-gradient(circle at 20% 12%, rgba(255, 244, 171, 0.45), transparent 0 24%),
+      radial-gradient(circle at 88% 80%, rgba(47, 134, 216, 0.22), transparent 0 24%),
+      repeating-linear-gradient(
+        0deg,
+        rgba(138, 98, 0, 0.18) 0 3px,
+        transparent 3px 28px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(138, 98, 0, 0.14) 0 3px,
+        transparent 3px 28px
+      ),
+      linear-gradient(180deg, #f0cf59 0%, #b98616 100%);
+    background-size: auto, auto, auto, auto, 100% 100%;
+  }
+
+  body:has(main[data-page-tone='red']) {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255, 159, 92, 0.38), transparent 0 26%),
+      radial-gradient(circle at 86% 80%, rgba(71, 208, 199, 0.24), transparent 0 24%),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.14) 0 4px,
+        transparent 4px 22px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.1) 0 4px,
+        transparent 4px 22px
+      ),
+      linear-gradient(180deg, #d55353 0%, #6d1f2d 100%);
+    background-size: auto, auto, 52px 52px, 52px 52px, 100% 100%;
+  }
+}
+
 button {
   font: inherit;
 }
@@ -135,7 +211,7 @@ button {
 main {
   min-height: 100vh;
   position: relative;
-  width: min(100%, 108ch);
+  width: min(100%, 118ch);
   margin: 0 auto;
   padding: 16px;
   display: flex;
@@ -144,7 +220,6 @@ main {
   background: var(--paper);
   color: var(--paper-ink);
   border: 1px solid var(--paper-rule);
-  overflow: clip;
 }
 
 main[data-page-tone='purple'] {
@@ -249,6 +324,10 @@ main::after {
 main > * {
   position: relative;
   z-index: 1;
+}
+
+main > *:has([data-modal-overlay='true']) {
+  z-index: var(--z-modal);
 }
 
 * {

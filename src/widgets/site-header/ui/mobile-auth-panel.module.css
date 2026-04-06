@@ -1,0 +1,193 @@
+.mobileAuth {
+  display: none;
+}
+
+.authButton,
+.authButtonAlt,
+.primaryButton,
+.secondaryButton,
+.closeButton {
+  appearance: none;
+  border: 1px solid var(--paper-rule);
+  font: inherit;
+  cursor: pointer;
+}
+
+.authButton,
+.authButtonAlt {
+  padding: 0.55rem 0.75rem;
+  text-transform: lowercase;
+}
+
+.authButton,
+.primaryButton {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.authButtonAlt,
+.secondaryButton {
+  background: color-mix(in srgb, var(--paper-secondary) 16%, var(--paper) 84%);
+  color: var(--paper-ink);
+}
+
+.accountLabel {
+  flex: 1 1 100%;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(14, 10, 28, 0.68);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  box-sizing: border-box;
+  width: min(100%, 30rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--page-shadow);
+  padding: 1rem;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modalEyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.closeButton {
+  flex: 0 0 auto;
+  width: 2.3rem;
+  height: 2.3rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  text-transform: uppercase;
+}
+
+.modalTitle {
+  margin-top: 0.55rem;
+  margin-bottom: 0.8rem;
+}
+
+.modeTabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 1rem;
+  border: 1px solid var(--paper-rule);
+}
+
+.modeTab {
+  appearance: none;
+  border: 0;
+  background: var(--paper);
+  color: var(--paper-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  text-transform: lowercase;
+}
+
+.modeTab:not(:last-child) {
+  border-right: 1px solid var(--paper-rule);
+}
+
+.modeTab[data-active='true'] {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--paper-rule);
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+}
+
+.errorText {
+  margin: 0;
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  text-transform: lowercase;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+@media (max-width: 800px) {
+  .mobileAuth {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .modal {
+    padding: 0.85rem;
+  }
+
+  .modalTitle {
+    font-size: 1.55rem;
+  }
+
+  .modeTab,
+  .primaryButton,
+  .secondaryButton {
+    padding: 0.62rem 0.65rem;
+  }
+}

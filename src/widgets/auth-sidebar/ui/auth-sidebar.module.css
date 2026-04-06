@@ -1,3 +1,7 @@
+.accountPanel {
+  display: block;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -81,7 +85,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,6 +116,10 @@
 }
 
 @media (max-width: 800px) {
+  .accountPanel {
+    display: none;
+  }
+
   .actions {
     flex-direction: column;
   }

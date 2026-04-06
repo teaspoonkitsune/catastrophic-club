@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { AuthSession } from '@/shared/auth';
+import { MobileAuthPanel } from './mobile-auth-panel';
 import styles from './site-header.module.css';
 
 const navItems = [
@@ -14,7 +15,7 @@ type SiteHeaderProps = {
   currentPath?: string;
 };
 
-export function SiteHeader({}: SiteHeaderProps) {
+export function SiteHeader({ session = null, currentPath = '/' }: SiteHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.brandBlock}>
@@ -30,6 +31,7 @@ export function SiteHeader({}: SiteHeaderProps) {
         <p className={styles.subtitle}>
           Здесь можно посмотреть кота дня, сохранить любимчиков и устроить небольшую битву мордочек.
         </p>
+        <MobileAuthPanel session={session} currentPath={currentPath} />
       </div>
       <nav
         className={styles.nav}

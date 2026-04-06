@@ -27,6 +27,10 @@ async function readError(response: Response, fallback: string) {
   }
 }
 
+function shouldUseSidebarAuth() {
+  return !window.matchMedia('(max-width: 800px)').matches;
+}
+
 export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarProps) {
   const loginInputRef = useRef<HTMLInputElement>(null);
   const [loginValue, setLoginValue] = useState('');
@@ -42,11 +46,19 @@ export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarPr
 
   useEffect(() => {
     function focusLoginField() {
+      if (!shouldUseSidebarAuth()) {
+        return;
+      }
+
       setIsRegisterOpen(false);
       window.setTimeout(() => loginInputRef.current?.focus(), 40);
     }
 
     function openRegisterModal() {
+      if (!shouldUseSidebarAuth()) {
+        return;
+      }
+
       setIsRegisterOpen(true);
     }
 
@@ -168,7 +180,7 @@ export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarPr
     <>
       <section
         id={ACCOUNT_PANEL_ID}
-        className="paper-panel paper-panel-inset"
+        className={`${styles.accountPanel} paper-panel paper-panel-inset`}
       >
         <span className="sidebar-eyebrow">аккаунт</span>
 
@@ -244,6 +256,7 @@ export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarPr
       {isRegisterOpen ? (
         <div
           className={styles.overlay}
+          data-modal-overlay="true"
           role="presentation"
           onClick={() => setIsRegisterOpen(false)}
         >
