@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
+import { ImageViewer } from '@/shared/ui/image-viewer';
 import styles from './favorites-viewer-modal.module.css';
 
 type FavoritesViewerModalProps = {
@@ -73,63 +74,30 @@ export function FavoritesViewerModal({
   }, [hasMultiple, onClose, onNext, onPrevious]);
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="presentation">
-      <button
-        type="button"
-        className={styles.closeButton}
-        onClick={onClose}
-        aria-label="Закрыть просмотр"
-      >
-        x
-      </button>
-
-      <button
-        type="button"
-        className={styles.favoriteButton}
-        onClick={(event) => {
-          event.stopPropagation();
-          onToggleFavorite();
-        }}
-        aria-pressed={isFavorite}
-        aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
-        disabled={isPending}
-      >
-        {isFavorite ? '★' : '☆'}
-      </button>
-
-      {hasMultiple ? (
-        <>
-          <button
-            type="button"
-            className={`${styles.arrowButton} ${styles.arrowLeft}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              onPrevious();
-            }}
-            aria-label="Предыдущее фото"
-          >
-            {'<'}
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.arrowButton} ${styles.arrowRight}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              onNext();
-            }}
-            aria-label="Следующее фото"
-          >
-            {'>'}
-          </button>
-        </>
-      ) : null}
-
-      <div className={styles.viewer} onClick={(event) => event.stopPropagation()}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={cat.imageUrl} alt="Котик из избранного" className={styles.image} />
-        <div className={styles.footer}>{formatAddedAt(cat.addedAt)}</div>
-      </div>
-    </div>
+    <ImageViewer
+      src={cat.imageUrl}
+      alt="Котик из избранного"
+      ariaLabel="Просмотр котика из избранного"
+      hasMultiple={hasMultiple}
+      onClose={onClose}
+      onPrevious={onPrevious}
+      onNext={onNext}
+      footer={formatAddedAt(cat.addedAt)}
+      imageAction={(
+        <button
+          type="button"
+          className={styles.favoriteButton}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite();
+          }}
+          aria-pressed={isFavorite}
+          aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          disabled={isPending}
+        >
+          {isFavorite ? '★' : '☆'}
+        </button>
+      )}
+    />
   );
 }

@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import Image from 'next/image';
+import { ImageViewer } from '@/shared/ui/image-viewer';
 import { useZoomableImage } from '../model/use-zoomable-image';
 import styles from './zoomable-image.module.css';
 
@@ -15,6 +17,7 @@ type ZoomableImageProps = {
   previewObjectFit?: 'cover' | 'contain';
   children?: ReactNode;
   onLoad?: () => void;
+  onOpen?: () => void;
   galleryItems?: string[];
 };
 
@@ -35,21 +38,39 @@ export function ZoomableImage({
   previewObjectFit = 'cover',
   children,
   onLoad,
+  onOpen,
   galleryItems,
 }: ZoomableImageProps) {
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const { isOpen, currentSrc, hasMultiple, open, close, showPrevious, showNext } = useZoomableImage({
     src,
     galleryItems,
   });
+  const isPreviewLoading = loadedSrc !== src;
 
   function handlePreviewLoad() {
+    setLoadedSrc(src);
     onLoad?.();
+  }
+
+  function handlePreviewError() {
+    setLoadedSrc(src);
+  }
+
+  function handlePreviewClick() {
+    if (onOpen) {
+      onOpen();
+      return;
+    }
+
+    open();
   }
 
   return (
     <>
       <div
         className={`${styles.preview} ${previewSizeClassName[previewSize]}`}
+        data-loading={isPreviewLoading ? 'true' : 'false'}
         style={previewAspectRatio ? { aspectRatio: previewAspectRatio } : undefined}
       >
         <Image
@@ -62,64 +83,27 @@ export function ZoomableImage({
             objectFit: previewObjectFit,
             cursor: 'zoom-in',
           }}
-          onClick={open}
+          onClick={handlePreviewClick}
           onLoad={handlePreviewLoad}
+          onError={handlePreviewError}
           sizes="(min-width: 1024px) 25vw, 50vw"
         />
+
+        {isPreviewLoading ? <span className={styles.skeleton} aria-hidden="true" /> : null}
 
         {children}
       </div>
 
-      {isOpen ? (
-        <div className={styles.overlay} onClick={close} role="presentation">
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={close}
-            aria-label="Закрыть просмотр"
-          >
-            x
-          </button>
-
-          {hasMultiple ? (
-            <>
-              <button
-                type="button"
-                className={`${styles.arrowButton} ${styles.arrowLeft}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  showPrevious();
-                }}
-                aria-label="Предыдущее фото"
-              >
-                {'<'}
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.arrowButton} ${styles.arrowRight}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  showNext();
-                }}
-                aria-label="Следующее фото"
-              >
-                {'>'}
-              </button>
-            </>
-          ) : null}
-
-          <div
-            className={styles.viewer}
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label={alt || 'Просмотр изображения'}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={currentSrc} alt={alt} className={styles.fullscreenImage} />
-          </div>
-        </div>
+      {isOpen && !onOpen ? (
+        <ImageViewer
+          src={currentSrc}
+          alt={alt}
+          ariaLabel={alt || 'Просмотр изображения'}
+          hasMultiple={hasMultiple}
+          onClose={close}
+          onPrevious={showPrevious}
+          onNext={showNext}
+        />
       ) : null}
     </>
   );

@@ -14,26 +14,53 @@
   box-shadow: var(--page-shadow);
 }
 
+.imageButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+  text-align: inherit;
+}
+
+.imageButton:focus-visible {
+  outline: 3px solid var(--paper-secondary);
+  outline-offset: 4px;
+}
+
 .image {
+  position: relative;
+  z-index: 0;
   width: 100%;
   height: auto;
   display: block;
   object-fit: cover;
+  transition: opacity 120ms ease-out;
+}
+
+.imageContainer[data-loading='true'] .image {
+  opacity: 0.18;
 }
 
 .skeleton {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
     linear-gradient(
       110deg,
-      rgba(53, 200, 193, 0.08) 8%,
-      color-mix(in srgb, var(--paper-ink) 16%, transparent) 18%,
-      rgba(53, 200, 193, 0.08) 33%
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 8%,
+      color-mix(in srgb, var(--paper-ink) 24%, var(--paper) 76%) 18%,
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 33%
     ),
-    rgba(255, 252, 238, 0.94);
+    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
   background-size: 220% 100%;
   animation: shimmer 1.2s linear infinite;
+  pointer-events: none;
 }
 
 .actions {
@@ -41,6 +68,7 @@
   top: 10px;
   left: 10px;
   right: 10px;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;

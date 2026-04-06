@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
 
@@ -87,6 +88,7 @@ export function FeaturedCatWidget({
   });
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   useEffect(() => {
@@ -98,12 +100,15 @@ export function FeaturedCatWidget({
           id: storedCat.id,
           imageUrl: storedCat.imageUrl,
         });
-        setIsLoadingImage(true);
       }
+
+      setIsLoadingImage(false);
 
       return;
     }
 
+    setCat({ id, imageUrl });
+    setIsLoadingImage(true);
     persistCat({ id, imageUrl });
   }, [id, imageUrl]);
 
@@ -149,19 +154,27 @@ export function FeaturedCatWidget({
 
   return (
     <section className={styles.wrapper}>
-      <div className={styles.imageContainer}>
-        {isLoadingImage ? <div className={styles.skeleton} aria-hidden="true" /> : null}
+      <div className={styles.imageContainer} data-loading={isLoadingImage ? 'true' : 'false'}>
+        <button
+          type="button"
+          className={styles.imageButton}
+          onClick={() => setIsViewerOpen(true)}
+          aria-label="Открыть картинку дня"
+        >
+          <Image
+            key={cat.id}
+            src={cat.imageUrl}
+            alt="Кот дня"
+            width={400}
+            height={400}
+            className={styles.image}
+            onLoad={() => setIsLoadingImage(false)}
+            onError={() => setIsLoadingImage(false)}
+            sizes="(min-width: 1024px) 400px, 90vw"
+          />
 
-        <Image
-          key={cat.id}
-          src={cat.imageUrl}
-          alt="Кот дня"
-          width={400}
-          height={400}
-          className={styles.image}
-          onLoad={() => setIsLoadingImage(false)}
-          sizes="(min-width: 1024px) 400px, 90vw"
-        />
+          {isLoadingImage ? <div className={styles.skeleton} aria-hidden="true" /> : null}
+        </button>
 
         <div className={styles.actions}>
           <button
@@ -194,6 +207,15 @@ export function FeaturedCatWidget({
       ) : null}
 
       <p className={styles.fact}>{fact}</p>
+
+      {isViewerOpen ? (
+        <ImageViewer
+          src={cat.imageUrl}
+          alt="Кот дня"
+          ariaLabel="Просмотр картинки дня"
+          onClose={() => setIsViewerOpen(false)}
+        />
+      ) : null}
     </section>
   );
 }
