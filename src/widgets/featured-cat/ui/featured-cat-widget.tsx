@@ -1,11 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
+
+const HOME_CAT_STORAGE_KEY = 'catastrophic-club:home-cat';
+const HOME_CAT_TTL_MS = 1000 * 60 * 60;
 
 type FeaturedCatWidgetProps = {
   id: string;
@@ -13,6 +16,64 @@ type FeaturedCatWidgetProps = {
   fact: string;
   isAuthenticated?: boolean;
 };
+
+type StoredHomeCat = {
+  id: string;
+  imageUrl: string;
+  savedAt: number;
+};
+
+function readStoredCat(): StoredHomeCat | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(HOME_CAT_STORAGE_KEY);
+
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<StoredHomeCat>;
+
+    if (
+      typeof parsed.id !== 'string'
+      || typeof parsed.imageUrl !== 'string'
+      || typeof parsed.savedAt !== 'number'
+    ) {
+      window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
+      return null;
+    }
+
+    if (Date.now() - parsed.savedAt > HOME_CAT_TTL_MS) {
+      window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
+      return null;
+    }
+
+    return {
+      id: parsed.id,
+      imageUrl: parsed.imageUrl,
+      savedAt: parsed.savedAt,
+    };
+  } catch {
+    window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
+    return null;
+  }
+}
+
+function persistCat(cat: { id: string; imageUrl: string }) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const payload: StoredHomeCat = {
+    ...cat,
+    savedAt: Date.now(),
+  };
+
+  window.localStorage.setItem(HOME_CAT_STORAGE_KEY, JSON.stringify(payload));
+}
 
 export function FeaturedCatWidget({
   id,
@@ -27,6 +88,24 @@ export function FeaturedCatWidget({
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
+
+  useEffect(() => {
+    const storedCat = readStoredCat();
+
+    if (storedCat) {
+      if (storedCat.id !== id || storedCat.imageUrl !== imageUrl) {
+        setCat({
+          id: storedCat.id,
+          imageUrl: storedCat.imageUrl,
+        });
+        setIsLoadingImage(true);
+      }
+
+      return;
+    }
+
+    persistCat({ id, imageUrl });
+  }, [id, imageUrl]);
 
   async function handleRefreshImage() {
     try {
@@ -58,6 +137,7 @@ export function FeaturedCatWidget({
       };
 
       setCat(nextCat);
+      persistCat(nextCat);
     } catch (error) {
       console.error('Failed to refresh cat image', error);
       setErrorStatus(toHttpCatError(error).status);

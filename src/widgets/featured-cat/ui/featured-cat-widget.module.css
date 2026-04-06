@@ -28,7 +28,7 @@
     linear-gradient(
       110deg,
       rgba(53, 200, 193, 0.08) 8%,
-      rgba(74, 35, 122, 0.16) 18%,
+      color-mix(in srgb, var(--paper-ink) 16%, transparent) 18%,
       rgba(53, 200, 193, 0.08) 33%
     ),
     rgba(255, 252, 238, 0.94);
