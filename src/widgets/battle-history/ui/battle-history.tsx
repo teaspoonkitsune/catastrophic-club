@@ -6,10 +6,9 @@ import type {
   BattleHistoryRecord,
 } from '@/entities/battle-cat';
 import { fetchBattleHistoryPage } from '@/entities/battle-cat/api';
-import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import { toHttpCatError } from '@/shared/lib/http-cat';
-import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ImagePreview } from '@/shared/ui/image-preview';
+import { BattleHistoryViewerModal } from './battle-history-viewer-modal';
 import styles from './battle-history.module.css';
 
 const HISTORY_LIMIT = 10;
@@ -28,11 +27,6 @@ type HistoryPairImage = {
   id: string;
   imageUrl: string;
   alt: string;
-};
-
-type ActiveHistoryPair = {
-  images: [HistoryPairImage, HistoryPairImage];
-  activeIndex: number;
 };
 
 function formatBattleDate(value: string) {
@@ -66,7 +60,7 @@ function prependEntries(
   };
 }
 
-function toHistoryPair(entry: BattleHistoryRecord): ActiveHistoryPair['images'] {
+function toHistoryPair(entry: BattleHistoryRecord): HistoryPairImage[] {
   return [
     {
       id: entry.winnerId,
@@ -81,15 +75,8 @@ function toHistoryPair(entry: BattleHistoryRecord): ActiveHistoryPair['images'] 
   ];
 }
 
-function togglePairIndex(pair: ActiveHistoryPair | null) {
-  if (!pair) {
-    return pair;
-  }
-
-  return {
-    ...pair,
-    activeIndex: pair.activeIndex === 0 ? 1 : 0,
-  };
+function toHistoryImages(entries: BattleHistoryRecord[]) {
+  return entries.flatMap(toHistoryPair);
 }
 
 export function BattleHistory({
@@ -105,7 +92,7 @@ export function BattleHistory({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [activePair, setActivePair] = useState<ActiveHistoryPair | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
   const displayedGlobalHistory =
     globalHistory.offset === 0
       ? prependEntries(globalHistory, localEntries)
@@ -116,6 +103,9 @@ export function BattleHistory({
       : privateHistory;
   const currentPage =
     scope === 'global' ? displayedGlobalHistory : displayedPrivateHistory;
+  const currentHistoryImages = currentPage ? toHistoryImages(currentPage.items) : [];
+  const activeHistoryImage =
+    activeImageIndex === null ? null : currentHistoryImages[activeImageIndex] ?? null;
 
   async function loadHistory(nextScope: BattleHistoryScope, nextOffset: number) {
     if (nextScope === 'mine' && !isAuthenticated) {
@@ -172,33 +162,39 @@ export function BattleHistory({
     return () => window.clearInterval(intervalId);
   }, [globalHistory.offset, scope]);
 
-  useEffect(() => {
-    if (!activePair) {
+  function openViewer(entryIndex: number, imageIndex: number) {
+    const nextActiveIndex = entryIndex * 2 + imageIndex;
+
+    if (!currentHistoryImages[nextActiveIndex]) {
       return;
     }
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    setActiveImageIndex(nextActiveIndex);
+  }
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setActivePair(null);
-        return;
+  function closeViewer() {
+    setActiveImageIndex(null);
+  }
+
+  function showPreviousImage() {
+    setActiveImageIndex((current) => {
+      if (current === null || currentHistoryImages.length === 0) {
+        return current;
       }
 
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        event.preventDefault();
-        setActivePair(togglePairIndex);
+      return current === 0 ? currentHistoryImages.length - 1 : current - 1;
+    });
+  }
+
+  function showNextImage() {
+    setActiveImageIndex((current) => {
+      if (current === null || currentHistoryImages.length === 0) {
+        return current;
       }
-    }
 
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activePair]);
+      return current === currentHistoryImages.length - 1 ? 0 : current + 1;
+    });
+  }
 
   return (
     <section className="paper-panel">
@@ -239,7 +235,7 @@ export function BattleHistory({
 
         {currentPage && currentPage.items.length > 0 ? (
           <ol className={styles.list}>
-            {currentPage.items.map((entry) => (
+            {currentPage.items.map((entry, entryIndex) => (
               <li key={entry.id} className={styles.item}>
                 <span className={styles.date}>{formatBattleDate(entry.createdAt)}</span>
                 <span className={styles.matchup}>
@@ -249,12 +245,7 @@ export function BattleHistory({
                     className={styles.catPreview}
                     renderAs="button"
                     sizes="96px"
-                    onOpen={() =>
-                      setActivePair({
-                        activeIndex: 0,
-                        images: toHistoryPair(entry),
-                      })
-                    }
+                    onOpen={() => openViewer(entryIndex, 0)}
                   />
                   <span className={styles.result}>победил</span>
                   <ImagePreview
@@ -263,12 +254,7 @@ export function BattleHistory({
                     className={styles.catPreview}
                     renderAs="button"
                     sizes="96px"
-                    onOpen={() =>
-                      setActivePair({
-                        activeIndex: 1,
-                        images: toHistoryPair(entry),
-                      })
-                    }
+                    onOpen={() => openViewer(entryIndex, 1)}
                   />
                 </span>
               </li>
@@ -314,25 +300,14 @@ export function BattleHistory({
         ) : null}
       </div>
 
-      {activePair ? (
-        <ImageViewer
-          src={activePair.images[activePair.activeIndex].imageUrl}
-          alt={activePair.images[activePair.activeIndex].alt}
-          ariaLabel="Просмотр котика из истории битв"
-          hasMultiple
-          onClose={() => setActivePair(null)}
-          onPrevious={() => setActivePair(togglePairIndex)}
-          onNext={() => setActivePair(togglePairIndex)}
-          imageAction={(
-            <div className={styles.viewerFavorite}>
-              <ToggleFavoriteButton
-                id={activePair.images[activePair.activeIndex].id}
-                imageUrl={activePair.images[activePair.activeIndex].imageUrl}
-                isAuthenticated={isAuthenticated}
-                showOnHover={false}
-              />
-            </div>
-          )}
+      {activeHistoryImage ? (
+        <BattleHistoryViewerModal
+          images={currentHistoryImages}
+          activeIndex={activeImageIndex ?? 0}
+          isAuthenticated={isAuthenticated}
+          onClose={closeViewer}
+          onPrevious={showPreviousImage}
+          onNext={showNextImage}
         />
       ) : null}
     </section>
