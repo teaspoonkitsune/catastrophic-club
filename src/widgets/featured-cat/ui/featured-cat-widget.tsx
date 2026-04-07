@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
-import { ImageViewer } from '@/shared/ui/image-viewer';
+import { ImageViewer, preloadImage } from '@/shared/ui/image-viewer';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
 
@@ -152,13 +152,23 @@ export function FeaturedCatWidget({
     }
   }
 
+  function handleOpenViewer() {
+    preloadImage(cat.imageUrl);
+    setIsViewerOpen(true);
+  }
+
   return (
     <section className={styles.wrapper}>
-      <div className={styles.imageContainer} data-loading={isLoadingImage ? 'true' : 'false'}>
+      <div
+        className={styles.imageContainer}
+        data-loading={isLoadingImage && !isViewerOpen ? 'true' : 'false'}
+      >
         <button
           type="button"
           className={styles.imageButton}
-          onClick={() => setIsViewerOpen(true)}
+          onMouseEnter={() => preloadImage(cat.imageUrl)}
+          onFocus={() => preloadImage(cat.imageUrl)}
+          onClick={handleOpenViewer}
           aria-label="Открыть картинку дня"
         >
           <Image
@@ -173,7 +183,9 @@ export function FeaturedCatWidget({
             sizes="(min-width: 1024px) 400px, 90vw"
           />
 
-          {isLoadingImage ? <div className={styles.skeleton} aria-hidden="true" /> : null}
+          {isLoadingImage && !isViewerOpen ? (
+            <div className={styles.skeleton} aria-hidden="true" />
+          ) : null}
         </button>
 
         <div className={styles.actions}>

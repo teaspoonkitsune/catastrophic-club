@@ -1,0 +1,20 @@
+.preview {
+  border: 1px solid var(--paper-rule);
+  background: rgba(53, 200, 193, 0.08);
+}
+
+.small {
+  max-width: 200px;
+}
+
+.medium {
+  max-width: 300px;
+}
+
+.large {
+  max-width: 400px;
+}
+
+.full {
+  max-width: none;
+}

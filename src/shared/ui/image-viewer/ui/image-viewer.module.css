@@ -43,6 +43,12 @@
   border-radius: 0;
   background: #fff;
   object-fit: contain;
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.image[data-loaded='true'] {
+  opacity: 1;
 }
 
 .imageFrame[data-with-footer='true'] .image {
@@ -102,19 +108,22 @@
 }
 
 .arrowButton {
-  top: 44%;
+  top: auto;
+  bottom: 2rem;
   width: 3rem;
   height: 3rem;
-  margin-top: -1.5rem;
+  margin-top: 0;
   font-size: 1.3rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0.5rem 1.2rem rgba(0, 0, 0, 0.28);
 }
 
 .arrowLeft {
-  left: 1.25rem;
+  left: calc(50% - 3.5rem);
 }
 
 .arrowRight {
-  right: 1.25rem;
+  right: auto;
+  left: calc(50% + 0.5rem);
 }
 
 @media (max-width: 900px) {
@@ -145,12 +154,9 @@
   }
 
   .arrowButton {
-    top: auto;
     bottom: 1.1rem;
     width: 2.5rem;
     height: 2.5rem;
-    margin-top: 0;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0.5rem 1.2rem rgba(0, 0, 0, 0.28);
   }
 
   .arrowLeft {

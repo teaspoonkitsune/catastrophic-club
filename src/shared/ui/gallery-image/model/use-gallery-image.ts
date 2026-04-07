@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-type UseZoomableImageOptions = {
+type UseGalleryImageOptions = {
   src: string;
   galleryItems?: string[];
 };
 
-export function useZoomableImage({ src, galleryItems = [] }: UseZoomableImageOptions) {
+export function useGalleryImage({ src, galleryItems = [] }: UseGalleryImageOptions) {
   const [isOpen, setIsOpen] = useState(false);
   const items = useMemo(() => {
     if (galleryItems.length === 0) {

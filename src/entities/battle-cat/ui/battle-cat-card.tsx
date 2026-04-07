@@ -1,7 +1,7 @@
 'use client';
 
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
-import { ZoomableImage } from '@/shared/ui/zoomable-image';
+import { GalleryImage } from '@/shared/ui/gallery-image';
 import type { BattleCatRecord } from '../model/types';
 import styles from './battle-cat-card.module.css';
 
@@ -24,7 +24,7 @@ export function BattleCatCard({
 }: BattleCatCardProps) {
   return (
     <article className={styles.card}>
-      <ZoomableImage
+      <GalleryImage
         src={cat.imageUrl}
         alt="Котик для битвы"
         previewSize="full"
@@ -36,7 +36,7 @@ export function BattleCatCard({
           imageUrl={cat.imageUrl}
           isAuthenticated={isAuthenticated}
         />
-      </ZoomableImage>
+      </GalleryImage>
 
       <div className={styles.footer}>
         <p className={styles.score}>Очки: {cat.score}</p>

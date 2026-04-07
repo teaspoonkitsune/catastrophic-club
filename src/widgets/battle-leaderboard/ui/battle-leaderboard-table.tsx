@@ -1,6 +1,6 @@
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import type { BattleCatRecord } from '@/entities/battle-cat';
-import { ZoomableImage } from '@/shared/ui/zoomable-image';
+import { GalleryImage } from '@/shared/ui/gallery-image';
 import styles from './battle-leaderboard-table.module.css';
 
 type BattleLeaderboardTableProps = {
@@ -39,7 +39,7 @@ export function BattleLeaderboardTable({
               <td className={styles.rank}>{index + 1}</td>
               <td>
                 <div className={styles.imageCell}>
-                  <ZoomableImage
+                  <GalleryImage
                     src={cat.imageUrl}
                     alt={`Leaderboard cat ${index + 1}`}
                     previewSize="full"
@@ -52,7 +52,7 @@ export function BattleLeaderboardTable({
                       size="sm"
                       isAuthenticated={isAuthenticated}
                     />
-                  </ZoomableImage>
+                  </GalleryImage>
                 </div>
               </td>
               <td>

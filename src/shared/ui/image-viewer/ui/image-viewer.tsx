@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import styles from './image-viewer.module.css';
 
@@ -26,6 +27,9 @@ export function ImageViewer({
   onPrevious,
   onNext,
 }: ImageViewerProps) {
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const isLoaded = loadedSrc === src;
+
   return (
     <div
       className={styles.overlay}
@@ -88,6 +92,9 @@ export function ImageViewer({
               src={src}
               alt={alt}
               className={styles.image}
+              data-loaded={isLoaded ? 'true' : 'false'}
+              onLoad={() => setLoadedSrc(src)}
+              onError={() => setLoadedSrc(src)}
             />
           </div>
 

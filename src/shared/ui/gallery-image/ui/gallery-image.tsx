@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-import Image from 'next/image';
 import { ImageViewer } from '@/shared/ui/image-viewer';
-import { useZoomableImage } from '../model/use-zoomable-image';
-import styles from './zoomable-image.module.css';
+import { ImagePreview } from '@/shared/ui/image-preview';
+import { useGalleryImage } from '../model/use-gallery-image';
+import styles from './gallery-image.module.css';
 
-type ZoomableImageProps = {
+type GalleryImageProps = {
   src: string;
   alt?: string;
   className?: string;
@@ -28,7 +27,7 @@ const previewSizeClassName = {
   full: styles.full,
 };
 
-export function ZoomableImage({
+export function GalleryImage({
   src,
   alt = '',
   className,
@@ -40,22 +39,11 @@ export function ZoomableImage({
   onLoad,
   onOpen,
   galleryItems,
-}: ZoomableImageProps) {
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const { isOpen, currentSrc, hasMultiple, open, close, showPrevious, showNext } = useZoomableImage({
+}: GalleryImageProps) {
+  const { isOpen, currentSrc, hasMultiple, open, close, showPrevious, showNext } = useGalleryImage({
     src,
     galleryItems,
   });
-  const isPreviewLoading = loadedSrc !== src;
-
-  function handlePreviewLoad() {
-    setLoadedSrc(src);
-    onLoad?.();
-  }
-
-  function handlePreviewError() {
-    setLoadedSrc(src);
-  }
 
   function handlePreviewClick() {
     if (onOpen) {
@@ -68,31 +56,19 @@ export function ZoomableImage({
 
   return (
     <>
-      <div
+      <ImagePreview
         className={`${styles.preview} ${previewSizeClassName[previewSize]}`}
-        data-loading={isPreviewLoading ? 'true' : 'false'}
-        style={previewAspectRatio ? { aspectRatio: previewAspectRatio } : undefined}
+        imageClassName={className}
+        imageStyle={style}
+        src={src}
+        alt={alt}
+        aspectRatio={previewAspectRatio}
+        objectFit={previewObjectFit}
+        onOpen={handlePreviewClick}
+        onLoad={onLoad}
       >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          className={className}
-          style={{
-            ...style,
-            objectFit: previewObjectFit,
-            cursor: 'zoom-in',
-          }}
-          onClick={handlePreviewClick}
-          onLoad={handlePreviewLoad}
-          onError={handlePreviewError}
-          sizes="(min-width: 1024px) 25vw, 50vw"
-        />
-
-        {isPreviewLoading ? <span className={styles.skeleton} aria-hidden="true" /> : null}
-
         {children}
-      </div>
+      </ImagePreview>
 
       {isOpen && !onOpen ? (
         <ImageViewer
