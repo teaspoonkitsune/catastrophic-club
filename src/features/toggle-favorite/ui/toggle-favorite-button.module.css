@@ -84,10 +84,12 @@
   top: calc(100% + 10px);
   right: 0;
   z-index: 5;
-  width: min(280px, 70vw);
-  padding: 0.75rem;
+  width: min(240px, 70vw);
+  padding: 0.7rem 0.75rem;
   border: 1px solid var(--paper-rule);
-  background: var(--paper);
+  background:
+    linear-gradient(180deg, var(--panel-glow), transparent),
+    var(--paper);
   box-shadow: var(--page-shadow);
 }
 
@@ -99,31 +101,4 @@
   margin-top: 0.45rem;
   color: var(--muted);
   font-size: 0.95rem;
-}
-
-.authActions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.authLink,
-.authLinkAlt {
-  appearance: none;
-  flex: 1 1 0;
-  border: 1px solid var(--paper-rule);
-  padding: 0.45rem 0.55rem;
-  text-align: center;
-  text-transform: lowercase;
-  font: inherit;
-  cursor: pointer;
-}
-
-.authLink {
-  background: var(--paper-ink);
-  color: var(--paper);
-}
-
-.authLinkAlt {
-  background: rgba(53, 200, 193, 0.15);
 }
