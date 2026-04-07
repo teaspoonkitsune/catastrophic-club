@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
+import { ImagePreview } from '@/shared/ui/image-preview';
 import styles from './favorite-cat-card.module.css';
 
 type FavoriteCatCardProps = {
@@ -11,30 +11,18 @@ type FavoriteCatCardProps = {
 };
 
 export function FavoriteCatCard({ cat, onOpen, isFavorite = true }: FavoriteCatCardProps) {
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const isLoading = loadedSrc !== cat.imageUrl;
-
   return (
-    <button
-      type="button"
+    <ImagePreview
+      renderAs="button"
       className={styles.card}
-      onClick={onOpen}
-      aria-label="Открыть изображение котика"
-      data-favorite={isFavorite ? 'true' : 'false'}
-      data-loading={isLoading ? 'true' : 'false'}
+      imageClassName={styles.image}
+      src={cat.imageUrl}
+      alt="Котик из избранного"
+      onOpen={onOpen}
+      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 33vw, 90vw"
+      rootDataAttributes={{ 'data-favorite': isFavorite ? 'true' : 'false' }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={cat.imageUrl}
-        alt="Котик из избранного"
-        className={styles.image}
-        onLoad={() => setLoadedSrc(cat.imageUrl)}
-        onError={() => setLoadedSrc(cat.imageUrl)}
-      />
-
-      {isLoading ? <span className={styles.skeleton} aria-hidden="true" /> : null}
-
       {!isFavorite ? <span className={styles.badge}>Убрано из избранного</span> : null}
-    </button>
+    </ImagePreview>
   );
 }

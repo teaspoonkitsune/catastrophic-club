@@ -1,0 +1,44 @@
+.preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.preview[data-loading='true'] img {
+  opacity: 0.18;
+}
+
+.preview:hover [data-hover-only='true'],
+.preview:focus-within [data-hover-only='true'] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 8%,
+      color-mix(in srgb, var(--paper-ink) 24%, var(--paper) 76%) 18%,
+      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 33%
+    ),
+    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
+  background-size: 220% 100%;
+  animation: preview-shimmer 1.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes preview-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
