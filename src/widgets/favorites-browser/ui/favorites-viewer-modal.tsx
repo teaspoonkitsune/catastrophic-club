@@ -95,7 +95,7 @@ export function FavoritesViewerModal({
           aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
           disabled={isPending}
         >
-          {isFavorite ? '★' : '☆'}
+          <span aria-hidden="true">{isFavorite ? '★' : '☆'}</span>
         </button>
       )}
     />

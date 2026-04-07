@@ -20,37 +20,56 @@
 }
 
 .button {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--paper-rule);
-  background: var(--paper);
-  color: var(--paper-ink);
-  font-size: 20px;
+  border: 1px solid color-mix(in srgb, var(--paper) 72%, var(--paper-ink) 28%);
+  padding: 0;
+  background: color-mix(in srgb, var(--paper-ink) 76%, transparent);
+  color: var(--paper);
+  box-shadow:
+    0 0.45rem 1.2rem color-mix(in srgb, var(--paper-ink) 34%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--paper) 24%, transparent);
   cursor: pointer;
+  font: inherit;
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1;
+  backdrop-filter: blur(10px);
   transition:
     background 0.12s ease-out,
     color 0.12s ease-out,
-    border-color 0.12s ease-out;
+    border-color 0.12s ease-out,
+    transform 0.12s ease-out;
 }
 
 .small {
-  width: 32px;
-  height: 32px;
-  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  font-size: 1.5rem;
+}
+
+.icon {
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--paper-ink) 55%, transparent));
+  line-height: 0.8;
 }
 
 .button:hover {
-  background: var(--paper-ink);
+  background: color-mix(in srgb, var(--paper-ink) 88%, transparent);
   color: var(--paper);
+  transform: translateY(-1px);
 }
 
 .active {
-  color: var(--paper);
+  color: #fff4a8;
   border-color: var(--paper-accent);
-  background: var(--paper-accent);
+  background: color-mix(in srgb, var(--paper-accent) 78%, var(--paper-ink) 22%);
+}
+
+.active:hover {
+  background: color-mix(in srgb, var(--paper-accent) 88%, var(--paper-ink) 12%);
 }
 
 .errorPopup {

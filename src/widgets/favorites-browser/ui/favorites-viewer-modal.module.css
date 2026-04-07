@@ -5,12 +5,16 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(22, 20, 28, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  padding: 0;
+  background: rgba(12, 10, 16, 0.82);
   color: #fff;
   cursor: pointer;
   font: inherit;
-  font-size: 1.3rem;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0.45rem 1.2rem rgba(0, 0, 0, 0.36);
   backdrop-filter: blur(10px);
 }
 
@@ -21,7 +25,9 @@
 }
 
 .favoriteButton[aria-pressed='true'] {
-  color: var(--paper-accent);
+  color: #fff4a8;
+  border-color: color-mix(in srgb, var(--paper-accent) 70%, #fff 30%);
+  background: color-mix(in srgb, var(--paper-accent) 74%, rgba(12, 10, 16, 0.92) 26%);
 }
 
 .favoriteButton:disabled {

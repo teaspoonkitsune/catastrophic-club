@@ -126,7 +126,9 @@ export function ToggleFavoriteButton({
         disabled={isLoading}
         className={buttonClassName}
       >
-        ★
+        <span className={styles.icon} aria-hidden="true">
+          {isFavorite ? '★' : '☆'}
+        </span>
       </button>
 
       {showAuthPrompt ? (
