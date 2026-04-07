@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { AuthSession } from '@/shared/auth';
 import {
@@ -31,7 +32,9 @@ function shouldUseSidebarAuth() {
   return !window.matchMedia('(max-width: 800px)').matches;
 }
 
-export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarProps) {
+export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
+  const pathname = usePathname();
+  const returnPath = currentPath ?? pathname ?? '/';
   const loginInputRef = useRef<HTMLInputElement>(null);
   const [loginValue, setLoginValue] = useState('');
   const [passwordValue, setPasswordValue] = useState('');
@@ -165,12 +168,7 @@ export function AuthSidebar({ session = null, currentPath = '/' }: AuthSidebarPr
         return;
       }
 
-      if (currentPath) {
-        window.location.href = currentPath;
-        return;
-      }
-
-      window.location.reload();
+      window.location.href = returnPath;
     } catch {
       window.location.reload();
     }

@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 0;
   border: 1px solid var(--paper-rule);
+  border-bottom: 0px;
   background: var(--paper);
 }
 
@@ -79,6 +80,7 @@
 .nav {
   display: flex;
   border-top: 1px solid var(--paper-rule);
+  background: linear-gradient(90deg, var(--paper-ink), var(--intro-gradient-end));
 }
 
 .navLink {
@@ -87,6 +89,7 @@
   text-align: center;
   text-transform: lowercase;
   font-size: 1.05rem;
+  background: var(--paper);
   transition:
     background-color 0.12s ease-out,
     color 0.12s ease-out;
@@ -98,7 +101,7 @@
 
 .navLink:hover,
 .navLink:focus-visible {
-  background: var(--paper-ink);
+  background: transparent;
   color: var(--paper);
 }
 

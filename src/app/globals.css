@@ -37,7 +37,7 @@ body {
   min-height: 100%;
   margin: 0;
   padding: 24px 12px;
-  font-family: var(--font-inconsolata), monospace;
+  font-family: var(--font-mono), monospace;
   font-size: 1.1rem;
   line-height: 1.15;
   color: var(--text);
@@ -84,8 +84,18 @@ body:has(main[data-page-tone='purple']) {
     linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
     linear-gradient(180deg, #7a38b2 0%, #2e1259 100%);
-  background-size: auto, auto, 28px 28px, 28px 28px, 100% 100%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size:
+    auto,
+    auto,
+    28px 28px,
+    28px 28px,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0;
 }
 
 body:has(main[data-page-tone='blue']) {
@@ -95,38 +105,72 @@ body:has(main[data-page-tone='blue']) {
     linear-gradient(135deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
     linear-gradient(225deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
     linear-gradient(180deg, #2f86d8 0%, #123f72 100%);
-  background-size: auto, auto, 36px 36px, 36px 36px, 100% 100%;
-  background-position: 0 0, 0 0, 0 0, 18px 18px, 0 0;
+  background-size:
+    auto,
+    auto,
+    36px 36px,
+    36px 36px,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    18px 18px,
+    0 0;
 }
 
 body:has(main[data-page-tone='yellow']) {
   background:
     radial-gradient(circle at 14% 20%, rgba(255, 244, 171, 0.24), transparent 0 15%),
     radial-gradient(circle at 82% 10%, rgba(241, 194, 50, 0.18), transparent 0 16%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(138, 98, 0, 0.08) 0 2px,
-      transparent 2px 22px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(138, 98, 0, 0.06) 0 2px,
-      transparent 2px 22px
-    ),
+    repeating-linear-gradient(0deg, rgba(138, 98, 0, 0.08) 0 2px, transparent 2px 22px),
+    repeating-linear-gradient(90deg, rgba(138, 98, 0, 0.06) 0 2px, transparent 2px 22px),
     linear-gradient(180deg, #f0cf59 0%, #b98616 100%);
-  background-size: auto, auto, auto, auto, 100% 100%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size:
+    auto,
+    auto,
+    auto,
+    auto,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0;
 }
 
 body:has(main[data-page-tone='red']) {
   background:
     radial-gradient(circle at 18% 16%, rgba(255, 159, 92, 0.24), transparent 0 15%),
     radial-gradient(circle at 82% 12%, rgba(255, 111, 97, 0.16), transparent 0 17%),
-    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 12.5%, transparent 12.5% 50%, rgba(255, 255, 255, 0.05) 50% 62.5%, transparent 62.5%),
-    linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 12.5%, transparent 12.5% 50%, rgba(255, 255, 255, 0.04) 50% 62.5%, transparent 62.5%),
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.05) 12.5%,
+      transparent 12.5% 50%,
+      rgba(255, 255, 255, 0.05) 50% 62.5%,
+      transparent 62.5%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.04) 12.5%,
+      transparent 12.5% 50%,
+      rgba(255, 255, 255, 0.04) 50% 62.5%,
+      transparent 62.5%
+    ),
     linear-gradient(180deg, #d55353 0%, #6d1f2d 100%);
-  background-size: auto, auto, 44px 44px, 44px 44px, 100% 100%;
-  background-position: 0 0, 0 0, 0 0, 22px 22px, 0 0;
+  background-size:
+    auto,
+    auto,
+    44px 44px,
+    44px 44px,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    22px 22px,
+    0 0;
 }
 
 @media (max-width: 640px) {
@@ -134,14 +178,16 @@ body:has(main[data-page-tone='red']) {
     padding: 14px 8px;
     background:
       radial-gradient(circle at 18% 10%, rgba(255, 216, 74, 0.34), transparent 0 24%),
-      repeating-linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.16) 0 3px,
-        transparent 3px 18px
-      ),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0 3px, transparent 3px 18px),
       linear-gradient(180deg, #6c38a1 0%, #2e1259 100%);
-    background-size: auto, 42px 42px, 100% 100%;
-    background-position: 0 0, 0 0, 0 0;
+    background-size:
+      auto,
+      42px 42px,
+      100% 100%;
+    background-position:
+      0 0,
+      0 0,
+      0 0;
   }
 
   body:has(main[data-page-tone='purple']) {
@@ -151,56 +197,55 @@ body:has(main[data-page-tone='red']) {
       linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, transparent 2px),
       linear-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 2px),
       linear-gradient(180deg, #7a38b2 0%, #2e1259 100%);
-    background-size: auto, auto, 34px 34px, 34px 34px, 100% 100%;
+    background-size:
+      auto,
+      auto,
+      34px 34px,
+      34px 34px,
+      100% 100%;
   }
 
   body:has(main[data-page-tone='blue']) {
     background:
       radial-gradient(circle at 18% 12%, rgba(123, 215, 255, 0.36), transparent 0 26%),
       radial-gradient(circle at 88% 80%, rgba(255, 159, 92, 0.24), transparent 0 24%),
-      repeating-linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.16) 0 4px,
-        transparent 4px 24px
-      ),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0 4px, transparent 4px 24px),
       linear-gradient(180deg, #2f86d8 0%, #123f72 100%);
-    background-size: auto, auto, 48px 48px, 100% 100%;
+    background-size:
+      auto,
+      auto,
+      48px 48px,
+      100% 100%;
   }
 
   body:has(main[data-page-tone='yellow']) {
     background:
       radial-gradient(circle at 20% 12%, rgba(255, 244, 171, 0.45), transparent 0 24%),
       radial-gradient(circle at 88% 80%, rgba(47, 134, 216, 0.22), transparent 0 24%),
-      repeating-linear-gradient(
-        0deg,
-        rgba(138, 98, 0, 0.18) 0 3px,
-        transparent 3px 28px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(138, 98, 0, 0.14) 0 3px,
-        transparent 3px 28px
-      ),
+      repeating-linear-gradient(0deg, rgba(138, 98, 0, 0.18) 0 3px, transparent 3px 28px),
+      repeating-linear-gradient(90deg, rgba(138, 98, 0, 0.14) 0 3px, transparent 3px 28px),
       linear-gradient(180deg, #f0cf59 0%, #b98616 100%);
-    background-size: auto, auto, auto, auto, 100% 100%;
+    background-size:
+      auto,
+      auto,
+      auto,
+      auto,
+      100% 100%;
   }
 
   body:has(main[data-page-tone='red']) {
     background:
       radial-gradient(circle at 18% 12%, rgba(255, 159, 92, 0.38), transparent 0 26%),
       radial-gradient(circle at 86% 80%, rgba(71, 208, 199, 0.24), transparent 0 24%),
-      repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.14) 0 4px,
-        transparent 4px 22px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        rgba(255, 255, 255, 0.1) 0 4px,
-        transparent 4px 22px
-      ),
+      repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 4px, transparent 4px 22px),
+      repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.1) 0 4px, transparent 4px 22px),
       linear-gradient(180deg, #d55353 0%, #6d1f2d 100%);
-    background-size: auto, auto, 52px 52px, 52px 52px, 100% 100%;
+    background-size:
+      auto,
+      auto,
+      52px 52px,
+      52px 52px,
+      100% 100%;
   }
 }
 
@@ -335,9 +380,10 @@ p {
 .page-intro {
   margin-top: calc(-1 * var(--page-gap));
   padding: 1rem;
-  background: linear-gradient(135deg, var(--paper-ink), var(--intro-gradient-end));
+  background: linear-gradient(90deg, var(--paper-ink), var(--intro-gradient-end));
   color: var(--paper);
   border: 1px solid var(--paper-rule);
+  border-top: 0px;
 }
 
 .page-intro p {
@@ -378,7 +424,12 @@ p {
   padding: 0.55rem 0.75rem;
   border-bottom: 1px solid var(--paper-rule);
   background:
-    linear-gradient(180deg, var(--panel-glow), color-mix(in srgb, var(--paper-ink) 4%, transparent)), var(--paper-strong);
+    linear-gradient(
+      180deg,
+      var(--panel-glow),
+      color-mix(in srgb, var(--paper-ink) 4%, transparent)
+    ),
+    var(--paper-strong);
 }
 
 .panel-header p {

@@ -1,10 +1,8 @@
 import { getBattleHistoryPage, getBattlePair } from '@/entities/battle-cat/api/repository';
 import type { BattleCatRecord } from '@/entities/battle-cat';
 import { getAuthSession } from '@/shared/auth';
-import { AuthSidebar } from '@/widgets/auth-sidebar';
 import { BattlesWorkspace } from '@/widgets/battles-workspace';
-import { SiteFooter } from '@/widgets/site-footer';
-import { SiteHeader } from '@/widgets/site-header';
+import { SitePageGrid } from '@/widgets/site-layout';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,8 +19,7 @@ export default async function Page() {
     : null;
 
   return (
-    <main data-page-tone="red">
-      <SiteHeader session={session} currentPath="/battles" />
+    <>
       <section className="page-intro">
         <h1>Битвы котиков</h1>
         <p>
@@ -31,19 +28,9 @@ export default async function Page() {
         </p>
       </section>
 
-      <div className="page-grid">
-        <div className="page-main-column">
-          <BattlesWorkspace
-            initialPair={initialPair}
-            initialGlobalHistory={initialGlobalHistory}
-            initialPrivateHistory={initialPrivateHistory}
-            isAuthenticated={Boolean(session)}
-          />
-        </div>
-
-        <aside className="page-sidebar">
-          <AuthSidebar session={session} currentPath="/battles" />
-
+      <SitePageGrid
+        session={session}
+        sidebar={(
           <section className="paper-panel paper-panel-inset">
             <span className="sidebar-eyebrow">правила</span>
             <ul className="sidebar-list">
@@ -52,10 +39,15 @@ export default async function Page() {
               <li>Звезда на карточке сразу отправляет бойца в избранное.</li>
             </ul>
           </section>
-        </aside>
-      </div>
-
-      <SiteFooter />
-    </main>
+        )}
+      >
+        <BattlesWorkspace
+          initialPair={initialPair}
+          initialGlobalHistory={initialGlobalHistory}
+          initialPrivateHistory={initialPrivateHistory}
+          isAuthenticated={Boolean(session)}
+        />
+      </SitePageGrid>
+    </>
   );
 }

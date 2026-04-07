@@ -15,7 +15,7 @@ type SiteHeaderProps = {
   currentPath?: string;
 };
 
-export function SiteHeader({ session = null, currentPath = '/' }: SiteHeaderProps) {
+export function SiteHeader({ session = null, currentPath }: SiteHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.brandBlock}>

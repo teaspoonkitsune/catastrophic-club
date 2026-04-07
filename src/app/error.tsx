@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main>
+    <section className="paper-panel paper-panel-inset">
       <HttpCatErrorState
         status={500}
         title="Что-то пошло не так"
@@ -23,6 +23,6 @@ export default function Error({
         actionLabel="Повторить"
         onAction={() => unstable_retry()}
       />
-    </main>
+    </section>
   );
 }

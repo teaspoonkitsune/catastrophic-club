@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { AuthSession } from '@/shared/auth';
 import { FOCUS_INLINE_LOGIN_EVENT, OPEN_INLINE_REGISTER_EVENT } from '@/shared/auth/client-events';
@@ -29,7 +30,9 @@ function isMobileViewport() {
   return window.matchMedia('(max-width: 800px)').matches;
 }
 
-export function MobileAuthPanel({ session = null, currentPath = '/' }: MobileAuthPanelProps) {
+export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanelProps) {
+  const pathname = usePathname();
+  const returnPath = currentPath ?? pathname ?? '/';
   const [mode, setMode] = useState<AuthMode>('login');
   const [isOpen, setIsOpen] = useState(false);
   const [loginValue, setLoginValue] = useState('');
@@ -165,7 +168,7 @@ export function MobileAuthPanel({ session = null, currentPath = '/' }: MobileAut
         return;
       }
 
-      window.location.href = currentPath || '/';
+      window.location.href = returnPath;
     } catch {
       window.location.reload();
     }

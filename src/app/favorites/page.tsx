@@ -2,10 +2,8 @@ import { getFavoriteCats } from '@/entities/favorite-cat/api/repository';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
 import { InlineAuthActions } from '@/shared/auth/inline-auth-actions';
 import { getAuthSession } from '@/shared/auth';
-import { AuthSidebar } from '@/widgets/auth-sidebar';
 import { FavoritesBrowser } from '@/widgets/favorites-browser';
-import { SiteFooter } from '@/widgets/site-footer';
-import { SiteHeader } from '@/widgets/site-header';
+import { SitePageGrid } from '@/widgets/site-layout';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +16,7 @@ export default async function Page() {
   })) : [];
 
   return (
-    <main data-page-tone="yellow">
-      <SiteHeader session={session} currentPath="/favorites" />
+    <>
       <section className="page-intro">
         <h1>Избранное</h1>
         <p>
@@ -28,55 +25,52 @@ export default async function Page() {
         </p>
       </section>
 
-      <div className="page-grid">
-        <div className="page-main-column">
-          <section className="paper-panel">
-            <div className="panel-header">
-              <h2>Мои котики</h2>
-              <p>{session ? `Сохранено: ${cats.length}` : 'Нужно войти в аккаунт'}</p>
-            </div>
-            <div className="page-copy">
-              {session ? (
-                <FavoritesBrowser initialCats={cats} />
-              ) : (
-                <div className="auth-gate">
-                  <p>
-                    Полка избранного теперь привязана к аккаунту. Войди или зарегистрируйся
-                    в клубе, и у тебя появится личная коллекция котиков.
-                  </p>
-                  <InlineAuthActions
-                    className="auth-gate-actions"
-                    loginClassName="auth-gate-primary"
-                    registerClassName="auth-gate-secondary"
-                  />
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
+      <SitePageGrid
+        session={session}
+        sidebar={(
+          <>
+            <section className="paper-panel paper-panel-inset">
+              <span className="sidebar-eyebrow">подсказка</span>
+              <ul className="sidebar-list">
+                <li>Картинки удобно смотреть крупно и листать по соседству.</li>
+                <li>На самой полке остаются только фотографии, без лишних кнопок.</li>
+                <li>Если убрать котика из избранного, он исчезнет после обновления страницы.</li>
+              </ul>
+            </section>
 
-        <aside className="page-sidebar">
-          <AuthSidebar session={session} currentPath="/favorites" />
-
-          <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">подсказка</span>
-            <ul className="sidebar-list">
-              <li>Картинки удобно смотреть крупно и листать по соседству.</li>
-              <li>На самой полке остаются только фотографии, без лишних кнопок.</li>
-              <li>Если убрать котика из избранного, он исчезнет после обновления страницы.</li>
-            </ul>
-          </section>
-
-          <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">порядок</span>
-            <div className="page-copy">
-              <p>Новые сохранённые котики появляются выше остальных.</p>
-            </div>
-          </section>
-        </aside>
-      </div>
-
-      <SiteFooter />
-    </main>
+            <section className="paper-panel paper-panel-inset">
+              <span className="sidebar-eyebrow">порядок</span>
+              <div className="page-copy">
+                <p>Новые сохранённые котики появляются выше остальных.</p>
+              </div>
+            </section>
+          </>
+        )}
+      >
+        <section className="paper-panel">
+          <div className="panel-header">
+            <h2>Мои котики</h2>
+            <p>{session ? `Сохранено: ${cats.length}` : 'Нужно войти в аккаунт'}</p>
+          </div>
+          <div className="page-copy">
+            {session ? (
+              <FavoritesBrowser initialCats={cats} />
+            ) : (
+              <div className="auth-gate">
+                <p>
+                  Полка избранного теперь привязана к аккаунту. Войди или зарегистрируйся
+                  в клубе, и у тебя появится личная коллекция котиков.
+                </p>
+                <InlineAuthActions
+                  className="auth-gate-actions"
+                  loginClassName="auth-gate-primary"
+                  registerClassName="auth-gate-secondary"
+                />
+              </div>
+            )}
+          </div>
+        </section>
+      </SitePageGrid>
+    </>
   );
 }
