@@ -137,7 +137,6 @@ export function CatBattleArena({
 
         <div className={styles.versus}>
           <div className={styles.versusBadge}>VS</div>
-          <p className={styles.versusHint}>Выбери котика, который забирает раунд.</p>
         </div>
 
         <BattleCatCard

@@ -65,16 +65,18 @@
 }
 
 .catPreview {
-  position: relative;
-  width: 3rem;
-  height: 3rem;
-  overflow: hidden;
+  appearance: none;
+  width: 5rem;
+  height: 5rem;
   border: 1px solid var(--paper-rule);
+  padding: 0;
   background: var(--paper);
+  cursor: pointer;
 }
 
-.catPreview img {
-  object-fit: cover;
+.catPreview:hover,
+.catPreview:focus-visible {
+  border-color: var(--paper-ink);
 }
 
 .result {
@@ -85,9 +87,20 @@
   color: var(--muted);
 }
 
+.viewerFavorite {
+  position: relative;
+  width: 42px;
+  height: 42px;
+}
+
 @media (max-width: 640px) {
   .item {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .catPreview {
+    width: 4.2rem;
+    height: 4.2rem;
   }
 }

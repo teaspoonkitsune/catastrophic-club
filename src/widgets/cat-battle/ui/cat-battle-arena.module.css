@@ -10,14 +10,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  min-width: 132px;
-  padding-top: 6rem;
+  min-width: 82px;
+  padding-top: 7rem;
 }
 
 .versusBadge {
-  width: 108px;
-  height: 108px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,17 +26,9 @@
     var(--paper);
   color: var(--paper-ink);
   box-shadow: var(--page-shadow);
-  font-size: 2.1rem;
+  font-size: 1.45rem;
   font-weight: 700;
   letter-spacing: 0.14em;
-}
-
-.versusHint {
-  max-width: 120px;
-  text-align: center;
-  font-size: 0.88rem;
-  line-height: 1.2;
-  color: var(--muted);
 }
 
 @media (max-width: 900px) {

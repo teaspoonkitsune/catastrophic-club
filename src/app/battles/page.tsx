@@ -52,13 +52,6 @@ export default async function Page() {
               <li>Звезда на карточке сразу отправляет бойца в избранное.</li>
             </ul>
           </section>
-
-          <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">что происходит</span>
-            <div className="page-copy">
-              <p>Если котиков в базе мало, система сама подгрузит новых перед следующей битвой.</p>
-            </div>
-          </section>
         </aside>
       </div>
 

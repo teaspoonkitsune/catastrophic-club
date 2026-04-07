@@ -1,10 +1,15 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import type { BattleHistoryPage, BattleHistoryRecord } from '@/entities/battle-cat';
+import type {
+  BattleHistoryPage,
+  BattleHistoryRecord,
+} from '@/entities/battle-cat';
 import { fetchBattleHistoryPage } from '@/entities/battle-cat/api';
+import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import { toHttpCatError } from '@/shared/lib/http-cat';
+import { ImageViewer } from '@/shared/ui/image-viewer';
+import { ImagePreview } from '@/shared/ui/image-preview';
 import styles from './battle-history.module.css';
 
 const HISTORY_LIMIT = 10;
@@ -17,6 +22,17 @@ type BattleHistoryProps = {
   initialPrivateHistory: BattleHistoryPage | null;
   isAuthenticated: boolean;
   localEntries: BattleHistoryRecord[];
+};
+
+type HistoryPairImage = {
+  id: string;
+  imageUrl: string;
+  alt: string;
+};
+
+type ActiveHistoryPair = {
+  images: [HistoryPairImage, HistoryPairImage];
+  activeIndex: number;
 };
 
 function formatBattleDate(value: string) {
@@ -49,6 +65,32 @@ function prependEntries(
   };
 }
 
+function toHistoryPair(entry: BattleHistoryRecord): ActiveHistoryPair['images'] {
+  return [
+    {
+      id: entry.winnerId,
+      imageUrl: entry.winnerImageUrl,
+      alt: 'Победитель битвы',
+    },
+    {
+      id: entry.loserId,
+      imageUrl: entry.loserImageUrl,
+      alt: 'Проигравший битвы',
+    },
+  ];
+}
+
+function togglePairIndex(pair: ActiveHistoryPair | null) {
+  if (!pair) {
+    return pair;
+  }
+
+  return {
+    ...pair,
+    activeIndex: pair.activeIndex === 0 ? 1 : 0,
+  };
+}
+
 export function BattleHistory({
   initialGlobalHistory,
   initialPrivateHistory,
@@ -62,6 +104,7 @@ export function BattleHistory({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const [activePair, setActivePair] = useState<ActiveHistoryPair | null>(null);
   const displayedGlobalHistory =
     globalHistory.offset === 0
       ? prependEntries(globalHistory, localEntries)
@@ -127,6 +170,34 @@ export function BattleHistory({
     return () => window.clearInterval(intervalId);
   }, [globalHistory.offset, scope]);
 
+  useEffect(() => {
+    if (!activePair) {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setActivePair(null);
+        return;
+      }
+
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        setActivePair(togglePairIndex);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activePair]);
+
   return (
     <section className="paper-panel">
       <div className="panel-header">
@@ -170,13 +241,33 @@ export function BattleHistory({
               <li key={entry.id} className={styles.item}>
                 <span className={styles.date}>{formatBattleDate(entry.createdAt)}</span>
                 <span className={styles.matchup}>
-                  <span className={styles.catPreview}>
-                    <Image src={entry.winnerImageUrl} alt="Победитель" fill sizes="64px" />
-                  </span>
+                  <ImagePreview
+                    src={entry.winnerImageUrl}
+                    alt="Победитель"
+                    className={styles.catPreview}
+                    renderAs="button"
+                    sizes="96px"
+                    onOpen={() =>
+                      setActivePair({
+                        activeIndex: 0,
+                        images: toHistoryPair(entry),
+                      })
+                    }
+                  />
                   <span className={styles.result}>победил</span>
-                  <span className={styles.catPreview}>
-                    <Image src={entry.loserImageUrl} alt="Проигравший" fill sizes="64px" />
-                  </span>
+                  <ImagePreview
+                    src={entry.loserImageUrl}
+                    alt="Проигравший"
+                    className={styles.catPreview}
+                    renderAs="button"
+                    sizes="96px"
+                    onOpen={() =>
+                      setActivePair({
+                        activeIndex: 1,
+                        images: toHistoryPair(entry),
+                      })
+                    }
+                  />
                 </span>
               </li>
             ))}
@@ -220,6 +311,28 @@ export function BattleHistory({
           </div>
         ) : null}
       </div>
+
+      {activePair ? (
+        <ImageViewer
+          src={activePair.images[activePair.activeIndex].imageUrl}
+          alt={activePair.images[activePair.activeIndex].alt}
+          ariaLabel="Просмотр котика из истории битв"
+          hasMultiple
+          onClose={() => setActivePair(null)}
+          onPrevious={() => setActivePair(togglePairIndex)}
+          onNext={() => setActivePair(togglePairIndex)}
+          imageAction={(
+            <div className={styles.viewerFavorite}>
+              <ToggleFavoriteButton
+                id={activePair.images[activePair.activeIndex].id}
+                imageUrl={activePair.images[activePair.activeIndex].imageUrl}
+                isAuthenticated={isAuthenticated}
+                showOnHover={false}
+              />
+            </div>
+          )}
+        />
+      ) : null}
     </section>
   );
 }
