@@ -290,37 +290,6 @@ main[data-page-tone='red'] {
   --page-shadow: 4px 4px 0 rgba(213, 83, 83, 0.34), -4px -4px 0 rgba(71, 208, 199, 0.28);
 }
 
-main::before,
-main::after {
-  content: 'CATastrophic club';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 2.5rem;
-  padding-top: 2rem;
-  writing-mode: vertical-rl;
-  text-transform: lowercase;
-  letter-spacing: 0.35rem;
-  font-size: 3.8rem;
-  font-weight: 700;
-  color: color-mix(in srgb, var(--paper-ink) 12%, transparent);
-  pointer-events: none;
-  user-select: none;
-}
-
-main::before {
-  left: 0;
-}
-
-main::after {
-  right: 0;
-  transform: rotate(180deg);
-}
-
 main > * {
   position: relative;
   z-index: 1;
@@ -544,11 +513,6 @@ p {
     min-height: 100dvh;
     padding: 12px;
     box-shadow: none;
-  }
-
-  main::before,
-  main::after {
-    display: none;
   }
 
   .page-grid {
