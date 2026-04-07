@@ -1,7 +1,34 @@
+import { randomUUID } from 'node:crypto';
 import { sql } from 'kysely';
 import { getRandomCatImage } from '@/entities/cat';
 import { db, ensureDatabaseMigrated } from '@/shared/api';
-import type { BattleCat, BattleResultInput } from '../model/types';
+import type {
+  BattleCat,
+  BattleHistoryPage,
+  BattleHistoryRecord,
+  BattleResultInput,
+} from '../model/types';
+
+const BATTLE_HISTORY_LIMIT = 10;
+const BATTLE_HISTORY_MAX_OFFSET = 10_000;
+
+function toBattleHistoryRecord(entry: {
+  id: string;
+  winnerId: string;
+  winnerImageUrl: string;
+  loserId: string;
+  loserImageUrl: string;
+  createdAt: Date;
+}): BattleHistoryRecord {
+  return {
+    id: entry.id,
+    winnerId: entry.winnerId,
+    winnerImageUrl: entry.winnerImageUrl,
+    loserId: entry.loserId,
+    loserImageUrl: entry.loserImageUrl,
+    createdAt: entry.createdAt.toISOString(),
+  };
+}
 
 async function createBattleCat(): Promise<void> {
   const cat = await getRandomCatImage();
@@ -73,10 +100,22 @@ export async function getBattleLeaderboard(): Promise<BattleCat[]> {
 
 export async function recordBattleResult(
   input: BattleResultInput,
-): Promise<void> {
+): Promise<BattleHistoryRecord> {
   await ensureDatabaseMigrated();
 
-  await db.transaction().execute(async (trx) => {
+  return db.transaction().execute(async (trx) => {
+    const cats = await trx
+      .selectFrom('battle_cats')
+      .select(['id', 'imageUrl'])
+      .where('id', 'in', [input.winnerId, input.loserId])
+      .execute();
+    const winner = cats.find((cat) => cat.id === input.winnerId);
+    const loser = cats.find((cat) => cat.id === input.loserId);
+
+    if (!winner || !loser) {
+      throw new Error('Battle result references unknown cats');
+    }
+
     await trx
       .updateTable('battle_cats')
       .set({
@@ -92,5 +131,60 @@ export async function recordBattleResult(
       })
       .where('id', '=', input.loserId)
       .execute();
+
+    const createdAt = new Date();
+    const historyEntry = {
+      id: randomUUID(),
+      userId: input.userId,
+      winnerId: winner.id,
+      winnerImageUrl: winner.imageUrl,
+      loserId: loser.id,
+      loserImageUrl: loser.imageUrl,
+      createdAt,
+    };
+
+    await trx
+      .insertInto('battle_history')
+      .values(historyEntry)
+      .execute();
+
+    return toBattleHistoryRecord(historyEntry);
   });
+}
+
+export async function getBattleHistoryPage({
+  userId,
+  offset = 0,
+  limit = BATTLE_HISTORY_LIMIT,
+}: {
+  userId?: string;
+  offset?: number;
+  limit?: number;
+} = {}): Promise<BattleHistoryPage> {
+  await ensureDatabaseMigrated();
+
+  const safeLimit = Math.min(Math.max(1, limit), BATTLE_HISTORY_LIMIT);
+  const safeOffset = Math.min(Math.max(0, offset), BATTLE_HISTORY_MAX_OFFSET);
+  const rows = await db
+    .selectFrom('battle_history')
+    .select([
+      'id',
+      'winnerId',
+      'winnerImageUrl',
+      'loserId',
+      'loserImageUrl',
+      'createdAt',
+    ])
+    .$if(Boolean(userId), (query) => query.where('userId', '=', userId ?? ''))
+    .orderBy('createdAt', 'desc')
+    .offset(safeOffset)
+    .limit(safeLimit + 1)
+    .execute();
+
+  return {
+    items: rows.slice(0, safeLimit).map(toBattleHistoryRecord),
+    hasNext: rows.length > safeLimit,
+    offset: safeOffset,
+    limit: safeLimit,
+  };
 }

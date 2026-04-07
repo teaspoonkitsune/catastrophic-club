@@ -1,1 +1,1 @@
-export { fetchBattlePair, submitBattleResult } from './client';
+export { fetchBattleHistoryPage, fetchBattlePair, submitBattleResult } from './client';

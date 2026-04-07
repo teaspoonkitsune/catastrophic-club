@@ -1,11 +1,19 @@
 'use client';
 
 import { HttpCatError, type HttpCatErrorPayload } from '@/shared/lib/http-cat';
-import type { BattleCatRecord, BattleResultInput } from '../model/types';
+import type {
+  BattleCatRecord,
+  BattleHistoryPage,
+  BattleHistoryRecord,
+  BattleResultInput,
+} from '../model/types';
 
 type BattlePairResponse = {
   pair: BattleCatRecord[];
+  historyEntry?: BattleHistoryRecord;
 };
+
+type BattleHistoryScope = 'global' | 'mine';
 
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -28,8 +36,8 @@ export async function fetchBattlePair(): Promise<BattleCatRecord[]> {
 }
 
 export async function submitBattleResult(
-  input: BattleResultInput,
-): Promise<BattleCatRecord[]> {
+  input: Omit<BattleResultInput, 'userId'>,
+): Promise<BattlePairResponse> {
   const response = await fetch('/api/battles', {
     method: 'POST',
     headers: {
@@ -39,5 +47,26 @@ export async function submitBattleResult(
   });
 
   const data = await parseJson<BattlePairResponse>(response);
-  return data.pair;
+  return data;
+}
+
+export async function fetchBattleHistoryPage({
+  scope,
+  offset,
+  limit = 10,
+}: {
+  scope: BattleHistoryScope;
+  offset: number;
+  limit?: number;
+}): Promise<BattleHistoryPage> {
+  const params = new URLSearchParams({
+    scope,
+    offset: String(Math.max(0, offset)),
+    limit: String(limit),
+  });
+  const response = await fetch(`/api/battles/history?${params.toString()}`, {
+    cache: 'no-store',
+  });
+
+  return parseJson<BattleHistoryPage>(response);
 }
