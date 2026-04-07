@@ -9,6 +9,7 @@ function sanitizeReturnTo(value: string | null) {
     return '/';
   }
 
+  // Avoid protocol-relative redirects such as //evil.example.
   if (value.startsWith('//')) {
     return '/';
   }

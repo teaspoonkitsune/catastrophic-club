@@ -3,6 +3,7 @@ import path from 'node:path';
 import { FileMigrationProvider, Migrator } from 'kysely';
 import { db } from './database';
 
+// Reuse the in-flight migration inside one Node process so parallel requests do not race.
 let migrationPromise: Promise<void> | null = null;
 
 function createMigrator() {

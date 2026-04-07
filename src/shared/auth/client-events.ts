@@ -18,6 +18,7 @@ export function requestInlineLogin() {
     return;
   }
 
+  // Auth prompts can be outside the active layout slot, so bridge them with DOM events.
   scrollToAccountPanel();
   window.dispatchEvent(new CustomEvent(FOCUS_INLINE_LOGIN_EVENT));
 }

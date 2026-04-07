@@ -27,6 +27,7 @@ export function BattlesWorkspace({
   >([]);
 
   function handleHistoryEntry(entry: BattleHistoryRecord) {
+    // Keep recent local votes visible immediately; BattleHistory dedupes them later.
     setLocalHistoryEntries((entries) => {
       if (entries.some((item) => item.id === entry.id)) {
         return entries;

@@ -11,6 +11,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .execute();
 
   await sql`
+    -- Backfill users for favorite rows that existed before the FK constraint.
     INSERT INTO users ("id", "email", "name")
     SELECT DISTINCT
       "userId",

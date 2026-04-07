@@ -46,6 +46,7 @@ function decodeValue<T>(value: string): T | null {
   try {
     return parseJson<T>(decryptPayload(value, getAuthSecret()));
   } catch {
+    // Treat stale, tampered, or key-rotated cookies as an anonymous session.
     return null;
   }
 }

@@ -57,6 +57,7 @@ export async function ensureBattleCatPool(minCount = 6): Promise<void> {
 
   let attempts = 0;
 
+  // Cataas can return duplicate ids, so onConflict may make an attempt a no-op.
   while (currentCount < minCount && attempts < minCount * 3) {
     await createBattleCat();
     currentCount = Number(
@@ -103,6 +104,7 @@ export async function recordBattleResult(
 ): Promise<BattleHistoryRecord> {
   await ensureDatabaseMigrated();
 
+  // Keep score changes and the history row atomic for a single vote.
   return db.transaction().execute(async (trx) => {
     const cats = await trx
       .selectFrom('battle_cats')
@@ -133,6 +135,7 @@ export async function recordBattleResult(
       .execute();
 
     const createdAt = new Date();
+    // Store image URLs as snapshots so old history stays readable if a cat row changes.
     const historyEntry = {
       id: randomUUID(),
       userId: input.userId,
@@ -178,6 +181,7 @@ export async function getBattleHistoryPage({
     .$if(Boolean(userId), (query) => query.where('userId', '=', userId ?? ''))
     .orderBy('createdAt', 'desc')
     .offset(safeOffset)
+    // Fetch one extra row to detect the next page without a separate count query.
     .limit(safeLimit + 1)
     .execute();
 

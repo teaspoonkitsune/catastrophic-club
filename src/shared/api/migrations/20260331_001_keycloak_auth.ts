@@ -13,6 +13,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await sql`
     DO $$
     BEGIN
+      -- Support databases created before auth used Keycloak string subjects.
       IF EXISTS (
         SELECT 1
         FROM information_schema.columns
@@ -38,6 +39,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         DROP TABLE users_legacy;
       END IF;
 
+      -- Scope the old global favorites table to a synthetic user during upgrade.
       IF EXISTS (
         SELECT 1
         FROM information_schema.tables

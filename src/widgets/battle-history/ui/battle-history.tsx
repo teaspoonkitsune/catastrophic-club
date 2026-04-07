@@ -49,6 +49,7 @@ function prependEntries(
   page: BattleHistoryPage,
   entries: BattleHistoryRecord[],
 ): BattleHistoryPage {
+  // Merge just-submitted local votes with the server page until polling catches up.
   if (entries.length === 0) {
     return page;
   }
@@ -151,6 +152,7 @@ export function BattleHistory({
       return;
     }
 
+    // Only poll the first global page; paginated and private views are user-driven.
     const intervalId = window.setInterval(() => {
       if (document.visibilityState !== 'visible') {
         return;

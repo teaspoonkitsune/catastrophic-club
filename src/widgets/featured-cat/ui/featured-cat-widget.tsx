@@ -24,6 +24,7 @@ type StoredHomeCat = {
   savedAt: number;
 };
 
+// The home cat is client-cached briefly to avoid changing on every navigation refresh.
 function readStoredCat(): StoredHomeCat | null {
   if (typeof window === 'undefined') {
     return null;
