@@ -1,2 +1,2 @@
 export { ImageViewer } from './ui/image-viewer';
-export { preloadImage } from './model/preload-image';
+export { isImageLoaded, markImageLoaded, preloadImage } from './model/preload-image';

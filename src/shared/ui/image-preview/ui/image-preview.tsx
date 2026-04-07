@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-import { preloadImage } from '@/shared/ui/image-viewer';
 import styles from './image-preview.module.css';
 
 type ImagePreviewProps = {
@@ -46,7 +45,6 @@ export function ImagePreview({
   }
 
   function handleOpen() {
-    preloadImage(src);
     onOpen?.();
   }
 
@@ -84,8 +82,6 @@ export function ImagePreview({
         type="button"
         className={rootClassName}
         data-loading={isLoading ? 'true' : 'false'}
-        onMouseEnter={() => preloadImage(src)}
-        onFocus={() => preloadImage(src)}
         onClick={onOpen ? handleOpen : undefined}
         aria-label={`Открыть изображение: ${alt}`}
         style={rootStyle}
@@ -100,8 +96,6 @@ export function ImagePreview({
     <div
       className={rootClassName}
       data-loading={isLoading ? 'true' : 'false'}
-      onMouseEnter={() => preloadImage(src)}
-      onFocus={() => preloadImage(src)}
       style={rootStyle}
       {...dataAttributes}
     >

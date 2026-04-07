@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, SyntheticEvent } from 'react';
+import { isImageLoaded, markImageLoaded } from '../model/preload-image';
 import styles from './image-viewer.module.css';
 
 type ImageViewerProps = {
@@ -27,8 +28,15 @@ export function ImageViewer({
   onPrevious,
   onNext,
 }: ImageViewerProps) {
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const isLoaded = loadedSrc === src;
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(() =>
+    isImageLoaded(src) ? src : null,
+  );
+  const isLoaded = loadedSrc === src || isImageLoaded(src);
+
+  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
+    markImageLoaded(src, event.currentTarget);
+    setLoadedSrc(src);
+  }
 
   return (
     <div
@@ -86,15 +94,16 @@ export function ImageViewer({
           data-with-footer={footer ? 'true' : 'false'}
         >
           <div className={styles.imageWrap}>
-            {imageAction ? <div className={styles.imageAction}>{imageAction}</div> : null}
+            {imageAction && isLoaded ? <div className={styles.imageAction}>{imageAction}</div> : null}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
+              key={src}
               src={src}
               alt={alt}
               className={styles.image}
               data-loaded={isLoaded ? 'true' : 'false'}
-              onLoad={() => setLoadedSrc(src)}
-              onError={() => setLoadedSrc(src)}
+              onLoad={handleImageLoad}
+              onError={handleImageLoad}
             />
           </div>
 

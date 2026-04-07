@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
-import { ImageViewer, preloadImage } from '@/shared/ui/image-viewer';
+import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
 
@@ -154,7 +154,6 @@ export function FeaturedCatWidget({
   }
 
   function handleOpenViewer() {
-    preloadImage(cat.imageUrl);
     setIsViewerOpen(true);
   }
 
@@ -167,8 +166,6 @@ export function FeaturedCatWidget({
         <button
           type="button"
           className={styles.imageButton}
-          onMouseEnter={() => preloadImage(cat.imageUrl)}
-          onFocus={() => preloadImage(cat.imageUrl)}
           onClick={handleOpenViewer}
           aria-label="Открыть картинку дня"
         >
