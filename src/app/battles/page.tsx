@@ -1,8 +1,8 @@
-import { getBattlePair } from '@/entities/battle-cat/api/repository';
+import { getBattleHistoryPage, getBattlePair } from '@/entities/battle-cat/api/repository';
 import type { BattleCatRecord } from '@/entities/battle-cat';
 import { getAuthSession } from '@/shared/auth';
 import { AuthSidebar } from '@/widgets/auth-sidebar';
-import { CatBattleArena } from '@/widgets/cat-battle';
+import { BattlesWorkspace } from '@/widgets/battles-workspace';
 import { SiteFooter } from '@/widgets/site-footer';
 import { SiteHeader } from '@/widgets/site-header';
 
@@ -15,6 +15,10 @@ export default async function Page() {
     imageUrl: cat.imageUrl,
     score: cat.score,
   }));
+  const initialGlobalHistory = await getBattleHistoryPage();
+  const initialPrivateHistory = session
+    ? await getBattleHistoryPage({ userId: session.user.subject })
+    : null;
 
   return (
     <main data-page-tone="red">
@@ -29,15 +33,12 @@ export default async function Page() {
 
       <div className="page-grid">
         <div className="page-main-column">
-          <section className="paper-panel">
-            <div className="panel-header">
-              <h2>Текущая пара</h2>
-              <p>Победитель +1, проигравший -1</p>
-            </div>
-            <div className="page-copy">
-              <CatBattleArena initialPair={initialPair} isAuthenticated={Boolean(session)} />
-            </div>
-          </section>
+          <BattlesWorkspace
+            initialPair={initialPair}
+            initialGlobalHistory={initialGlobalHistory}
+            initialPrivateHistory={initialPrivateHistory}
+            isAuthenticated={Boolean(session)}
+          />
         </div>
 
         <aside className="page-sidebar">

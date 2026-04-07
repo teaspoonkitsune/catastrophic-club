@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toHttpCatError } from '@/shared/lib/http-cat';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { ImageViewer } from '@/shared/ui/image-viewer';
-import type { BattleCatRecord } from '@/entities/battle-cat';
+import type { BattleCatRecord, BattleHistoryRecord } from '@/entities/battle-cat';
 import { BattleCatCard } from '@/entities/battle-cat';
 import { submitBattleResult } from '@/entities/battle-cat/api';
 import styles from './cat-battle-arena.module.css';
@@ -12,11 +12,13 @@ import styles from './cat-battle-arena.module.css';
 type CatBattleArenaProps = {
   initialPair: BattleCatRecord[];
   isAuthenticated?: boolean;
+  onHistoryEntry?: (entry: BattleHistoryRecord) => void;
 };
 
 export function CatBattleArena({
   initialPair,
   isAuthenticated = false,
+  onHistoryEntry,
 }: CatBattleArenaProps) {
   const [pair, setPair] = useState(initialPair);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +77,10 @@ export function CatBattleArena({
   }, [activeImageIndex, galleryItems.length, hasMultipleImages]);
 
   async function handleVote(winnerId: string) {
+    if (!isAuthenticated) {
+      return;
+    }
+
     const loser = pair.find((cat) => cat.id !== winnerId);
 
     if (!loser) {
@@ -84,11 +90,15 @@ export function CatBattleArena({
     try {
       setIsSubmitting(true);
       setErrorStatus(null);
-      const nextPair = await submitBattleResult({
+      const result = await submitBattleResult({
         winnerId,
         loserId: loser.id,
       });
-      setPair(nextPair);
+      setPair(result.pair);
+
+      if (result.historyEntry) {
+        onHistoryEntry?.(result.historyEntry);
+      }
     } catch (error) {
       console.error('Failed to submit battle result', error);
       setErrorStatus(toHttpCatError(error).status);

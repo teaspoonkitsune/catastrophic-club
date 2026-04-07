@@ -44,9 +44,9 @@ export function BattleCatCard({
           type="button"
           className={styles.voteButton}
           onClick={() => onVote(cat.id)}
-          disabled={disabled}
+          disabled={disabled || !isAuthenticated}
         >
-          Победа этому коту
+          {isAuthenticated ? 'Победа этому коту' : 'Войдите, чтобы голосовать'}
         </button>
       </div>
     </article>
