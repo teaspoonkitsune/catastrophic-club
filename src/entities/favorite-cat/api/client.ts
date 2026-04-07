@@ -31,21 +31,52 @@ async function parseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
+const favoriteStateCache = new Map<string, boolean>();
+const favoriteStateRequests = new Map<string, Promise<boolean>>();
+
+export function getCachedFavoriteCatState(id: string): boolean | undefined {
+  return favoriteStateCache.get(id);
+}
+
 export async function fetchFavoriteCatsFromApi(): Promise<FavoriteCatRecord[]> {
   const response = await fetch('/api/favorites');
   const data = await parseJson<FavoriteCatResponse[]>(response);
 
-  return data.map(mapFavoriteCat);
+  const favoriteCats = data.map(mapFavoriteCat);
+
+  favoriteCats.forEach((cat) => favoriteStateCache.set(cat.id, true));
+
+  return favoriteCats;
 }
 
 export async function isFavoriteCatInApi(id: string): Promise<boolean> {
+  const cachedState = favoriteStateCache.get(id);
+
+  if (cachedState !== undefined) {
+    return cachedState;
+  }
+
+  const pendingRequest = favoriteStateRequests.get(id);
+
+  if (pendingRequest) {
+    return pendingRequest;
+  }
+
   const url = new URL('/api/favorites', window.location.origin);
   url.searchParams.set('id', id);
 
-  const response = await fetch(url);
-  const data = await parseJson<{ isFavorite: boolean }>(response);
+  const request = fetch(url)
+    .then((response) => parseJson<{ isFavorite: boolean }>(response))
+    .then((data) => {
+      favoriteStateCache.set(id, data.isFavorite);
+      return data.isFavorite;
+    })
+    .finally(() => {
+      favoriteStateRequests.delete(id);
+    });
 
-  return data.isFavorite;
+  favoriteStateRequests.set(id, request);
+  return request;
 }
 
 export async function addFavoriteCatToApi(
@@ -60,7 +91,10 @@ export async function addFavoriteCatToApi(
   });
 
   const data = await parseJson<FavoriteCatResponse>(response);
-  return mapFavoriteCat(data);
+  const favoriteCat = mapFavoriteCat(data);
+  favoriteStateCache.set(input.id, true);
+
+  return favoriteCat;
 }
 
 export async function removeFavoriteCatFromApi(id: string): Promise<void> {
@@ -72,4 +106,5 @@ export async function removeFavoriteCatFromApi(id: string): Promise<void> {
   });
 
   await parseJson<{ ok: true }>(response);
+  favoriteStateCache.set(id, false);
 }

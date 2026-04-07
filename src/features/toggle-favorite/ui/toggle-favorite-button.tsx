@@ -1,85 +1,48 @@
-"use client";
+'use client';
 
-import { Star } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import {
-  addFavoriteCatToApi,
-  isFavoriteCatInApi,
-  removeFavoriteCatFromApi,
-} from "@/entities/favorite-cat/api";
-import type { FavoriteCatInput } from "@/entities/favorite-cat";
-import { toHttpCatError } from "@/shared/lib/http-cat";
-import { HttpCatErrorState } from "@/shared/ui/http-cat-error";
-import styles from "./toggle-favorite-button.module.css";
+import { useEffect, useRef, useState } from 'react';
+import type { FavoriteCatInput } from '@/entities/favorite-cat';
+import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { useToggleFavorite } from '../model/use-toggle-favorite';
+import { FavoriteButton, type FavoriteButtonSize } from './favorite-button';
+import styles from './toggle-favorite-button.module.css';
 
 type ToggleFavoriteButtonProps = FavoriteCatInput & {
   className?: string;
-  size?: "md" | "sm";
+  size?: FavoriteButtonSize;
   showOnHover?: boolean;
   isAuthenticated?: boolean;
+  loadOnMount?: boolean;
 };
-
-function getButtonClassName(size: "md" | "sm", isFavorite: boolean) {
-  if (size === "sm") {
-    return isFavorite
-      ? [styles.button, styles.small, styles.active].join(" ")
-      : [styles.button, styles.small].join(" ");
-  }
-
-  return isFavorite ? [styles.button, styles.active].join(" ") : styles.button;
-}
 
 export function ToggleFavoriteButton({
   id,
   imageUrl,
   className,
-  size = "md",
+  size = 'md',
   showOnHover = true,
   isAuthenticated = false,
+  loadOnMount = true,
 }: ToggleFavoriteButtonProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [authPromptCatId, setAuthPromptCatId] = useState<string | null>(null);
+  const {
+    errorStatus,
+    isFavorite,
+    isLoading,
+    loadFavoriteState,
+    resetError,
+    toggleFavorite,
+  } = useToggleFavorite({
+    id,
+    imageUrl,
+    isAuthenticated,
+    loadOnMount,
+    onAuthRequired: () => setAuthPromptCatId(id),
+  });
 
   useEffect(() => {
-    if (isAuthenticated === false) {
-      setIsFavorite(false);
-      setIsLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    async function loadFavoriteState() {
-      try {
-        setErrorStatus(null);
-        setShowAuthPrompt(false);
-        const next = await isFavoriteCatInApi(id);
-
-        if (isMounted) {
-          setIsFavorite(next);
-        }
-      } catch (error) {
-        console.error("Failed to load favorite state", error);
-        setErrorStatus(toHttpCatError(error).status);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void loadFavoriteState();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [id, isAuthenticated]);
-
-  useEffect(() => {
-    if (showAuthPrompt === false) {
+    if (authPromptCatId !== id) {
       return;
     }
 
@@ -88,74 +51,41 @@ export function ToggleFavoriteButton({
         return;
       }
 
-      setShowAuthPrompt(false);
+      setAuthPromptCatId(null);
     }
 
-    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener('pointerdown', handlePointerDown);
 
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [showAuthPrompt]);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [authPromptCatId, id]);
 
-  async function handleClick() {
-    if (isAuthenticated === false) {
-      setShowAuthPrompt(true);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setErrorStatus(null);
-      setShowAuthPrompt(false);
-
-      if (isFavorite) {
-        await removeFavoriteCatFromApi(id);
-        setIsFavorite(false);
-      } else {
-        await addFavoriteCatToApi({ id, imageUrl });
-        setIsFavorite(true);
-      }
-    } catch (error) {
-      const httpError = toHttpCatError(error);
-
-      console.error("Failed to toggle favorite", error);
-
-      if (httpError.status === 401) {
-        setShowAuthPrompt(true);
-        setIsFavorite(false);
-      } else {
-        setErrorStatus(httpError.status);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  function handleClick() {
+    setAuthPromptCatId(null);
+    void toggleFavorite();
   }
 
-  const buttonClassName = getButtonClassName(size, isFavorite);
-  const rootClassName = className ? [styles.root, className].join(" ") : styles.root;
+  const rootClassName = className ? [styles.root, className].join(' ') : styles.root;
 
   return (
     <div
       ref={rootRef}
       className={rootClassName}
-      data-hover-only={showOnHover ? "true" : "false"}
+      data-hover-only={showOnHover ? 'true' : 'false'}
+      onMouseEnter={() => {
+        void loadFavoriteState();
+      }}
+      onFocusCapture={() => {
+        void loadFavoriteState();
+      }}
     >
-      <button
-        type="button"
-        aria-pressed={isFavorite}
-        aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+      <FavoriteButton
+        isFavorite={isFavorite}
+        isLoading={isLoading}
         onClick={handleClick}
-        disabled={isLoading}
-        className={buttonClassName}
-      >
-        <span
-          className={styles.icon}
-          aria-hidden="true"
-        >
-          {isFavorite ? <Star fill="currentColor" /> : <Star />}
-        </span>
-      </button>
+        size={size}
+      />
 
-      {showAuthPrompt ? (
+      {authPromptCatId === id ? (
         <div
           className={styles.authPopup}
           role="status"
@@ -173,7 +103,7 @@ export function ToggleFavoriteButton({
             title="Не удалось сохранить"
             description="Сервер вернул ошибку при работе с избранным."
             actionLabel="Ок"
-            onAction={() => setErrorStatus(null)}
+            onAction={resetError}
           />
         </div>
       ) : null}

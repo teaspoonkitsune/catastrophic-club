@@ -35,6 +35,7 @@ export function BattleCatCard({
           id={cat.id}
           imageUrl={cat.imageUrl}
           isAuthenticated={isAuthenticated}
+          loadOnMount={false}
         />
       </GalleryImage>
 
