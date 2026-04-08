@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { sql } from 'kysely';
+import { sql, type Transaction } from 'kysely';
 import { getRandomCatImage } from '@/entities/cat';
 import { db, ensureDatabaseMigrated } from '@/shared/api';
+import type { Database } from '@/shared/api';
 import type {
   BattleCat,
+  BattleLeaderboardPage,
   BattleHistoryPage,
   BattleHistoryRecord,
   BattleResultInput,
@@ -11,6 +13,13 @@ import type {
 
 const BATTLE_HISTORY_LIMIT = 10;
 const BATTLE_HISTORY_MAX_OFFSET = 10_000;
+const BATTLE_LEADERBOARD_LIMIT = 10;
+const BATTLE_LEADERBOARD_MAX_OFFSET = 10_000;
+const DAILY_BATTLE_VOTE_LIMIT = 5;
+
+function getUtcDateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
 
 function toBattleHistoryRecord(entry: {
   id: string;
@@ -43,6 +52,26 @@ async function createBattleCat(): Promise<void> {
     })
     .onConflict((conflict) => conflict.column('id').doNothing())
     .execute();
+}
+
+async function claimDailyBattleVote(
+  trx: Transaction<Database>,
+  userId: string,
+  now: Date,
+): Promise<boolean> {
+  const voteDate = getUtcDateKey(now);
+  const result = await sql<{ voteCount: number }>`
+    insert into battle_vote_limits ("userId", "voteDate", "voteCount", "updatedAt")
+    values (${userId}, ${voteDate}::date, 1, ${now})
+    on conflict ("userId", "voteDate")
+    do update set
+      "voteCount" = battle_vote_limits."voteCount" + 1,
+      "updatedAt" = excluded."updatedAt"
+    where battle_vote_limits."voteCount" < ${DAILY_BATTLE_VOTE_LIMIT}
+    returning "voteCount"
+  `.execute(trx);
+
+  return result.rows.length > 0;
 }
 
 export async function ensureBattleCatPool(minCount = 6): Promise<void> {
@@ -87,24 +116,42 @@ export async function getBattlePair(): Promise<BattleCat[]> {
   return pair;
 }
 
-export async function getBattleLeaderboard(): Promise<BattleCat[]> {
+export async function getBattleLeaderboard({
+  offset = 0,
+  limit = BATTLE_LEADERBOARD_LIMIT,
+}: {
+  offset?: number;
+  limit?: number;
+} = {}): Promise<BattleLeaderboardPage> {
   await ensureDatabaseMigrated();
 
-  return db
+  const safeLimit = Math.min(Math.max(1, limit), BATTLE_LEADERBOARD_LIMIT);
+  const safeOffset = Math.min(Math.max(0, offset), BATTLE_LEADERBOARD_MAX_OFFSET);
+  const rows = await db
     .selectFrom('battle_cats')
     .selectAll()
     .where('score', '!=', 0)
     .orderBy('score', 'desc')
     .orderBy('createdAt', 'asc')
+    .orderBy('id', 'asc')
+    .offset(safeOffset)
+    .limit(safeLimit + 1)
     .execute();
+
+  return {
+    items: rows.slice(0, safeLimit),
+    hasNext: rows.length > safeLimit,
+    offset: safeOffset,
+    limit: safeLimit,
+  };
 }
 
 export async function recordBattleResult(
   input: BattleResultInput,
-): Promise<BattleHistoryRecord> {
+): Promise<BattleHistoryRecord | null> {
   await ensureDatabaseMigrated();
 
-  // Keep score changes and the history row atomic for a single vote.
+  // Keep the rate-limit claim, score changes, and history row atomic for a single vote.
   return db.transaction().execute(async (trx) => {
     const cats = await trx
       .selectFrom('battle_cats')
@@ -116,6 +163,13 @@ export async function recordBattleResult(
 
     if (!winner || !loser) {
       throw new Error('Battle result references unknown cats');
+    }
+
+    const createdAt = new Date();
+    const hasVoteLeft = await claimDailyBattleVote(trx, input.userId, createdAt);
+
+    if (!hasVoteLeft) {
+      return null;
     }
 
     await trx
@@ -134,7 +188,6 @@ export async function recordBattleResult(
       .where('id', '=', input.loserId)
       .execute();
 
-    const createdAt = new Date();
     // Store image URLs as snapshots so old history stays readable if a cat row changes.
     const historyEntry = {
       id: randomUUID(),
@@ -180,6 +233,7 @@ export async function getBattleHistoryPage({
     ])
     .$if(Boolean(userId), (query) => query.where('userId', '=', userId ?? ''))
     .orderBy('createdAt', 'desc')
+    .orderBy('id', 'desc')
     .offset(safeOffset)
     // Fetch one extra row to detect the next page without a separate count query.
     .limit(safeLimit + 1)

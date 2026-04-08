@@ -41,3 +41,11 @@
     padding-top: 0;
   }
 }
+
+.limitNotice {
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--paper-rule);
+  background: color-mix(in srgb, var(--paper-accent) 16%, var(--paper) 84%);
+  color: var(--paper-ink);
+  line-height: 1.25;
+}

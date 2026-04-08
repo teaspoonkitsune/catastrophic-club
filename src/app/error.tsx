@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { PaperPanel } from '@/shared/ui/page-surface';
 
 export default function Error({
   error,
@@ -15,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <section className="paper-panel paper-panel-inset">
+    <PaperPanel inset>
       <HttpCatErrorState
         status={500}
         title="Что-то пошло не так"
@@ -23,6 +24,6 @@ export default function Error({
         actionLabel="Повторить"
         onAction={() => unstable_retry()}
       />
-    </section>
+    </PaperPanel>
   );
 }

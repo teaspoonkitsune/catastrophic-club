@@ -1,0 +1,30 @@
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+
+.link,
+.disabledLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--paper-rule);
+  padding: 0.65rem 0.9rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  text-transform: lowercase;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.disabledLink {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.65;
+}

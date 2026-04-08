@@ -8,6 +8,7 @@ import {
   FOCUS_INLINE_LOGIN_EVENT,
   OPEN_INLINE_REGISTER_EVENT,
 } from '@/shared/auth/client-events';
+import { PaperPanel, SidebarEyebrow } from '@/shared/ui/page-surface';
 import styles from './auth-sidebar.module.css';
 
 type AuthSidebarProps = {
@@ -176,11 +177,12 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
 
   return (
     <>
-      <section
+      <PaperPanel
         id={ACCOUNT_PANEL_ID}
-        className={`${styles.accountPanel} paper-panel paper-panel-inset`}
+        className={styles.accountPanel}
+        inset
       >
-        <span className="sidebar-eyebrow">аккаунт</span>
+        <SidebarEyebrow>аккаунт</SidebarEyebrow>
 
         {session ? (
           <div className={styles.loggedInBlock}>
@@ -249,7 +251,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
             </p>
           </>
         )}
-      </section>
+      </PaperPanel>
 
       {isRegisterOpen ? (
         <div

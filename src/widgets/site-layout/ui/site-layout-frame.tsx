@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 
-type PageTone = 'purple' | 'yellow' | 'red' | 'blue';
+type PageTone = 'purple' | 'yellow' | 'red' | 'green';
 
 type SiteLayoutFrameProps = {
   children: ReactNode;
@@ -15,7 +15,7 @@ const PAGE_TONES: Record<string, PageTone> = {
   '/': 'purple',
   '/battles': 'red',
   '/favorites': 'yellow',
-  '/leaderboard': 'blue',
+  '/leaderboard': 'green',
 };
 
 function getPageTone(pathname: string): PageTone {

@@ -3,6 +3,7 @@ export { ensureDatabaseMigrated, migrateToLatest } from './migrator';
 export type {
   BattleCatsTable,
   BattleHistoryTable,
+  BattleVoteLimitsTable,
   Database,
   FavoriteCatsTable,
   UsersTable,

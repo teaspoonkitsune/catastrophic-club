@@ -9,6 +9,7 @@ import { fetchBattleHistoryPage } from '@/entities/battle-cat/api';
 import { toHttpCatError } from '@/shared/lib/http-cat';
 import { ImagePreview } from '@/shared/ui/image-preview';
 import { BattleHistoryViewerModal } from './battle-history-viewer-modal';
+import { PanelHeader, PaperPanel } from '@/shared/ui/page-surface';
 import styles from './battle-history.module.css';
 
 const HISTORY_LIMIT = 10;
@@ -197,11 +198,11 @@ export function BattleHistory({
   }
 
   return (
-    <section className="paper-panel">
-      <div className="panel-header">
+    <PaperPanel>
+      <PanelHeader>
         <h2>История битв</h2>
         <p>{isLoading ? 'Обновляем...' : 'Последние десять боёв'}</p>
-      </div>
+      </PanelHeader>
 
       <div className={styles.body}>
         <div className={styles.tabs} aria-label="Переключение истории битв">
@@ -310,6 +311,6 @@ export function BattleHistory({
           onNext={showNextImage}
         />
       ) : null}
-    </section>
+    </PaperPanel>
   );
 }

@@ -6,11 +6,13 @@ import styles from './battle-leaderboard-table.module.css';
 type BattleLeaderboardTableProps = {
   cats: BattleCatRecord[];
   isAuthenticated?: boolean;
+  rankOffset?: number;
 };
 
 export function BattleLeaderboardTable({
   cats,
   isAuthenticated = false,
+  rankOffset = 0,
 }: BattleLeaderboardTableProps) {
   if (cats.length === 0) {
     return (
@@ -36,7 +38,7 @@ export function BattleLeaderboardTable({
         <tbody>
           {cats.map((cat, index) => (
             <tr key={cat.id}>
-              <td className={styles.rank}>{index + 1}</td>
+              <td className={styles.rank}>{rankOffset + index + 1}</td>
               <td>
                 <div className={styles.imageCell}>
                   <GalleryImage

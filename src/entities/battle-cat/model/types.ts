@@ -11,6 +11,13 @@ export type BattleCatRecord = {
   score: number;
 };
 
+export type BattleLeaderboardPage = {
+  items: BattleCat[];
+  hasNext: boolean;
+  offset: number;
+  limit: number;
+};
+
 export type BattleResultInput = {
   winnerId: string;
   loserId: string;

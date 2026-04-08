@@ -6,6 +6,7 @@ import type {
   BattleHistoryPage,
   BattleHistoryRecord,
 } from '@/entities/battle-cat';
+import { PageCopy, PanelSection } from '@/shared/ui/page-surface';
 import { BattleHistory } from '@/widgets/battle-history';
 import { CatBattleArena } from '@/widgets/cat-battle';
 
@@ -39,19 +40,15 @@ export function BattlesWorkspace({
 
   return (
     <>
-      <section className="paper-panel">
-        <div className="panel-header">
-          <h2>Текущая пара</h2>
-          <p>Победитель +1, проигравший -1</p>
-        </div>
-        <div className="page-copy">
+      <PanelSection title="Текущая пара" meta="Победитель +1, проигравший -1">
+        <PageCopy>
           <CatBattleArena
             initialPair={initialPair}
             isAuthenticated={isAuthenticated}
             onHistoryEntry={handleHistoryEntry}
           />
-        </div>
-      </section>
+        </PageCopy>
+      </PanelSection>
 
       <BattleHistory
         initialGlobalHistory={initialGlobalHistory}

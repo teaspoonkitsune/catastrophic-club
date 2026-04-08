@@ -2,6 +2,16 @@ import { getFavoriteCats } from '@/entities/favorite-cat/api/repository';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
 import { InlineAuthActions } from '@/shared/auth/inline-auth-actions';
 import { getAuthSession } from '@/shared/auth';
+import {
+  AuthGate,
+  PageCopy,
+  PageIntro,
+  PanelSection,
+  PaperPanel,
+  SidebarEyebrow,
+  SidebarList,
+  pageSurfaceClassNames,
+} from '@/shared/ui/page-surface';
 import { FavoritesBrowser } from '@/widgets/favorites-browser';
 import { SitePageGrid } from '@/widgets/site-layout';
 
@@ -17,59 +27,58 @@ export default async function Page() {
 
   return (
     <>
-      <section className="page-intro">
+      <PageIntro>
         <h1>Избранное</h1>
         <p>
           Здесь собраны котики, которых ты сохранил. Можно открыть фото крупно,
           полистать соседние картинки и убрать кота из избранного прямо в просмотре.
         </p>
-      </section>
+      </PageIntro>
 
       <SitePageGrid
         session={session}
         sidebar={(
           <>
-            <section className="paper-panel paper-panel-inset">
-              <span className="sidebar-eyebrow">подсказка</span>
-              <ul className="sidebar-list">
+            <PaperPanel inset>
+              <SidebarEyebrow>подсказка</SidebarEyebrow>
+              <SidebarList>
                 <li>Картинки удобно смотреть крупно и листать по соседству.</li>
                 <li>На самой полке остаются только фотографии, без лишних кнопок.</li>
                 <li>Если убрать котика из избранного, он исчезнет после обновления страницы.</li>
-              </ul>
-            </section>
+              </SidebarList>
+            </PaperPanel>
 
-            <section className="paper-panel paper-panel-inset">
-              <span className="sidebar-eyebrow">порядок</span>
-              <div className="page-copy">
+            <PaperPanel inset>
+              <SidebarEyebrow>порядок</SidebarEyebrow>
+              <PageCopy>
                 <p>Новые сохранённые котики появляются выше остальных.</p>
-              </div>
-            </section>
+              </PageCopy>
+            </PaperPanel>
           </>
         )}
       >
-        <section className="paper-panel">
-          <div className="panel-header">
-            <h2>Мои котики</h2>
-            <p>{session ? `Сохранено: ${cats.length}` : 'Нужно войти в аккаунт'}</p>
-          </div>
-          <div className="page-copy">
+        <PanelSection
+          title="Мои котики"
+          meta={session ? <>Сохранено: {cats.length}</> : 'Нужно войти в аккаунт'}
+        >
+          <PageCopy>
             {session ? (
               <FavoritesBrowser initialCats={cats} />
             ) : (
-              <div className="auth-gate">
+              <AuthGate>
                 <p>
                   Полка избранного теперь привязана к аккаунту. Войди или зарегистрируйся
                   в клубе, и у тебя появится личная коллекция котиков.
                 </p>
                 <InlineAuthActions
-                  className="auth-gate-actions"
-                  loginClassName="auth-gate-primary"
-                  registerClassName="auth-gate-secondary"
+                  className={pageSurfaceClassNames.authGateActions}
+                  loginClassName={pageSurfaceClassNames.authGatePrimary}
+                  registerClassName={pageSurfaceClassNames.authGateSecondary}
                 />
-              </div>
+              </AuthGate>
             )}
-          </div>
-        </section>
+          </PageCopy>
+        </PanelSection>
       </SitePageGrid>
     </>
   );

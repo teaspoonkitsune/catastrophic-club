@@ -53,6 +53,13 @@ export async function POST(request: Request) {
       userId: session.user.subject,
     });
 
+    if (!historyEntry) {
+      return NextResponse.json(
+        createHttpCatErrorPayload(429, 'Daily battle vote limit exceeded'),
+        { status: 429 },
+      );
+    }
+
     const pair = await getBattlePair();
     return NextResponse.json({ pair: pair.map(toBattleRecord), historyEntry });
   } catch (error) {

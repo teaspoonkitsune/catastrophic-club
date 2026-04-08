@@ -23,6 +23,7 @@ export function CatBattleArena({
   const [pair, setPair] = useState(initialPair);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const [isDailyLimitReached, setIsDailyLimitReached] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
   const galleryItems = pair.map((cat) => cat.imageUrl);
@@ -90,10 +91,16 @@ export function CatBattleArena({
     try {
       setIsSubmitting(true);
       setErrorStatus(null);
+      setIsDailyLimitReached(false);
       const result = await submitBattleResult({
         winnerId,
         loserId: loser.id,
       });
+      if ('dailyLimitReached' in result) {
+        setIsDailyLimitReached(true);
+        return;
+      }
+
       setPair(result.pair);
 
       if (result.historyEntry) {
@@ -125,13 +132,19 @@ export function CatBattleArena({
 
   return (
     <>
+      {isDailyLimitReached ? (
+        <p className={styles.limitNotice}>
+          На сегодня голоса закончились. Возвращайся завтра, и битвы снова откроются.
+        </p>
+      ) : null}
+
       <section className={styles.wrapper}>
         <BattleCatCard
           cat={pair[0]}
           galleryItems={galleryItems}
           onImageOpen={() => setActiveImageIndex(0)}
           onVote={handleVote}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDailyLimitReached}
           isAuthenticated={isAuthenticated}
         />
 
@@ -144,7 +157,7 @@ export function CatBattleArena({
           galleryItems={galleryItems}
           onImageOpen={() => setActiveImageIndex(1)}
           onVote={handleVote}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDailyLimitReached}
           isAuthenticated={isAuthenticated}
         />
       </section>

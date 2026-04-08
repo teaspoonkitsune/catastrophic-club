@@ -3,6 +3,7 @@ export interface Database {
   favorite_cats: FavoriteCatsTable;
   battle_cats: BattleCatsTable;
   battle_history: BattleHistoryTable;
+  battle_vote_limits: BattleVoteLimitsTable;
 }
 
 export interface UsersTable {
@@ -33,4 +34,11 @@ export interface BattleHistoryTable {
   loserId: string;
   loserImageUrl: string;
   createdAt: Date;
+}
+
+export interface BattleVoteLimitsTable {
+  userId: string;
+  voteDate: string;
+  voteCount: number;
+  updatedAt: Date;
 }

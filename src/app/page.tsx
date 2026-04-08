@@ -1,7 +1,25 @@
 import { getRandomCatFact, getRandomCatImage } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
+import {
+  BadgeMarquee,
+  PageCopy,
+  PageIntro,
+  PanelSection,
+  PaperPanel,
+  SidebarEyebrow,
+  SidebarList,
+} from '@/shared/ui/page-surface';
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
+
+const clubBadgeLabels = [
+  'кот дня',
+  'люблю котов',
+  'режим битвы',
+  'мягкие лапки',
+  'открыть фото',
+  'в избранное',
+];
 
 export default async function Page() {
   const [fact, cat, session] = await Promise.all([
@@ -12,103 +30,59 @@ export default async function Page() {
 
   return (
     <>
-      <section className="page-intro">
+      <PageIntro>
         <h1>Добро пожаловать в CATastrophic club</h1>
         <p>
           Это маленький сайт про котов: здесь есть кот дня, избранное и простой рейтинг по битвам.
           Всё сделано легко и по-домашнему.
         </p>
-      </section>
+      </PageIntro>
 
       <SitePageGrid
         session={session}
         sidebar={(
           <>
-            <section className="paper-panel paper-panel-inset">
-              <span className="sidebar-eyebrow">разделы</span>
-              <ul className="sidebar-list">
+            <PaperPanel inset>
+              <SidebarEyebrow>разделы</SidebarEyebrow>
+              <SidebarList>
                 <li>Избранное: твоя личная подборка котиков</li>
                 <li>Битвы: выбор победителя из двух случайных котов</li>
                 <li>Рейтинг: таблица лучших по итогам голосований</li>
-              </ul>
-            </section>
+              </SidebarList>
+            </PaperPanel>
 
-            <section className="paper-panel paper-panel-inset">
-              <span className="sidebar-eyebrow">откуда данные</span>
-              <ul className="stamp-list">
+            <PaperPanel inset>
+              <SidebarEyebrow>откуда данные</SidebarEyebrow>
+              <SidebarList variant="stamp">
                 <li>Картинки приходят с `cataas.com`</li>
                 <li>Факты о котах берутся с `catfact.ninja`</li>
                 <li>Избранное хранится в Postgres</li>
-              </ul>
-            </section>
+              </SidebarList>
+            </PaperPanel>
 
-            <section className="paper-panel">
-              <div className="panel-header">
-                <h2>Кнопки клуба</h2>
-                <p>маленькие бейджи в духе старого интернета</p>
-              </div>
-              <div className="badge-marquee">
-                <div
-                  className="badge-track"
-                  aria-hidden="true"
-                >
-                  {[
-                    'кот дня',
-                    'люблю котов',
-                    'режим битвы',
-                    'мягкие лапки',
-                    'открыть фото',
-                    'в избранное',
-                  ].map((label) => (
-                    <span
-                      key={label}
-                      className="badge-chip"
-                    >
-                      {label}
-                    </span>
-                  ))}
-                  {[
-                    'кот дня',
-                    'люблю котов',
-                    'режим битвы',
-                    'мягкие лапки',
-                    'открыть фото',
-                    'в избранное',
-                  ].map((label) => (
-                    <span
-                      key={`${label}-dup`}
-                      className="badge-chip"
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <PanelSection title="Кнопки клуба" meta="маленькие бейджи в духе старого интернета">
+              <BadgeMarquee labels={clubBadgeLabels} />
+            </PanelSection>
           </>
         )}
       >
-        <section className="paper-panel">
-          <div className="panel-header">
-            <h2>Кот дня</h2>
-            <p>сегодняшний главный герой</p>
-          </div>
+        <PanelSection title="Кот дня" meta="сегодняшний главный герой">
           <FeaturedCatWidget
             id={cat.id}
             imageUrl={cat.imageUrl}
             fact={fact.fact}
             isAuthenticated={Boolean(session)}
           />
-        </section>
+        </PanelSection>
 
-        <section className="paper-panel paper-panel-inset">
-          <span className="sidebar-eyebrow">что можно сделать</span>
-          <div className="page-copy">
+        <PaperPanel inset>
+          <SidebarEyebrow>что можно сделать</SidebarEyebrow>
+          <PageCopy>
             <p>Нажми на картинку, чтобы открыть полноразмерный просмотр.</p>
             <p>Кнопка со звездой добавляет котика в избранное без переходов.</p>
             <p>Если котик не понравился, можно сразу открыть нового.</p>
-          </div>
-        </section>
+          </PageCopy>
+        </PaperPanel>
       </SitePageGrid>
     </>
   );

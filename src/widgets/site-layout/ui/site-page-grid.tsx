@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { AuthSession } from '@/shared/auth';
 import { AuthSidebar } from '@/widgets/auth-sidebar';
+import styles from './site-page-grid.module.css';
 
 type SitePageGridProps = {
   children: ReactNode;
@@ -10,10 +11,10 @@ type SitePageGridProps = {
 
 export function SitePageGrid({ children, session = null, sidebar }: SitePageGridProps) {
   return (
-    <div className="page-grid">
-      <div className="page-main-column">{children}</div>
+    <div className={styles.grid}>
+      <div className={styles.mainColumn}>{children}</div>
 
-      <aside className="page-sidebar">
+      <aside className={styles.sidebar}>
         <AuthSidebar session={session} />
         {sidebar}
       </aside>

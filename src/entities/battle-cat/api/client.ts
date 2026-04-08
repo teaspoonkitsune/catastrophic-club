@@ -13,6 +13,12 @@ type BattlePairResponse = {
   historyEntry?: BattleHistoryRecord;
 };
 
+type BattleVoteLimitResponse = {
+  dailyLimitReached: true;
+};
+
+type BattleSubmitResponse = BattlePairResponse | BattleVoteLimitResponse;
+
 type BattleHistoryScope = 'global' | 'mine';
 
 async function parseJson<T>(response: Response): Promise<T> {
@@ -37,7 +43,7 @@ export async function fetchBattlePair(): Promise<BattleCatRecord[]> {
 
 export async function submitBattleResult(
   input: Omit<BattleResultInput, 'userId'>,
-): Promise<BattlePairResponse> {
+): Promise<BattleSubmitResponse> {
   const response = await fetch('/api/battles', {
     method: 'POST',
     headers: {
@@ -45,6 +51,10 @@ export async function submitBattleResult(
     },
     body: JSON.stringify(input),
   });
+
+  if (response.status === 429) {
+    return { dailyLimitReached: true };
+  }
 
   const data = await parseJson<BattlePairResponse>(response);
   return data;

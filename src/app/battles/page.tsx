@@ -1,6 +1,7 @@
 import { getBattleHistoryPage, getBattlePair } from '@/entities/battle-cat/api/repository';
 import type { BattleCatRecord } from '@/entities/battle-cat';
 import { getAuthSession } from '@/shared/auth';
+import { PageIntro, PaperPanel, SidebarEyebrow, SidebarList } from '@/shared/ui/page-surface';
 import { BattlesWorkspace } from '@/widgets/battles-workspace';
 import { SitePageGrid } from '@/widgets/site-layout';
 
@@ -20,25 +21,25 @@ export default async function Page() {
 
   return (
     <>
-      <section className="page-intro">
+      <PageIntro>
         <h1>Битвы котиков</h1>
         <p>
           Выбирай победителя из двух котиков. За каждое голосование один получает очко,
           а второй его теряет.
         </p>
-      </section>
+      </PageIntro>
 
       <SitePageGrid
         session={session}
         sidebar={(
-          <section className="paper-panel paper-panel-inset">
-            <span className="sidebar-eyebrow">правила</span>
-            <ul className="sidebar-list">
+          <PaperPanel inset>
+            <SidebarEyebrow>правила</SidebarEyebrow>
+            <SidebarList>
               <li>Оценивай только мордочку, харизму и общий вайб.</li>
               <li>После клика подгрузится новая пара без ручного обновления.</li>
               <li>Звезда на карточке сразу отправляет бойца в избранное.</li>
-            </ul>
-          </section>
+            </SidebarList>
+          </PaperPanel>
         )}
       >
         <BattlesWorkspace
