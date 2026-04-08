@@ -211,7 +211,8 @@ export const messages: Record<Locale, Messages> = {
     },
     header: {
       title: 'CATastrophic club',
-      subtitle: 'Небольшой клуб для тех, кто любит котов, картинки и немного соревновательного духа.',
+      subtitle:
+        'Небольшой клуб для тех, кто любит котов, картинки и немного соревновательного духа.',
       navigationLabel: 'Основная навигация',
       nav: {
         home: 'Главная',
@@ -226,20 +227,26 @@ export const messages: Record<Locale, Messages> = {
       },
     },
     footer: {
-      email: 'Почта: kitty-committee@catastrophic.club',
+      email: 'Почта: teaspoonkitsune@proton.me', // kitty-committee@catastrophic.club is still cool alternative, but not registered
       builtWith: 'Сделано на Next 16 и React 19',
       copyright: '2026 CATastrophic club',
     },
     home: {
       introTitle: 'CATastrophic club',
-      introText: 'Здесь кот, там кот. Заходи посмотреть кота дня, собрать избранное и устроить пару честных битв за звание самой обаятельной мордочки.',
+      introText:
+        'Здесь кот, там кот. Заходи посмотреть кота дня, собрать избранное и устроить пару честных битв за звание самой обаятельной мордочки.',
       sectionsEyebrow: 'разделы',
-      sections: ['Избранное для любимых находок', 'Битвы для быстрых дуэлей', 'Рейтинг для победителей'],
+      sections: [
+        'Избранное для любимых находок',
+        'Битвы для быстрых дуэлей',
+        'Рейтинг для победителей',
+      ],
       dataEyebrow: 'данные',
       data: ['Фото: `cataas.com`', 'Факты: `catfact.ninja`', 'Избранное хранится в Postgres'],
       featuredTitle: 'Кот дня',
       actionsEyebrow: 'действия',
-      actionsText: 'Открой фото, сохрани понравившегося кота или обнови карточку, если хочется увидеть еще одного героя дня.',
+      actionsText:
+        'Открой фото, сохрани понравившегося кота или обнови карточку, если хочется увидеть еще одного героя дня.',
     },
     favorites: {
       introTitle: 'Избранное',
@@ -368,7 +375,8 @@ export const messages: Record<Locale, Messages> = {
       pageTitle: 'Что-то пошло не так',
       pageDescription: 'Страница не загрузилась как надо. Попробуй открыть её ещё раз.',
       globalTitle: 'Сайт споткнулся',
-      globalDescription: 'Попробуй обновить страницу. Обычно этого хватает, чтобы всё вернулось на место.',
+      globalDescription:
+        'Попробуй обновить страницу. Обычно этого хватает, чтобы всё вернулось на место.',
     },
     images: {
       closeViewer: 'Закрыть просмотр',
@@ -390,7 +398,8 @@ export const messages: Record<Locale, Messages> = {
   },
   en: {
     metadata: {
-      description: 'Cat of the day, favorites, battles, and a leaderboard for people who like cats.',
+      description:
+        'Cat of the day, favorites, battles, and a leaderboard for people who like cats.',
     },
     common: {
       back: 'Back',
@@ -421,20 +430,26 @@ export const messages: Record<Locale, Messages> = {
       },
     },
     footer: {
-      email: 'Email: kitty-committee@catastrophic.club',
+      email: 'Email: teaspoonkitsune@proton.me', // kitty-committee@catastrophic.club is still cool alternative, but not registered
       builtWith: 'Built with Next 16 and React 19',
       copyright: '2026 CATastrophic club',
     },
     home: {
       introTitle: 'CATastrophic club',
-      introText: 'A cat here, a cat there. Stop by for the cat of the day, build your favorites shelf, and settle a few fair battles for the title of the most charming face.',
+      introText:
+        'A cat here, a cat there. Stop by for the cat of the day, build your favorites shelf, and settle a few fair battles for the title of the most charming face.',
       sectionsEyebrow: 'sections',
-      sections: ['Favorites for your best finds', 'Battles for quick duels', 'Leaderboard for the winners'],
+      sections: [
+        'Favorites for your best finds',
+        'Battles for quick duels',
+        'Leaderboard for the winners',
+      ],
       dataEyebrow: 'data',
       data: ['Photos: `cataas.com`', 'Facts: `catfact.ninja`', 'Favorites are stored in Postgres'],
       featuredTitle: 'Cat of the day',
       actionsEyebrow: 'actions',
-      actionsText: 'Open the photo, save the cat you like, or refresh the card if you want to meet another daily favorite.',
+      actionsText:
+        'Open the photo, save the cat you like, or refresh the card if you want to meet another daily favorite.',
     },
     favorites: {
       introTitle: 'Favorites',
@@ -563,7 +578,8 @@ export const messages: Record<Locale, Messages> = {
       pageTitle: 'Something went wrong',
       pageDescription: 'The page did not load as expected. Try opening it again.',
       globalTitle: 'The site tripped over itself',
-      globalDescription: 'Try refreshing the page. That is usually enough to get everything back in place.',
+      globalDescription:
+        'Try refreshing the page. That is usually enough to get everything back in place.',
     },
     images: {
       closeViewer: 'Close viewer',
