@@ -1,33 +1,35 @@
-**Local Keycloak**
+## Local Keycloak
 
-Локальный Keycloak для проекта лежит в [infra/keycloak/podman-compose.yml](../infra/keycloak/podman-compose.yml).
+This document describes the local-only Keycloak setup used during development.
 
-Канонический локальный сценарий:
-- приложение: `http://localhost:3000`
+Canonical local origins:
+- app: `http://localhost:3000`
 - Keycloak: `http://localhost:8080`
 
-Лучше не смешивать `localhost`, `127.0.0.1`, IP из локальной сети и нестандартные порты внутри одного auth-flow.
+Keep the auth flow consistent. Do not mix `localhost`, `127.0.0.1`, LAN IPs, or different ports in the same local session unless you intentionally reconfigure the client.
 
-Что уже подготовлено для встроенного входа:
-- realm `catastrophic-club`
-- client `catastrophic-club-web`
-- local-only secret `change-me-for-local-dev`
-- разрешённая регистрация пользователей
-- direct access grants для встроенного логина
+## Included Local Configuration
 
-Что оставлено в настройках клиента для совместимости:
-- PKCE `S256`
-- redirect URI `http://localhost:3000/api/auth/callback`
-- post logout redirect `http://localhost:3000/*`
-- root/base URL клиента `http://localhost:3000`
+The repository already contains:
+- realm: `catastrophic-club`
+- client: `catastrophic-club-web`
+- local-only client secret: `change-me-for-local-dev`
+- enabled self-registration
+- enabled direct access grants for inline login
 
-Файлы:
-- compose: [podman-compose.yml](../infra/keycloak/podman-compose.yml)
-- import realm: [catastrophic-club-realm.json](../infra/keycloak/realm-import/catastrophic-club-realm.json)
-- env для контейнера: [.env.example](../infra/keycloak/.env.example)
-- env для приложения: [.env.example](../.env.example)
+Client compatibility settings kept for local development:
+- PKCE: `S256`
+- redirect URI: `http://localhost:3000/api/auth/callback`
+- post logout redirect: `http://localhost:3000/*`
+- root/base URL: `http://localhost:3000`
 
-Запуск:
+Files:
+- compose: [infra/keycloak/podman-compose.yml](../infra/keycloak/podman-compose.yml)
+- realm import: [infra/keycloak/realm-import/catastrophic-club-realm.json](../infra/keycloak/realm-import/catastrophic-club-realm.json)
+- container env example: [infra/keycloak/.env.example](../infra/keycloak/.env.example)
+- app env example: [.env.example](../.env.example)
+
+## Start With Podman Compose
 
 ```sh
 cd infra/keycloak
@@ -35,7 +37,7 @@ cp .env.example .env
 podman compose up -d
 ```
 
-Если `podman compose` у тебя не установлен, можно запускать напрямую:
+## Start Without Compose
 
 ```sh
 cd infra/keycloak
@@ -51,19 +53,23 @@ podman run -d \
   start-dev --import-realm --hostname=http://localhost:8080
 ```
 
-Админка:
+Admin console:
 
 ```text
 http://localhost:8080/admin/
 ```
 
-Локальный логин по умолчанию. Эти значения только для разработки, не для общего окружения:
+Default local admin credentials:
 - username: `admin`
 - password: `admin`
 
-Для приложения создай `.env` в корне проекта на основе [.env.example](../.env.example).
+These values are for local development only.
 
-Минимальный набор:
+## App Environment
+
+Create `.env` in the project root from [.env.example](../.env.example).
+
+Minimum local auth-related values:
 
 ```env
 AUTH_SECRET=replace-with-a-long-random-string
@@ -80,15 +86,16 @@ KEYCLOAK_ADMIN_PASSWORD=admin
 # KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
 ```
 
-`KEYCLOAK_ADMIN_USERNAME` и `KEYCLOAK_ADMIN_PASSWORD` выше — локальные значения для контейнера из примера. Для другого окружения их нужно заменить.
+Replace the admin credentials when using any non-local environment.
 
-Проверка после запуска:
-1. Открой приложение только на `http://localhost:3000`.
-2. Войди через форму в сайдбаре или открой регистрацию в модальном окне.
-3. После успешного входа должна появиться cookie `catastrophic_club_session` на `localhost:3000`.
-4. В шапке и панели аккаунта должно появиться имя пользователя.
+## Verification
 
-Если нужно переимпортировать realm с нуля:
+1. Open the app at `http://localhost:3000`.
+2. Log in through the inline login form or open registration.
+3. Verify that `catastrophic_club_session` appears on `localhost:3000`.
+4. Confirm that the header and account panel show the logged-in user.
+
+## Reset The Local Realm
 
 ```sh
 cd infra/keycloak
@@ -96,4 +103,4 @@ podman compose down -v
 podman compose up -d
 ```
 
-Это удалит volume `keycloak-data` и поднимет Keycloak заново с импортом realm.
+This removes the `keycloak-data` volume and reimports the bundled realm.

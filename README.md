@@ -1,11 +1,11 @@
 # CATastrophic Club
 
-CATastrophic Club is a small cat-themed web app built with `Next.js 16`, `React 19`, `PostgreSQL`, and `Kysely`.
+CATastrophic Club is a cat-themed web app built with `Next.js 16`, `React 19`, `PostgreSQL`, `Kysely`, and `Keycloak`.
 
-The project includes:
-- a home page with a random cat image and cat fact
+The app currently includes:
+- a localized home page with a random cat image and cat fact
 - personal favorites
-- cat battles with score updates
+- cat battles with score tracking
 - a leaderboard based on battle results
 - inline login and registration backed by Keycloak
 
@@ -16,82 +16,54 @@ The project includes:
 - `TypeScript`
 - `PostgreSQL`
 - `Kysely`
-- `Keycloak` for authentication
+- `Keycloak`
 
 ## Project Structure
 
-- `src/app` — App Router pages, layouts, error boundaries, and route handlers
-- `src/entities` — domain entities for cats, favorites, and battles
-- `src/features` — user actions such as toggling favorites
-- `src/widgets` — larger UI blocks used across pages
-- `src/shared` — auth, database, migrations, helpers, and shared UI
-- `docs` — local setup notes
-- `infra/keycloak` — local Keycloak configuration
+- `src/app` - App Router pages, layouts, error boundaries, and route handlers
+- `src/entities` - domain entities such as cats, favorites, and battles
+- `src/features` - user-facing actions such as toggling favorites
+- `src/widgets` - larger UI building blocks
+- `src/shared` - auth, database, i18n, helpers, and shared UI
+- `docs` - project documentation
+- `infra/keycloak` - local Keycloak setup
 
-## Local Setup
+## Documentation
 
-### 1. Install dependencies
+- [docs/local-setup.md](./docs/local-setup.md) - local development setup
+- [docs/keycloak-local.md](./docs/keycloak-local.md) - local Keycloak setup
+- [docs/deploy.md](./docs/deploy.md) - deployment requirements and rollout checklist
+- [docs/operations.md](./docs/operations.md) - operational notes, backups, and incident basics
+
+## Quick Start
+
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-### 2. Create environment files
-
-Create a local app env file from the example:
+2. Create the app env file:
 
 ```bash
 cp .env.example .env
 ```
 
-Create a local Keycloak env file if you want to run auth locally:
+3. Start PostgreSQL and Keycloak for local development.
 
-```bash
-cp infra/keycloak/.env.example infra/keycloak/.env
-```
-
-### 3. Configure application env
-
-Minimum app env values:
-
-```env
-DATABASE_URL=postgres://user:password@host:5432/database
-AUTH_SECRET=replace-with-a-long-random-string
-AUTH_SESSION_TTL_SECONDS=604800
-KEYCLOAK_BASE_URL=http://localhost:8080
-KEYCLOAK_REALM=catastrophic-club
-KEYCLOAK_CLIENT_ID=catastrophic-club-web
-KEYCLOAK_CLIENT_SECRET=change-me-for-local-dev
-KEYCLOAK_ADMIN_USERNAME=admin
-KEYCLOAK_ADMIN_PASSWORD=admin
-# Optional defaults:
-# KEYCLOAK_SCOPE=openid profile email
-# KEYCLOAK_ADMIN_REALM=master
-# KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
-```
-
-`DATABASE_URL` must point to a running PostgreSQL database before migrations can run. The repository does not currently include a local PostgreSQL compose file.
-
-### 4. Start local Keycloak
-
-```bash
-cd infra/keycloak
-podman compose up -d
-```
-
-More details are available in [docs/keycloak-local.md](./docs/keycloak-local.md).
-
-### 5. Run migrations
+4. Run migrations:
 
 ```bash
 npm run db:migrate
 ```
 
-### 6. Start the app
+5. Start the app:
 
 ```bash
 npm run dev
 ```
+
+For the complete local flow, use [docs/local-setup.md](./docs/local-setup.md).
 
 ## Available Scripts
 
@@ -104,27 +76,26 @@ npm run db:migrate
 npm run seed:battle-cats
 ```
 
-## Notes For GitHub
+## Environment
 
-Keep these files local and do not commit them:
+The canonical example environment file is:
+
+- [.env.example](./.env.example)
+
+Local-only Keycloak container variables live in:
+
+- [infra/keycloak/.env.example](./infra/keycloak/.env.example)
+
+Do not commit:
 
 - `.env`
 - `.env.local`
 - `infra/keycloak/.env`
-- `node_modules/`
-- `.next/`
+- `.next`
+- `node_modules`
 
-Use only the example env files in the repository:
+## Notes
 
-- `.env.example`
-- `infra/keycloak/.env.example`
-
-## Auth
-
-Authentication uses Keycloak behind inline login and registration forms. Auth route handlers live under `src/app/api/auth/*`, and the app stores its own encrypted session cookie after a successful Keycloak login.
-
-For local development, the Keycloak client must allow direct access grants. The provided realm import already enables this for `catastrophic-club-web`.
-
-## Database
-
-Database migrations are stored in `src/shared/api/migrations`.
+- The repository includes local Keycloak infrastructure, but not a local PostgreSQL compose setup.
+- Authentication uses the app's own encrypted session cookie after successful Keycloak login.
+- The app currently supports `ru` and `en` and chooses the initial locale from a saved cookie or the request language.
