@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { getClientMessages } from '@/shared/i18n';
 import { getHttpCatUrl } from '@/shared/lib/http-cat';
 import styles from './http-cat-error-state.module.css';
 
@@ -21,6 +22,8 @@ export function HttpCatErrorState({
   actionLabel,
   onAction,
 }: HttpCatErrorStateProps) {
+  const messages = getClientMessages();
+
   return (
     <div className={compact ? `${styles.card} ${styles.compact}` : styles.card}>
       <div className={styles.imageFrame}>
@@ -35,8 +38,8 @@ export function HttpCatErrorState({
 
       <div className={styles.content}>
         <p className={styles.code}>HTTP {status}</p>
-        <h2 className={styles.title}>{title}</h2>
-        <p className={styles.description}>{description}</p>
+        <h2 className={styles.title}>{title ?? messages.errors.genericTitle}</h2>
+        <p className={styles.description}>{description ?? messages.errors.genericDescription}</p>
 
         {actionLabel && onAction ? (
           <button type="button" className={styles.action} onClick={onAction}>

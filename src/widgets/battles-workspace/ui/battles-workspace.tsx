@@ -6,6 +6,7 @@ import type {
   BattleHistoryPage,
   BattleHistoryRecord,
 } from '@/entities/battle-cat';
+import { useI18n } from '@/shared/i18n';
 import { PageCopy, PanelSection } from '@/shared/ui/page-surface';
 import { BattleHistory } from '@/widgets/battle-history';
 import { CatBattleArena } from '@/widgets/cat-battle';
@@ -23,6 +24,7 @@ export function BattlesWorkspace({
   initialPrivateHistory,
   isAuthenticated,
 }: BattlesWorkspaceProps) {
+  const { messages } = useI18n();
   const [localHistoryEntries, setLocalHistoryEntries] = useState<
     BattleHistoryRecord[]
   >([]);
@@ -40,7 +42,10 @@ export function BattlesWorkspace({
 
   return (
     <>
-      <PanelSection title="Текущая пара" meta="Победитель получает 1 очко">
+      <PanelSection
+        title={messages.battles.currentPairTitle}
+        meta={messages.battles.currentPairMeta}
+      >
         <PageCopy>
           <CatBattleArena
             initialPair={initialPair}

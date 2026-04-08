@@ -1,6 +1,7 @@
 import { getBattleHistoryPage, getBattlePair } from '@/entities/battle-cat/api/repository';
 import type { BattleCatRecord } from '@/entities/battle-cat';
 import { getAuthSession } from '@/shared/auth';
+import { getRequestI18n } from '@/shared/i18n/server';
 import { PageIntro, PaperPanel, SidebarEyebrow, SidebarList } from '@/shared/ui/page-surface';
 import { BattlesWorkspace } from '@/widgets/battles-workspace';
 import { SitePageGrid } from '@/widgets/site-layout';
@@ -8,8 +9,12 @@ import { SitePageGrid } from '@/widgets/site-layout';
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const session = await getAuthSession();
-  const initialPair: BattleCatRecord[] = (await getBattlePair()).map((cat) => ({
+  const [{ messages }, session, pair] = await Promise.all([
+    getRequestI18n(),
+    getAuthSession(),
+    getBattlePair(),
+  ]);
+  const initialPair: BattleCatRecord[] = pair.map((cat) => ({
     id: cat.id,
     imageUrl: cat.imageUrl,
     score: cat.score,
@@ -22,19 +27,19 @@ export default async function Page() {
   return (
     <>
       <PageIntro>
-        <h1>Битвы котиков</h1>
-        <p>Две мордочки, один голос. Выбери того, кто сегодня явно в ударе.</p>
+        <h1>{messages.battles.introTitle}</h1>
+        <p>{messages.battles.introText}</p>
       </PageIntro>
 
       <SitePageGrid
         session={session}
         sidebar={(
           <PaperPanel inset>
-            <SidebarEyebrow>правила</SidebarEyebrow>
+            <SidebarEyebrow>{messages.battles.rulesEyebrow}</SidebarEyebrow>
             <SidebarList>
-              <li>Победитель получает одно очко</li>
-              <li>Новая пара появляется сразу после выбора</li>
-              <li>Понравившегося кота можно сохранить</li>
+              {messages.battles.rules.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </SidebarList>
           </PaperPanel>
         )}

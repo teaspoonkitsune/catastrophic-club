@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { FavoriteCatCard } from '@/entities/favorite-cat';
 import { addFavoriteCatToApi, removeFavoriteCatFromApi } from '@/entities/favorite-cat/api';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
+import { useI18n } from '@/shared/i18n';
 import { toHttpCatError } from '@/shared/lib/http-cat';
-import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
-import { FavoritesGrid } from '@/widgets/favorites-grid';
+import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { FavoritesViewerModal } from './favorites-viewer-modal';
+import styles from './favorites-browser.module.css';
 
 type FavoritesBrowserProps = {
   initialCats: FavoriteCatRecord[];
 };
 
 export function FavoritesBrowser({ initialCats }: FavoritesBrowserProps) {
+  const { messages } = useI18n();
   const [cats] = useState(initialCats);
   const [favoriteState, setFavoriteState] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(initialCats.map((cat) => [cat.id, true])),
@@ -73,11 +76,11 @@ export function FavoritesBrowser({ initialCats }: FavoritesBrowserProps) {
 
   if (errorStatus) {
     return (
-      <HttpCatErrorState
+      <LazyHttpCatErrorState
         status={errorStatus}
-        title="Не удалось обновить избранное"
-        description="Попробуйте еще раз."
-        actionLabel="Скрыть"
+        title={messages.errors.genericTitle}
+        description={messages.errors.genericDescription}
+        actionLabel={messages.common.hide}
         onAction={() => setErrorStatus(null)}
       />
     );
@@ -85,13 +88,22 @@ export function FavoritesBrowser({ initialCats }: FavoritesBrowserProps) {
 
   if (cats.length === 0) {
     return (
-      <p>В избранном пока ничего нет.</p>
+      <p>{messages.favorites.empty}</p>
     );
   }
 
   return (
     <>
-      <FavoritesGrid cats={cats} favoriteState={favoriteState} onOpen={openViewer} />
+      <div className={styles.grid}>
+        {cats.map((cat, index) => (
+          <FavoriteCatCard
+            key={cat.id}
+            cat={cat}
+            onOpen={() => openViewer(index)}
+            isFavorite={favoriteState[cat.id] ?? true}
+          />
+        ))}
+      </div>
 
       {activeCat ? (
         <FavoritesViewerModal

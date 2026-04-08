@@ -1,6 +1,7 @@
 'use client';
 
 import { Star } from 'lucide-react';
+import { useI18n } from '@/shared/i18n';
 import styles from './toggle-favorite-button.module.css';
 
 export type FavoriteButtonSize = 'md' | 'sm';
@@ -28,11 +29,13 @@ export function FavoriteButton({
   onClick,
   size = 'md',
 }: FavoriteButtonProps) {
+  const { messages } = useI18n();
+
   return (
     <button
       type="button"
       aria-pressed={isFavorite}
-      aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+      aria-label={isFavorite ? messages.favoriteButton.remove : messages.favoriteButton.add}
       onClick={onClick}
       disabled={isLoading}
       className={getButtonClassName(size, isFavorite)}

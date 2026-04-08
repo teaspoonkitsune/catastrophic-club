@@ -1,6 +1,7 @@
 'use client';
 
-import { ToggleFavoriteButton } from '@/features/toggle-favorite';
+import type { ReactNode } from 'react';
+import { useI18n } from '@/shared/i18n';
 import { GalleryImage } from '@/shared/ui/gallery-image';
 import type { BattleCatRecord } from '../model/types';
 import styles from './battle-cat-card.module.css';
@@ -10,6 +11,7 @@ type BattleCatCardProps = {
   galleryItems?: string[];
   onImageOpen?: () => void;
   onVote: (id: string) => void;
+  actionSlot?: ReactNode;
   disabled?: boolean;
   isAuthenticated?: boolean;
 };
@@ -19,35 +21,33 @@ export function BattleCatCard({
   galleryItems,
   onImageOpen,
   onVote,
+  actionSlot,
   disabled = false,
   isAuthenticated = false,
 }: BattleCatCardProps) {
+  const { messages } = useI18n();
+
   return (
     <article className={styles.card}>
       <GalleryImage
         src={cat.imageUrl}
-        alt="Котик для битвы"
+        alt={messages.battles.battleImageAlt}
         previewSize="full"
         galleryItems={galleryItems}
         onOpen={onImageOpen}
       >
-        <ToggleFavoriteButton
-          id={cat.id}
-          imageUrl={cat.imageUrl}
-          isAuthenticated={isAuthenticated}
-          loadOnMount={false}
-        />
+        {actionSlot}
       </GalleryImage>
 
       <div className={styles.footer}>
-        <p className={styles.score}>Очки: {cat.score}</p>
+        <p className={styles.score}>{messages.leaderboard.table.score}: {cat.score}</p>
         <button
           type="button"
           className={styles.voteButton}
           onClick={() => onVote(cat.id)}
           disabled={disabled || !isAuthenticated}
         >
-          {isAuthenticated ? 'Выбрать' : 'Войдите, чтобы голосовать'}
+          {isAuthenticated ? messages.battles.voteButton : messages.battles.loginToVote}
         </button>
       </div>
     </article>

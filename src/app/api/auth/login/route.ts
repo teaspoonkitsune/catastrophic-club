@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { writeAuthSessionToResponse } from '@/shared/auth';
 import { KeycloakAuthError, loginWithKeycloakPassword } from '@/shared/auth/keycloak';
+import { getRequestI18n } from '@/shared/i18n/server';
 
 export async function GET(request: Request) {
   return NextResponse.redirect(new URL('/', request.url));
 }
 
 export async function POST(request: Request) {
+  const { messages } = await getRequestI18n();
   const body = (await request.json().catch(() => null)) as Partial<{
     username: string;
     password: string;
@@ -15,7 +17,7 @@ export async function POST(request: Request) {
   const password = body?.password;
 
   if (!username || !password) {
-    return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
+    return NextResponse.json({ error: messages.auth.errors.missingUsernamePassword }, { status: 400 });
   }
 
   try {
@@ -25,10 +27,17 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     if (error instanceof KeycloakAuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      const localizedError =
+        error.status === 401
+          ? messages.auth.errors.invalidCredentials
+          : error.status === 502
+            ? messages.auth.errors.loadAccountFailed
+            : messages.auth.errors.genericLoginFailed;
+
+      return NextResponse.json({ error: localizedError }, { status: error.status });
     }
 
     console.error('Failed to sign in with Keycloak', error);
-    return NextResponse.json({ error: 'Failed to sign in' }, { status: 500 });
+    return NextResponse.json({ error: messages.auth.errors.genericLoginFailed }, { status: 500 });
   }
 }

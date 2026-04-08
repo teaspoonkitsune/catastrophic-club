@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { AuthSession } from '@/shared/auth';
 import { FOCUS_INLINE_LOGIN_EVENT, OPEN_INLINE_REGISTER_EVENT } from '@/shared/auth/client-events';
+import { useI18n } from '@/shared/i18n';
 import styles from './mobile-auth-panel.module.css';
 
 type MobileAuthPanelProps = {
@@ -31,6 +32,7 @@ function isMobileViewport() {
 }
 
 export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanelProps) {
+  const { messages } = useI18n();
   const pathname = usePathname();
   const returnPath = currentPath ?? pathname ?? '/';
   const [mode, setMode] = useState<AuthMode>('login');
@@ -86,7 +88,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
     event.preventDefault();
 
     if (!loginValue.trim() || !passwordValue) {
-      setError('Введите логин и пароль.');
+      setError(messages.auth.errors.enterCredentials);
       return;
     }
 
@@ -107,13 +109,13 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
       });
 
       if (!response.ok) {
-        setError(await readError(response, 'Не удалось войти в аккаунт.'));
+        setError(await readError(response, messages.auth.errors.loginFailed));
         return;
       }
 
       window.location.reload();
     } catch {
-      setError('Не удалось войти в аккаунт.');
+      setError(messages.auth.errors.loginFailed);
     } finally {
       setIsLoggingIn(false);
     }
@@ -123,7 +125,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
     event.preventDefault();
 
     if (!registerEmail.trim() || !registerPassword) {
-      setError('Заполни email и пароль.');
+      setError(messages.auth.errors.fillEmailPassword);
       return;
     }
 
@@ -145,13 +147,13 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
       });
 
       if (!response.ok) {
-        setError(await readError(response, 'Не удалось создать аккаунт.'));
+        setError(await readError(response, messages.auth.errors.registerFailed));
         return;
       }
 
       window.location.reload();
     } catch {
-      setError('Не удалось создать аккаунт.');
+      setError(messages.auth.errors.registerFailed);
     } finally {
       setIsRegistering(false);
     }
@@ -184,18 +186,18 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
     <div className={styles.mobileAuth}>
       {session ? (
         <>
-          <span className={styles.accountLabel}>Вы вошли как {session.user.name ?? session.user.email}</span>
+          <span className={styles.accountLabel}>{messages.auth.loggedInAs} {session.user.name ?? session.user.email}</span>
           <button type="button" className={styles.authButton} onClick={handleLogout}>
-            Выйти
+            {messages.auth.logout}
           </button>
         </>
       ) : (
         <>
           <button type="button" className={styles.authButton} onClick={() => openMode('login')}>
-            Войти
+            {messages.auth.login}
           </button>
           <button type="button" className={styles.authButtonAlt} onClick={() => openMode('register')}>
-            Регистрация
+            {messages.auth.register}
           </button>
         </>
       )}
@@ -211,26 +213,26 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
             className={styles.modal}
             role="dialog"
             aria-modal="true"
-            aria-label={mode === 'login' ? 'Вход в аккаунт' : 'Регистрация'}
+            aria-label={mode === 'login' ? messages.auth.modalLabelLogin : messages.auth.modalLabelRegister}
             onClick={(event) => event.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <p className={styles.modalEyebrow}>аккаунт</p>
+              <p className={styles.modalEyebrow}>{messages.auth.account}</p>
               <button type="button" className={styles.closeButton} onClick={() => setIsOpen(false)}>
                 x
               </button>
             </div>
 
-            <h2 className={styles.modalTitle}>{mode === 'login' ? 'Вход' : 'Регистрация'}</h2>
+            <h2 className={styles.modalTitle}>{mode === 'login' ? messages.auth.login : messages.auth.register}</h2>
 
-            <div className={styles.modeTabs} aria-label="Выбор действия">
+            <div className={styles.modeTabs} aria-label={messages.auth.actionChoice}>
               <button
                 type="button"
                 className={styles.modeTab}
                 data-active={mode === 'login' ? 'true' : 'false'}
                 onClick={() => openMode('login')}
               >
-                Вход
+                {messages.auth.login}
               </button>
               <button
                 type="button"
@@ -238,14 +240,14 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
                 data-active={mode === 'register' ? 'true' : 'false'}
                 onClick={() => openMode('register')}
               >
-                Регистрация
+                {messages.auth.register}
               </button>
             </div>
 
             {mode === 'login' ? (
               <form className={styles.form} onSubmit={handleLoginSubmit}>
                 <label className={styles.label}>
-                  Email или логин
+                  {messages.auth.emailOrLogin}
                   <input
                     className={styles.input}
                     value={loginValue}
@@ -256,7 +258,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
                 </label>
 
                 <label className={styles.label}>
-                  Пароль
+                  {messages.auth.password}
                   <input
                     className={styles.input}
                     type="password"
@@ -271,17 +273,17 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
 
                 <div className={styles.actions}>
                   <button type="submit" className={styles.primaryButton} disabled={isLoggingIn}>
-                    {isLoggingIn ? 'Входим...' : 'Войти'}
+                    {isLoggingIn ? messages.common.loading : messages.auth.login}
                   </button>
                   <button type="button" className={styles.secondaryButton} onClick={() => openMode('register')}>
-                    Регистрация
+                    {messages.auth.register}
                   </button>
                 </div>
               </form>
             ) : (
               <form className={styles.form} onSubmit={handleRegisterSubmit}>
                 <label className={styles.label}>
-                  Имя
+                  {messages.auth.name}
                   <input
                     className={styles.input}
                     value={registerName}
@@ -292,7 +294,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
                 </label>
 
                 <label className={styles.label}>
-                  Email
+                  {messages.auth.email}
                   <input
                     className={styles.input}
                     type="email"
@@ -304,7 +306,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
                 </label>
 
                 <label className={styles.label}>
-                  Пароль
+                  {messages.auth.password}
                   <input
                     className={styles.input}
                     type="password"
@@ -319,10 +321,10 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
 
                 <div className={styles.actions}>
                   <button type="submit" className={styles.primaryButton} disabled={isRegistering}>
-                    {isRegistering ? 'Создаём...' : 'Создать аккаунт'}
+                    {isRegistering ? messages.common.loading : messages.auth.createAccount}
                   </button>
                   <button type="button" className={styles.secondaryButton} onClick={() => openMode('login')}>
-                    Войти
+                    {messages.auth.login}
                   </button>
                 </div>
               </form>

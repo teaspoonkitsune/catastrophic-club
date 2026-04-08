@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useI18n } from '@/shared/i18n';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
-import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
@@ -83,6 +84,7 @@ export function FeaturedCatWidget({
   fact,
   isAuthenticated = false,
 }: FeaturedCatWidgetProps) {
+  const { messages } = useI18n();
   const [imageAspectRatio, setImageAspectRatio] = useState<string | null>(null);
   const [cat, setCat] = useState({
     id,
@@ -181,14 +183,14 @@ export function FeaturedCatWidget({
           type="button"
           className={styles.imageButton}
           onClick={handleOpenViewer}
-          aria-label="Открыть картинку дня"
+          aria-label={messages.featuredCat.openAria}
           data-ready={imageAspectRatio ? 'true' : 'false'}
           style={imageAspectRatio ? { aspectRatio: imageAspectRatio } : undefined}
         >
           <Image
             key={cat.id}
             src={cat.imageUrl}
-            alt="Кот дня"
+            alt={messages.featuredCat.alt}
             width={400}
             height={400}
             className={styles.image}
@@ -211,7 +213,7 @@ export function FeaturedCatWidget({
             onClick={handleRefreshImage}
             disabled={isRefreshing}
           >
-            {isRefreshing ? 'Обновляем...' : 'Другое фото'}
+            {isRefreshing ? messages.featuredCat.refreshing : messages.featuredCat.refresh}
           </button>
 
           <ToggleFavoriteButton
@@ -224,12 +226,12 @@ export function FeaturedCatWidget({
       </div>
 
       {errorStatus ? (
-        <HttpCatErrorState
+        <LazyHttpCatErrorState
           compact
           status={errorStatus}
-          title="Не удалось загрузить фото"
-          description="Попробуйте еще раз."
-          actionLabel="Скрыть"
+          title={messages.featuredCat.errorTitle}
+          description={messages.featuredCat.errorDescription}
+          actionLabel={messages.common.hide}
           onAction={() => setErrorStatus(null)}
         />
       ) : null}
@@ -239,8 +241,8 @@ export function FeaturedCatWidget({
       {isViewerOpen ? (
         <ImageViewer
           src={cat.imageUrl}
-          alt="Кот дня"
-          ariaLabel="Просмотр картинки дня"
+          alt={messages.featuredCat.alt}
+          ariaLabel={messages.featuredCat.viewerAria}
           onClose={() => setIsViewerOpen(false)}
         />
       ) : null}

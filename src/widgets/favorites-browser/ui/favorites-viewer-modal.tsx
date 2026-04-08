@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
+import { formatDateTime, useI18n } from '@/shared/i18n';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import styles from './favorites-viewer-modal.module.css';
 
@@ -16,23 +17,6 @@ type FavoritesViewerModalProps = {
   onToggleFavorite: () => void;
 };
 
-function formatAddedAt(addedAt: string) {
-  const date = new Date(addedAt);
-  const datePart = new Intl.DateTimeFormat('ru-RU', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date);
-  const timePart = new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  }).format(date);
-
-  return `Добавлено: ${datePart} в ${timePart}`;
-}
-
 export function FavoritesViewerModal({
   cat,
   isFavorite,
@@ -43,6 +27,8 @@ export function FavoritesViewerModal({
   onNext,
   onToggleFavorite,
 }: FavoritesViewerModalProps) {
+  const { locale, messages } = useI18n();
+
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -76,13 +62,21 @@ export function FavoritesViewerModal({
   return (
     <ImageViewer
       src={cat.imageUrl}
-      alt="Котик из избранного"
-      ariaLabel="Просмотр котика из избранного"
+      alt={messages.favorites.viewerAlt}
+      ariaLabel={messages.favorites.viewerAria}
       hasMultiple={hasMultiple}
       onClose={onClose}
       onPrevious={onPrevious}
       onNext={onNext}
-      footer={formatAddedAt(cat.addedAt)}
+      footer={`${messages.favorites.addedPrefix} ${formatDateTime(cat.addedAt, locale, {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })}`}
       imageAction={(
         <button
           type="button"
@@ -92,7 +86,7 @@ export function FavoritesViewerModal({
             onToggleFavorite();
           }}
           aria-pressed={isFavorite}
-          aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          aria-label={isFavorite ? messages.favoriteButton.remove : messages.favoriteButton.add}
           disabled={isPending}
         >
           <span aria-hidden="true">{isFavorite ? '★' : '☆'}</span>

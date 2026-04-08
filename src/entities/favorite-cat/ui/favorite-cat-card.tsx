@@ -1,6 +1,7 @@
 'use client';
 
 import type { FavoriteCatRecord } from '@/entities/favorite-cat';
+import { useI18n } from '@/shared/i18n';
 import { ImagePreview } from '@/shared/ui/image-preview';
 import styles from './favorite-cat-card.module.css';
 
@@ -11,18 +12,20 @@ type FavoriteCatCardProps = {
 };
 
 export function FavoriteCatCard({ cat, onOpen, isFavorite = true }: FavoriteCatCardProps) {
+  const { messages } = useI18n();
+
   return (
     <ImagePreview
       renderAs="button"
       className={styles.card}
       imageClassName={styles.image}
       src={cat.imageUrl}
-      alt="Котик из избранного"
+      alt={messages.favorites.viewerAlt}
       onOpen={onOpen}
       sizes="(min-width: 1024px) 24vw, (min-width: 640px) 33vw, 90vw"
       rootDataAttributes={{ 'data-favorite': isFavorite ? 'true' : 'false' }}
     >
-      {!isFavorite ? <span className={styles.badge}>Убрано из избранного</span> : null}
+      {!isFavorite ? <span className={styles.badge}>{messages.favorites.removedBadge}</span> : null}
     </ImagePreview>
   );
 }

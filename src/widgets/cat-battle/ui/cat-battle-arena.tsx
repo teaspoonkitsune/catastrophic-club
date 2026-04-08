@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ToggleFavoriteButton } from '@/features/toggle-favorite';
+import { useI18n } from '@/shared/i18n';
 import { toHttpCatError } from '@/shared/lib/http-cat';
-import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import type { BattleCatRecord, BattleHistoryRecord } from '@/entities/battle-cat';
 import { BattleCatCard } from '@/entities/battle-cat';
@@ -20,6 +22,7 @@ export function CatBattleArena({
   isAuthenticated = false,
   onHistoryEntry,
 }: CatBattleArenaProps) {
+  const { messages } = useI18n();
   const [pair, setPair] = useState(initialPair);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
@@ -116,24 +119,24 @@ export function CatBattleArena({
 
   if (errorStatus) {
     return (
-      <HttpCatErrorState
+      <LazyHttpCatErrorState
         status={errorStatus}
-        title="Не удалось загрузить битву"
-        description="Попробуйте еще раз."
-        actionLabel="Скрыть"
+        title={messages.battles.errorTitle}
+        description={messages.battles.errorDescription}
+        actionLabel={messages.common.hide}
         onAction={() => setErrorStatus(null)}
       />
     );
   }
 
   if (pair.length < 2) {
-    return <p>Недостаточно данных для битвы.</p>;
+    return <p>{messages.battles.insufficientData}</p>;
   }
 
   return (
     <>
       {isDailyLimitReached ? (
-        <p className={styles.limitNotice}>Лимит голосов на сегодня исчерпан.</p>
+        <p className={styles.limitNotice}>{messages.battles.dailyLimitReached}</p>
       ) : null}
 
       <section className={styles.wrapper}>
@@ -142,6 +145,14 @@ export function CatBattleArena({
           galleryItems={galleryItems}
           onImageOpen={() => setActiveImageIndex(0)}
           onVote={handleVote}
+          actionSlot={(
+            <ToggleFavoriteButton
+              id={pair[0].id}
+              imageUrl={pair[0].imageUrl}
+              isAuthenticated={isAuthenticated}
+              loadOnMount={false}
+            />
+          )}
           disabled={isSubmitting || isDailyLimitReached}
           isAuthenticated={isAuthenticated}
         />
@@ -155,6 +166,14 @@ export function CatBattleArena({
           galleryItems={galleryItems}
           onImageOpen={() => setActiveImageIndex(1)}
           onVote={handleVote}
+          actionSlot={(
+            <ToggleFavoriteButton
+              id={pair[1].id}
+              imageUrl={pair[1].imageUrl}
+              isAuthenticated={isAuthenticated}
+              loadOnMount={false}
+            />
+          )}
           disabled={isSubmitting || isDailyLimitReached}
           isAuthenticated={isAuthenticated}
         />
@@ -163,8 +182,8 @@ export function CatBattleArena({
       {activeImageSrc ? (
         <ImageViewer
           src={activeImageSrc}
-          alt="Котик для битвы"
-          ariaLabel="Просмотр котика для битвы"
+          alt={messages.battles.battleImageAlt}
+          ariaLabel={messages.battles.battleViewerAria}
           hasMultiple={hasMultipleImages}
           onClose={() => setActiveImageIndex(null)}
           onPrevious={() => setActiveImageIndex((current) => {

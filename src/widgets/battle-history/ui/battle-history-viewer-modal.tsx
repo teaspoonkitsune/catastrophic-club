@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
+import { useI18n } from '@/shared/i18n';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import styles from './battle-history.module.css';
 
@@ -33,6 +34,7 @@ export function BattleHistoryViewerModal({
   onPrevious,
   onNext,
 }: BattleHistoryViewerModalProps) {
+  const { messages } = useI18n();
   const activeImage = images[activeIndex];
   const hasMultiple = images.length > 1;
 
@@ -80,7 +82,7 @@ export function BattleHistoryViewerModal({
     <ImageViewer
       src={activeImage.imageUrl}
       alt={activeImage.alt}
-      ariaLabel="Просмотр котика из истории битв"
+      ariaLabel={messages.history.viewerAria}
       hasMultiple={hasMultiple}
       onClose={onClose}
       onPrevious={onPrevious}

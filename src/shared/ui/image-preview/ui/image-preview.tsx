@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { useI18n } from '@/shared/i18n';
 import styles from './image-preview.module.css';
 
 type ImagePreviewProps = {
@@ -36,6 +37,7 @@ export function ImagePreview({
   onOpen,
   onLoad,
 }: ImagePreviewProps) {
+  const { messages } = useI18n();
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const isLoading = loadedSrc !== src;
 
@@ -83,7 +85,7 @@ export function ImagePreview({
         className={rootClassName}
         data-loading={isLoading ? 'true' : 'false'}
         onClick={onOpen ? handleOpen : undefined}
-        aria-label={`Открыть изображение: ${alt}`}
+        aria-label={`${messages.images.openImageWithAlt} ${alt}`}
         style={rootStyle}
         {...dataAttributes}
       >

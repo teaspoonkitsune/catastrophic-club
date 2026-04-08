@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { getClientMessages } from '@/shared/i18n';
 import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { PaperPanel } from '@/shared/ui/page-surface';
 
@@ -15,13 +16,15 @@ export default function Error({
     console.error(error);
   }, [error]);
 
+  const messages = getClientMessages();
+
   return (
     <PaperPanel inset>
       <HttpCatErrorState
         status={500}
-        title="Что-то пошло не так"
-        description="Страница не загрузилась как надо. Попробуй открыть её ещё раз."
-        actionLabel="Повторить"
+        title={messages.errors.pageTitle}
+        description={messages.errors.pageDescription}
+        actionLabel={messages.common.retry}
         onAction={() => unstable_retry()}
       />
     </PaperPanel>

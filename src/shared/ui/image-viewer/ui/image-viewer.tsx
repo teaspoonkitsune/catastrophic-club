@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
+import { useI18n } from '@/shared/i18n';
 import { isImageLoaded, markImageLoaded } from '../model/preload-image';
 import styles from './image-viewer.module.css';
 
@@ -28,6 +29,7 @@ export function ImageViewer({
   onPrevious,
   onNext,
 }: ImageViewerProps) {
+  const { messages } = useI18n();
   const [loadedSrc, setLoadedSrc] = useState<string | null>(() =>
     isImageLoaded(src) ? src : null,
   );
@@ -49,7 +51,7 @@ export function ImageViewer({
         type="button"
         className={styles.closeButton}
         onClick={onClose}
-        aria-label="Закрыть просмотр"
+        aria-label={messages.images.closeViewer}
       >
         x
       </button>
@@ -63,7 +65,7 @@ export function ImageViewer({
               event.stopPropagation();
               onPrevious?.();
             }}
-            aria-label="Предыдущее фото"
+            aria-label={messages.images.previous}
           >
             {'<'}
           </button>
@@ -75,7 +77,7 @@ export function ImageViewer({
               event.stopPropagation();
               onNext?.();
             }}
-            aria-label="Следующее фото"
+            aria-label={messages.images.next}
           >
             {'>'}
           </button>
@@ -87,7 +89,7 @@ export function ImageViewer({
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label={ariaLabel ?? alt ?? 'Просмотр изображения'}
+        aria-label={ariaLabel ?? alt ?? messages.images.defaultViewerAria}
       >
         <div
           className={styles.imageFrame}

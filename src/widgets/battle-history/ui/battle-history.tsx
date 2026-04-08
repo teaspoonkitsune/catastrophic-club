@@ -6,6 +6,7 @@ import type {
   BattleHistoryRecord,
 } from '@/entities/battle-cat';
 import { fetchBattleHistoryPage } from '@/entities/battle-cat/api';
+import { formatDateTime, useI18n } from '@/shared/i18n';
 import { toHttpCatError } from '@/shared/lib/http-cat';
 import { ImagePreview } from '@/shared/ui/image-preview';
 import { BattleHistoryViewerModal } from './battle-history-viewer-modal';
@@ -30,16 +31,6 @@ type HistoryPairImage = {
   alt: string;
 };
 
-function formatBattleDate(value: string) {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
-}
-
 function prependEntries(
   page: BattleHistoryPage,
   entries: BattleHistoryRecord[],
@@ -61,23 +52,23 @@ function prependEntries(
   };
 }
 
-function toHistoryPair(entry: BattleHistoryRecord): HistoryPairImage[] {
+function toHistoryPair(entry: BattleHistoryRecord, winnerAlt: string, loserAlt: string): HistoryPairImage[] {
   return [
     {
       id: entry.winnerId,
       imageUrl: entry.winnerImageUrl,
-      alt: 'Победитель битвы',
+      alt: winnerAlt,
     },
     {
       id: entry.loserId,
       imageUrl: entry.loserImageUrl,
-      alt: 'Проигравший битвы',
+      alt: loserAlt,
     },
   ];
 }
 
-function toHistoryImages(entries: BattleHistoryRecord[]) {
-  return entries.flatMap(toHistoryPair);
+function toHistoryImages(entries: BattleHistoryRecord[], winnerAlt: string, loserAlt: string) {
+  return entries.flatMap((entry) => toHistoryPair(entry, winnerAlt, loserAlt));
 }
 
 export function BattleHistory({
@@ -86,6 +77,7 @@ export function BattleHistory({
   isAuthenticated,
   localEntries,
 }: BattleHistoryProps) {
+  const { locale, messages } = useI18n();
   const [scope, setScope] = useState<BattleHistoryScope>('global');
   const [globalHistory, setGlobalHistory] = useState(initialGlobalHistory);
   const [privateHistory, setPrivateHistory] = useState<BattleHistoryPage | null>(
@@ -104,7 +96,9 @@ export function BattleHistory({
       : privateHistory;
   const currentPage =
     scope === 'global' ? displayedGlobalHistory : displayedPrivateHistory;
-  const currentHistoryImages = currentPage ? toHistoryImages(currentPage.items) : [];
+  const currentHistoryImages = currentPage
+    ? toHistoryImages(currentPage.items, messages.history.winnerAlt, messages.history.loserAlt)
+    : [];
   const activeHistoryImage =
     activeImageIndex === null ? null : currentHistoryImages[activeImageIndex] ?? null;
 
@@ -200,54 +194,60 @@ export function BattleHistory({
   return (
     <PaperPanel>
       <PanelHeader>
-        <h2>История битв</h2>
-        <p>{isLoading ? 'Обновляем...' : 'Последние 10 боев'}</p>
+        <h2>{messages.history.title}</h2>
+        <p>{isLoading ? messages.history.updating : messages.history.recent}</p>
       </PanelHeader>
 
       <div className={styles.body}>
-        <div className={styles.tabs} aria-label="Переключение истории битв">
+        <div className={styles.tabs} aria-label={messages.history.tabsLabel}>
           <button
             type="button"
             className={scope === 'global' ? styles.activeTab : styles.tab}
             onClick={() => void loadHistory('global', globalHistory.offset)}
           >
-            Все
+            {messages.history.all}
           </button>
           <button
             type="button"
             className={scope === 'mine' ? styles.activeTab : styles.tab}
             onClick={() => void loadHistory('mine', privateHistory?.offset ?? 0)}
           >
-            Моя
+            {messages.history.mine}
           </button>
         </div>
 
         {scope === 'mine' && !isAuthenticated ? (
-          <p className={styles.empty}>Войдите, чтобы посмотреть свою историю.</p>
+          <p className={styles.empty}>{messages.history.loginRequired}</p>
         ) : null}
 
         {errorStatus ? (
-          <p className={styles.empty}>Не удалось загрузить историю. Код: {errorStatus}</p>
+          <p className={styles.empty}>{messages.history.loadFailed} {errorStatus}</p>
         ) : null}
 
         {currentPage && currentPage.items.length > 0 ? (
           <ol className={styles.list}>
             {currentPage.items.map((entry, entryIndex) => (
               <li key={entry.id} className={styles.item}>
-                <span className={styles.date}>{formatBattleDate(entry.createdAt)}</span>
+                <span className={styles.date}>{formatDateTime(entry.createdAt, locale, {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}</span>
                 <span className={styles.matchup}>
                   <ImagePreview
                     src={entry.winnerImageUrl}
-                    alt="Победитель"
+                    alt={messages.history.winnerAlt}
                     className={styles.catPreview}
                     renderAs="button"
                     sizes="96px"
                     onOpen={() => openViewer(entryIndex, 0)}
                   />
-                  <span className={styles.result}>победил</span>
+                  <span className={styles.result}>{messages.history.resultWon}</span>
                   <ImagePreview
                     src={entry.loserImageUrl}
-                    alt="Проигравший"
+                    alt={messages.history.loserAlt}
                     className={styles.catPreview}
                     renderAs="button"
                     sizes="96px"
@@ -257,13 +257,9 @@ export function BattleHistory({
               </li>
             ))}
           </ol>
-        ) : null}
-
-        {currentPage &&
-        currentPage.items.length === 0 &&
-        !(scope === 'mine' && !isAuthenticated) ? (
-          <p className={styles.empty}>История пуста.</p>
-        ) : null}
+        ) : errorStatus || (scope === 'mine' && !isAuthenticated) ? null : (
+          <p className={styles.empty}>{messages.history.empty}</p>
+        )}
 
         {currentPage ? (
           <div className={styles.pagination}>
@@ -279,7 +275,7 @@ export function BattleHistory({
                 (scope === 'mine' && !isAuthenticated)
               }
             >
-              Назад
+              {messages.common.back}
             </button>
             <button
               type="button"
@@ -291,7 +287,7 @@ export function BattleHistory({
                 (scope === 'mine' && !isAuthenticated)
               }
             >
-              Дальше
+              {messages.common.next}
             </button>
           </div>
         ) : null}

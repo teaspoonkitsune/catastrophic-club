@@ -16,6 +16,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 0.25rem;
 }
 
 .kicker {
@@ -25,6 +26,34 @@
   letter-spacing: 0.08em;
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.localeSwitcher {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.localeLabel {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.localeSelect {
+  border: 1px solid var(--paper-rule);
+  padding: 0.35rem 0.6rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.localeSelect:focus-visible {
+  outline: 2px solid var(--paper-secondary);
+  outline-offset: 2px;
 }
 
 .authBlock {
@@ -111,8 +140,7 @@
   }
 
   .topRow {
-    flex-direction: column;
-    align-items: stretch;
+    align-items: flex-end;
   }
 
   .authBlock {

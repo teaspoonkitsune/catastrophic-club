@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
+import { useI18n } from '@/shared/i18n';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ImagePreview } from '@/shared/ui/image-preview';
 import { useGalleryImage } from '../model/use-gallery-image';
@@ -40,6 +41,7 @@ export function GalleryImage({
   onOpen,
   galleryItems,
 }: GalleryImageProps) {
+  const { messages } = useI18n();
   const { isOpen, currentSrc, hasMultiple, open, close, showPrevious, showNext } = useGalleryImage({
     src,
     galleryItems,
@@ -74,7 +76,7 @@ export function GalleryImage({
         <ImageViewer
           src={currentSrc}
           alt={alt}
-          ariaLabel={alt || 'Просмотр изображения'}
+          ariaLabel={alt || messages.images.defaultViewerAria}
           hasMultiple={hasMultiple}
           onClose={close}
           onPrevious={showPrevious}

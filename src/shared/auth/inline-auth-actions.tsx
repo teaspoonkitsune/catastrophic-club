@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/shared/i18n';
 import { requestInlineLogin, requestInlineRegister } from './client-events';
 
 type InlineAuthActionsProps = {
@@ -14,16 +15,18 @@ export function InlineAuthActions({
   className,
   loginClassName,
   registerClassName,
-  loginLabel = 'Войти',
-  registerLabel = 'Создать аккаунт',
+  loginLabel,
+  registerLabel,
 }: InlineAuthActionsProps) {
+  const { messages } = useI18n();
+
   return (
     <div className={className}>
       <button type="button" className={loginClassName} onClick={requestInlineLogin}>
-        {loginLabel}
+        {loginLabel ?? messages.auth.login}
       </button>
       <button type="button" className={registerClassName} onClick={requestInlineRegister}>
-        {registerLabel}
+        {registerLabel ?? messages.auth.createAccount}
       </button>
     </div>
   );

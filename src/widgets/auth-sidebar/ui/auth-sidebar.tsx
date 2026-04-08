@@ -8,6 +8,7 @@ import {
   FOCUS_INLINE_LOGIN_EVENT,
   OPEN_INLINE_REGISTER_EVENT,
 } from '@/shared/auth/client-events';
+import { useI18n } from '@/shared/i18n';
 import { PaperPanel, SidebarEyebrow } from '@/shared/ui/page-surface';
 import styles from './auth-sidebar.module.css';
 
@@ -34,6 +35,7 @@ function shouldUseSidebarAuth() {
 }
 
 export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
+  const { messages } = useI18n();
   const pathname = usePathname();
   const returnPath = currentPath ?? pathname ?? '/';
   const loginInputRef = useRef<HTMLInputElement>(null);
@@ -87,7 +89,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
     event.preventDefault();
 
     if (!loginValue.trim() || !passwordValue) {
-      setLoginError('Введите логин и пароль.');
+      setLoginError(messages.auth.errors.enterCredentials);
       return;
     }
 
@@ -108,13 +110,13 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
       });
 
       if (!response.ok) {
-        setLoginError(await readError(response, 'Не удалось войти в аккаунт.'));
+        setLoginError(await readError(response, messages.auth.errors.loginFailed));
         return;
       }
 
       window.location.reload();
     } catch {
-      setLoginError('Не удалось войти в аккаунт.');
+      setLoginError(messages.auth.errors.loginFailed);
     } finally {
       setIsLoggingIn(false);
     }
@@ -124,7 +126,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
     event.preventDefault();
 
     if (!registerEmail.trim() || !registerPassword) {
-      setRegisterError('Заполни email и пароль.');
+      setRegisterError(messages.auth.errors.fillEmailPassword);
       return;
     }
 
@@ -146,13 +148,13 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
       });
 
       if (!response.ok) {
-        setRegisterError(await readError(response, 'Не удалось создать аккаунт.'));
+        setRegisterError(await readError(response, messages.auth.errors.registerFailed));
         return;
       }
 
       window.location.reload();
     } catch {
-      setRegisterError('Не удалось создать аккаунт.');
+      setRegisterError(messages.auth.errors.registerFailed);
     } finally {
       setIsRegistering(false);
     }
@@ -182,18 +184,18 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
         className={styles.accountPanel}
         inset
       >
-        <SidebarEyebrow>аккаунт</SidebarEyebrow>
+        <SidebarEyebrow>{messages.auth.account}</SidebarEyebrow>
 
         {session ? (
           <div className={styles.loggedInBlock}>
-            <p className={styles.loggedInLabel}>Вы вошли как</p>
+            <p className={styles.loggedInLabel}>{messages.auth.loggedInAs}</p>
             <p className={styles.loggedInValue}>{session.user.name ?? session.user.email}</p>
             <button
               type="button"
               className={styles.primaryButton}
               onClick={handleLogout}
             >
-              Выйти
+              {messages.auth.logout}
             </button>
           </div>
         ) : (
@@ -203,7 +205,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
               onSubmit={handleLoginSubmit}
             >
               <label className={styles.label}>
-                Email или логин
+                {messages.auth.emailOrLogin}
                 <input
                   ref={loginInputRef}
                   className={styles.input}
@@ -215,7 +217,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
               </label>
 
               <label className={styles.label}>
-                Пароль
+                {messages.auth.password}
                 <input
                   className={styles.input}
                   type="password"
@@ -234,20 +236,20 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
                   className={styles.primaryButton}
                   disabled={isLoggingIn}
                 >
-                  {isLoggingIn ? 'Входим...' : 'Войти'}
+                  {isLoggingIn ? messages.common.loading : messages.auth.login}
                 </button>
                 <button
                   type="button"
                   className={styles.secondaryButton}
                   onClick={() => setIsRegisterOpen(true)}
                 >
-                  Регистрация
+                  {messages.auth.register}
                 </button>
               </div>
             </form>
 
             <p className={styles.helperText}>
-              Вход в боковой панели. Регистрация откроется в окне.
+              {messages.auth.helper}
             </p>
           </>
         )}
@@ -266,15 +268,15 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className={styles.modalEyebrow}>аккаунт</p>
-            <h2 className={styles.modalTitle}>Создать аккаунт</h2>
+            <p className={styles.modalEyebrow}>{messages.auth.account}</p>
+            <h2 className={styles.modalTitle}>{messages.auth.createAccount}</h2>
 
             <form
               className={styles.form}
               onSubmit={handleRegisterSubmit}
             >
               <label className={styles.label}>
-                Имя
+                {messages.auth.name}
                 <input
                   className={styles.input}
                   value={registerName}
@@ -285,7 +287,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
               </label>
 
               <label className={styles.label}>
-                Email
+                {messages.auth.email}
                 <input
                   className={styles.input}
                   type="email"
@@ -297,7 +299,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
               </label>
 
               <label className={styles.label}>
-                Пароль
+                {messages.auth.password}
                 <input
                   className={styles.input}
                   type="password"
@@ -316,14 +318,14 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
                   className={styles.primaryButton}
                   disabled={isRegistering}
                 >
-                  {isRegistering ? 'Создаём...' : 'Создать аккаунт'}
+                  {isRegistering ? messages.common.loading : messages.auth.createAccount}
                 </button>
                 <button
                   type="button"
                   className={styles.secondaryButton}
                   onClick={() => setIsRegisterOpen(false)}
                 >
-                  Закрыть
+                  {messages.auth.close}
                 </button>
               </div>
             </form>

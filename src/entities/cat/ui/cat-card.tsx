@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/shared/i18n';
 
 type CatCardProps = {
   name: string;
@@ -9,6 +10,7 @@ type CatCardProps = {
 };
 
 export function CatCard({ name, age, wins }: CatCardProps) {
+  const { messages } = useI18n();
   const [likes, setLikes] = useState(0);
 
   function handleLike() {
@@ -18,11 +20,11 @@ export function CatCard({ name, age, wins }: CatCardProps) {
   return (
     <div>
       <h2>{name}</h2>
-      <p>Возраст: {age}</p>
-      <p>Побед: {wins}</p>
-      <p>Лайков: {likes}</p>
+      <p>{messages.catCard.age}: {age}</p>
+      <p>{messages.catCard.wins}: {wins}</p>
+      <p>{messages.catCard.likes}: {likes}</p>
       <button type="button" onClick={handleLike}>
-        Лайк
+        {messages.catCard.like}
       </button>
     </div>
   );

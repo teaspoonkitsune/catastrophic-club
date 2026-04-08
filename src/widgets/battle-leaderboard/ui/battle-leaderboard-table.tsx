@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import type { BattleCatRecord } from '@/entities/battle-cat';
+import { useI18n } from '@/shared/i18n';
 import { ImagePreview } from '@/shared/ui/image-preview';
 import { ImageViewer } from '@/shared/ui/image-viewer';
 import styles from './battle-leaderboard-table.module.css';
@@ -18,6 +19,7 @@ export function BattleLeaderboardTable({
   isAuthenticated = false,
   rankOffset = 0,
 }: BattleLeaderboardTableProps) {
+  const { messages } = useI18n();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const activeCat = activeIndex === null ? null : cats[activeIndex] ?? null;
 
@@ -48,7 +50,7 @@ export function BattleLeaderboardTable({
   if (cats.length === 0) {
     return (
       <p className={styles.empty}>
-        Рейтинг пока пуст.
+        {messages.leaderboard.empty}
       </p>
     );
   }
@@ -60,9 +62,9 @@ export function BattleLeaderboardTable({
           <thead>
             <tr>
               <th>#</th>
-              <th>Фото</th>
-              <th>Ссылка</th>
-              <th>Очки</th>
+              <th>{messages.leaderboard.table.photo}</th>
+              <th>{messages.leaderboard.table.link}</th>
+              <th>{messages.leaderboard.table.score}</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +76,7 @@ export function BattleLeaderboardTable({
                     <ImagePreview
                       className={styles.preview}
                       src={cat.imageUrl}
-                      alt={`Leaderboard cat ${index + 1}`}
+                      alt={`${messages.leaderboard.table.viewerAlt} ${index + 1}`}
                       aspectRatio="4 / 3"
                       renderAs="button"
                       onOpen={() => setActiveIndex(index)}
@@ -83,7 +85,7 @@ export function BattleLeaderboardTable({
                 </td>
                 <td>
                   <a className={styles.link} href={cat.imageUrl} target="_blank" rel="noreferrer">
-                    Открыть
+                    {messages.leaderboard.table.open}
                   </a>
                 </td>
                 <td className={styles.score}>{cat.score}</td>
@@ -96,8 +98,8 @@ export function BattleLeaderboardTable({
       {activeCat ? (
         <ImageViewer
           src={activeCat.imageUrl}
-          alt="Котик из рейтинга"
-          ariaLabel="Просмотр котика из рейтинга"
+          alt={messages.leaderboard.table.viewerAlt}
+          ariaLabel={messages.leaderboard.table.viewerAria}
           hasMultiple={cats.length > 1}
           imageAction={(
             <ToggleFavoriteButton

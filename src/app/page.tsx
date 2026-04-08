@@ -1,5 +1,6 @@
 import { getRandomCatFact, getRandomCatImage } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
+import { getRequestI18n } from '@/shared/i18n/server';
 import {
   PageCopy,
   PageIntro,
@@ -12,20 +13,18 @@ import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
 
 export default async function Page() {
-  const [fact, cat, session] = await Promise.all([
+  const [fact, cat, session, { messages }] = await Promise.all([
     getRandomCatFact(),
     getRandomCatImage(),
     getAuthSession(),
+    getRequestI18n(),
   ]);
 
   return (
     <>
       <PageIntro>
-        <h1>CATastrophic club</h1>
-        <p>
-          Здесь кот, там кот. Заходи посмотреть кота дня, собрать избранное и устроить пару честных
-          битв за звание самой обаятельной мордочки.
-        </p>
+        <h1>{messages.home.introTitle}</h1>
+        <p>{messages.home.introText}</p>
       </PageIntro>
 
       <SitePageGrid
@@ -33,26 +32,26 @@ export default async function Page() {
         sidebar={
           <>
             <PaperPanel inset>
-              <SidebarEyebrow>разделы</SidebarEyebrow>
+              <SidebarEyebrow>{messages.home.sectionsEyebrow}</SidebarEyebrow>
               <SidebarList>
-                <li>Избранное для любимых находок</li>
-                <li>Битвы для быстрых дуэлей</li>
-                <li>Рейтинг для победителей</li>
+                {messages.home.sections.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </SidebarList>
             </PaperPanel>
 
             <PaperPanel inset>
-              <SidebarEyebrow>данные</SidebarEyebrow>
+              <SidebarEyebrow>{messages.home.dataEyebrow}</SidebarEyebrow>
               <SidebarList variant="stamp">
-                <li>Фото: `cataas.com`</li>
-                <li>Факты: `catfact.ninja`</li>
-                <li>Избранное хранится в Postgres</li>
+                {messages.home.data.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </SidebarList>
             </PaperPanel>
           </>
         }
       >
-        <PanelSection title="Кот дня">
+        <PanelSection title={messages.home.featuredTitle}>
           <FeaturedCatWidget
             id={cat.id}
             imageUrl={cat.imageUrl}
@@ -62,12 +61,9 @@ export default async function Page() {
         </PanelSection>
 
         <PaperPanel inset>
-          <SidebarEyebrow>действия</SidebarEyebrow>
+          <SidebarEyebrow>{messages.home.actionsEyebrow}</SidebarEyebrow>
           <PageCopy>
-            <p>
-              Открой фото, сохрани понравившегося кота или обнови карточку, если хочется увидеть еще
-              одного героя дня.
-            </p>
+            <p>{messages.home.actionsText}</p>
           </PageCopy>
         </PaperPanel>
       </SitePageGrid>

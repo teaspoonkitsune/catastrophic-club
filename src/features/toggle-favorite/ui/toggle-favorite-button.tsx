@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { FavoriteCatInput } from '@/entities/favorite-cat';
-import { HttpCatErrorState } from '@/shared/ui/http-cat-error';
+import { useI18n } from '@/shared/i18n';
+import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
 import { useToggleFavorite } from '../model/use-toggle-favorite';
 import { FavoriteButton, type FavoriteButtonSize } from './favorite-button';
 import styles from './toggle-favorite-button.module.css';
@@ -24,6 +25,7 @@ export function ToggleFavoriteButton({
   isAuthenticated = false,
   loadOnMount = true,
 }: ToggleFavoriteButtonProps) {
+  const { messages } = useI18n();
   const rootRef = useRef<HTMLDivElement>(null);
   const [authPromptCatId, setAuthPromptCatId] = useState<string | null>(null);
   const {
@@ -90,19 +92,19 @@ export function ToggleFavoriteButton({
           className={styles.authPopup}
           role="status"
         >
-          <p className={styles.authTitle}>Нужно войти</p>
-          <p className={styles.authText}>Избранное доступно после входа.</p>
+          <p className={styles.authTitle}>{messages.auth.needLoginTitle}</p>
+          <p className={styles.authText}>{messages.auth.needLoginText}</p>
         </div>
       ) : null}
 
       {errorStatus ? (
         <div className={styles.errorPopup}>
-          <HttpCatErrorState
+          <LazyHttpCatErrorState
             compact
             status={errorStatus}
-            title="Не удалось сохранить"
-            description="Попробуйте еще раз."
-            actionLabel="Ок"
+            title={messages.errors.genericTitle}
+            description={messages.errors.genericDescription}
+            actionLabel={messages.common.ok}
             onAction={resetError}
           />
         </div>
