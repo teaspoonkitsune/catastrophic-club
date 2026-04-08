@@ -17,12 +17,17 @@
   position: relative;
   display: block;
   width: 100%;
+  min-height: 320px;
   border: 0;
   padding: 0;
   background: transparent;
   color: inherit;
   cursor: zoom-in;
   text-align: inherit;
+}
+
+.imageButton[data-ready='true'] {
+  min-height: 0;
 }
 
 .imageButton:focus-visible {
@@ -37,6 +42,10 @@
   height: auto;
   display: block;
   transition: opacity 120ms ease-out;
+}
+
+.imageButton[data-ready='false'] .image {
+  opacity: 0;
 }
 
 .imageContainer[data-loading='true'] .image {

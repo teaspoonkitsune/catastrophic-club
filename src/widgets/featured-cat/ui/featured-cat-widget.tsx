@@ -104,12 +104,14 @@ export function FeaturedCatWidget({
         });
       }
 
-      setIsLoadingImage(false);
+      setImageAspectRatio(null);
+      setIsLoadingImage(true);
 
       return;
     }
 
     setCat({ id, imageUrl });
+    setImageAspectRatio(null);
     setIsLoadingImage(true);
     persistCat({ id, imageUrl });
   }, [id, imageUrl]);
@@ -143,6 +145,7 @@ export function FeaturedCatWidget({
         imageUrl: string;
       };
 
+      setImageAspectRatio(null);
       setCat(nextCat);
       persistCat(nextCat);
     } catch (error) {
@@ -179,6 +182,7 @@ export function FeaturedCatWidget({
           className={styles.imageButton}
           onClick={handleOpenViewer}
           aria-label="Открыть картинку дня"
+          data-ready={imageAspectRatio ? 'true' : 'false'}
           style={imageAspectRatio ? { aspectRatio: imageAspectRatio } : undefined}
         >
           <Image
@@ -188,6 +192,8 @@ export function FeaturedCatWidget({
             width={400}
             height={400}
             className={styles.image}
+            loading="eager"
+            fetchPriority="high"
             onLoad={handleImageLoad}
             onError={() => setIsLoadingImage(false)}
             sizes="(min-width: 1024px) 400px, 90vw"
