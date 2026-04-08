@@ -1,6 +1,10 @@
+'use client';
+
+import { useState } from 'react';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import type { BattleCatRecord } from '@/entities/battle-cat';
-import { GalleryImage } from '@/shared/ui/gallery-image';
+import { ImagePreview } from '@/shared/ui/image-preview';
+import { ImageViewer } from '@/shared/ui/image-viewer';
 import styles from './battle-leaderboard-table.module.css';
 
 type BattleLeaderboardTableProps = {
@@ -14,6 +18,33 @@ export function BattleLeaderboardTable({
   isAuthenticated = false,
   rankOffset = 0,
 }: BattleLeaderboardTableProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const activeCat = activeIndex === null ? null : cats[activeIndex] ?? null;
+
+  function closeViewer() {
+    setActiveIndex(null);
+  }
+
+  function showPrevious() {
+    setActiveIndex((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      return current === 0 ? cats.length - 1 : current - 1;
+    });
+  }
+
+  function showNext() {
+    setActiveIndex((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      return current === cats.length - 1 ? 0 : current + 1;
+    });
+  }
+
   if (cats.length === 0) {
     return (
       <p className={styles.empty}>
@@ -22,51 +53,66 @@ export function BattleLeaderboardTable({
     );
   }
 
-  const galleryItems = cats.map((cat) => cat.imageUrl);
-
   return (
-    <div className={styles.wrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Котик</th>
-            <th>Ссылка</th>
-            <th>Очки</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cats.map((cat, index) => (
-            <tr key={cat.id}>
-              <td className={styles.rank}>{rankOffset + index + 1}</td>
-              <td>
-                <div className={styles.imageCell}>
-                  <GalleryImage
-                    src={cat.imageUrl}
-                    alt={`Leaderboard cat ${index + 1}`}
-                    previewSize="full"
-                    previewAspectRatio="4 / 3"
-                    galleryItems={galleryItems}
-                  >
-                    <ToggleFavoriteButton
-                      id={cat.id}
-                      imageUrl={cat.imageUrl}
-                      size="sm"
-                      isAuthenticated={isAuthenticated}
-                    />
-                  </GalleryImage>
-                </div>
-              </td>
-              <td>
-                <a className={styles.link} href={cat.imageUrl} target="_blank" rel="noreferrer">
-                  Открыть
-                </a>
-              </td>
-              <td className={styles.score}>{cat.score}</td>
+    <>
+      <div className={styles.wrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Котик</th>
+              <th>Ссылка</th>
+              <th>Очки</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {cats.map((cat, index) => (
+              <tr key={cat.id}>
+                <td className={styles.rank}>{rankOffset + index + 1}</td>
+                <td>
+                  <div className={styles.imageCell}>
+                    <ImagePreview
+                      className={styles.preview}
+                      src={cat.imageUrl}
+                      alt={`Leaderboard cat ${index + 1}`}
+                      aspectRatio="4 / 3"
+                      renderAs="button"
+                      onOpen={() => setActiveIndex(index)}
+                    />
+                  </div>
+                </td>
+                <td>
+                  <a className={styles.link} href={cat.imageUrl} target="_blank" rel="noreferrer">
+                    Открыть
+                  </a>
+                </td>
+                <td className={styles.score}>{cat.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {activeCat ? (
+        <ImageViewer
+          src={activeCat.imageUrl}
+          alt="Котик из рейтинга"
+          ariaLabel="Просмотр котика из рейтинга"
+          hasMultiple={cats.length > 1}
+          imageAction={(
+            <ToggleFavoriteButton
+              id={activeCat.id}
+              imageUrl={activeCat.imageUrl}
+              size="sm"
+              showOnHover={false}
+              isAuthenticated={isAuthenticated}
+            />
+          )}
+          onClose={closeViewer}
+          onPrevious={showPrevious}
+          onNext={showNext}
+        />
+      ) : null}
+    </>
   );
 }
