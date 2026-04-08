@@ -83,6 +83,7 @@ export function FeaturedCatWidget({
   fact,
   isAuthenticated = false,
 }: FeaturedCatWidgetProps) {
+  const [imageAspectRatio, setImageAspectRatio] = useState<string | null>(null);
   const [cat, setCat] = useState({
     id,
     imageUrl,
@@ -157,6 +158,16 @@ export function FeaturedCatWidget({
     setIsViewerOpen(true);
   }
 
+  function handleImageLoad(event: React.SyntheticEvent<HTMLImageElement>) {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+
+    if (naturalWidth > 0 && naturalHeight > 0) {
+      setImageAspectRatio(`${naturalWidth} / ${naturalHeight}`);
+    }
+
+    setIsLoadingImage(false);
+  }
+
   return (
     <section className={styles.wrapper}>
       <div
@@ -168,6 +179,7 @@ export function FeaturedCatWidget({
           className={styles.imageButton}
           onClick={handleOpenViewer}
           aria-label="Открыть картинку дня"
+          style={imageAspectRatio ? { aspectRatio: imageAspectRatio } : undefined}
         >
           <Image
             key={cat.id}
@@ -176,7 +188,7 @@ export function FeaturedCatWidget({
             width={400}
             height={400}
             className={styles.image}
-            onLoad={() => setIsLoadingImage(false)}
+            onLoad={handleImageLoad}
             onError={() => setIsLoadingImage(false)}
             sizes="(min-width: 1024px) 400px, 90vw"
           />
@@ -193,7 +205,7 @@ export function FeaturedCatWidget({
             onClick={handleRefreshImage}
             disabled={isRefreshing}
           >
-            {isRefreshing ? 'Обновляем...' : 'Новая картиночка'}
+            {isRefreshing ? 'Обновляем...' : 'Другое фото'}
           </button>
 
           <ToggleFavoriteButton
@@ -209,8 +221,8 @@ export function FeaturedCatWidget({
         <HttpCatErrorState
           compact
           status={errorStatus}
-          title="Не удалось обновить картинку"
-          description="Сервис котиков ответил ошибкой."
+          title="Не удалось загрузить фото"
+          description="Попробуйте еще раз."
           actionLabel="Скрыть"
           onAction={() => setErrorStatus(null)}
         />
