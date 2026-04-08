@@ -48,7 +48,7 @@ export function BattleLeaderboardTable({
   if (cats.length === 0) {
     return (
       <p className={styles.empty}>
-        Пока нет котиков с очками. Проведи несколько боёв, и рейтинг заполнится.
+        Рейтинг пока пуст.
       </p>
     );
   }
@@ -60,7 +60,7 @@ export function BattleLeaderboardTable({
           <thead>
             <tr>
               <th>#</th>
-              <th>Котик</th>
+              <th>Фото</th>
               <th>Ссылка</th>
               <th>Очки</th>
             </tr>

@@ -1,7 +1,6 @@
 import { getRandomCatFact, getRandomCatImage } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
 import {
-  BadgeMarquee,
   PageCopy,
   PageIntro,
   PanelSection,
@@ -11,15 +10,6 @@ import {
 } from '@/shared/ui/page-surface';
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
-
-const clubBadgeLabels = [
-  'кот дня',
-  'люблю котов',
-  'режим битвы',
-  'мягкие лапки',
-  'открыть фото',
-  'в избранное',
-];
 
 export default async function Page() {
   const [fact, cat, session] = await Promise.all([
@@ -31,42 +21,38 @@ export default async function Page() {
   return (
     <>
       <PageIntro>
-        <h1>Добро пожаловать в CATastrophic club</h1>
+        <h1>CATastrophic club</h1>
         <p>
-          Это маленький сайт про котов: здесь есть кот дня, избранное и простой рейтинг по битвам.
-          Всё сделано легко и по-домашнему.
+          Здесь кот, там кот. Заходи посмотреть кота дня, собрать избранное и устроить пару честных
+          битв за звание самой обаятельной мордочки.
         </p>
       </PageIntro>
 
       <SitePageGrid
         session={session}
-        sidebar={(
+        sidebar={
           <>
             <PaperPanel inset>
               <SidebarEyebrow>разделы</SidebarEyebrow>
               <SidebarList>
-                <li>Избранное: твоя личная подборка котиков</li>
-                <li>Битвы: выбор победителя из двух случайных котов</li>
-                <li>Рейтинг: таблица лучших по итогам голосований</li>
+                <li>Избранное для любимых находок</li>
+                <li>Битвы для быстрых дуэлей</li>
+                <li>Рейтинг для победителей</li>
               </SidebarList>
             </PaperPanel>
 
             <PaperPanel inset>
-              <SidebarEyebrow>откуда данные</SidebarEyebrow>
+              <SidebarEyebrow>данные</SidebarEyebrow>
               <SidebarList variant="stamp">
-                <li>Картинки приходят с `cataas.com`</li>
-                <li>Факты о котах берутся с `catfact.ninja`</li>
+                <li>Фото: `cataas.com`</li>
+                <li>Факты: `catfact.ninja`</li>
                 <li>Избранное хранится в Postgres</li>
               </SidebarList>
             </PaperPanel>
-
-            <PanelSection title="Кнопки клуба" meta="маленькие бейджи в духе старого интернета">
-              <BadgeMarquee labels={clubBadgeLabels} />
-            </PanelSection>
           </>
-        )}
+        }
       >
-        <PanelSection title="Кот дня" meta="сегодняшний главный герой">
+        <PanelSection title="Кот дня">
           <FeaturedCatWidget
             id={cat.id}
             imageUrl={cat.imageUrl}
@@ -76,11 +62,12 @@ export default async function Page() {
         </PanelSection>
 
         <PaperPanel inset>
-          <SidebarEyebrow>что можно сделать</SidebarEyebrow>
+          <SidebarEyebrow>действия</SidebarEyebrow>
           <PageCopy>
-            <p>Нажми на картинку, чтобы открыть полноразмерный просмотр.</p>
-            <p>Кнопка со звездой добавляет котика в избранное без переходов.</p>
-            <p>Если котик не понравился, можно сразу открыть нового.</p>
+            <p>
+              Открой фото, сохрани понравившегося кота или обнови карточку, если хочется увидеть еще
+              одного героя дня.
+            </p>
           </PageCopy>
         </PaperPanel>
       </SitePageGrid>

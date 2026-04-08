@@ -39,21 +39,17 @@ export default async function Page({ searchParams }: LeaderboardPageProps) {
     <>
       <PageIntro>
         <h1>Рейтинг</h1>
-        <p>
-          Здесь видно, кто чаще побеждает в битвах. В таблицу попадают только те котики,
-          у которых уже есть очки.
-        </p>
+        <p>Здесь собираются котики, которые чаще других выходят из битв победителями.</p>
       </PageIntro>
 
       <SitePageGrid
         session={session}
         sidebar={(
           <PaperPanel inset>
-            <SidebarEyebrow>как читать рейтинг</SidebarEyebrow>
+            <SidebarEyebrow>сортировка</SidebarEyebrow>
             <SidebarList>
-              <li>Ранг считается по очкам, при равенстве раньше созданный кот выше.</li>
-              <li>Картинку можно открыть крупно или сразу отметить звездой.</li>
-              <li>Нулевые результаты скрыты, чтобы рейтинг был плотнее и чище.</li>
+              <li>Выше поднимаются котики с большим числом очков</li>
+              <li>При равенстве выше остается тот, кто появился раньше</li>
             </SidebarList>
           </PaperPanel>
         )}

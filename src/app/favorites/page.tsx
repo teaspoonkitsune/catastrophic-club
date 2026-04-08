@@ -29,10 +29,7 @@ export default async function Page() {
     <>
       <PageIntro>
         <h1>Избранное</h1>
-        <p>
-          Здесь собраны котики, которых ты сохранил. Можно открыть фото крупно,
-          полистать соседние картинки и убрать кота из избранного прямо в просмотре.
-        </p>
+        <p>Твоя личная полка с котиками, к которым хочется возвращаться.</p>
       </PageIntro>
 
       <SitePageGrid
@@ -40,18 +37,18 @@ export default async function Page() {
         sidebar={(
           <>
             <PaperPanel inset>
-              <SidebarEyebrow>подсказка</SidebarEyebrow>
+              <SidebarEyebrow>просмотр</SidebarEyebrow>
               <SidebarList>
-                <li>Картинки удобно смотреть крупно и листать по соседству.</li>
-                <li>На самой полке остаются только фотографии, без лишних кнопок.</li>
-                <li>Если убрать котика из избранного, он исчезнет после обновления страницы.</li>
+                <li>Фото открываются в крупном просмотре</li>
+                <li>Между сохраненными котиками можно листать</li>
+                <li>Убрать кота можно прямо из окна просмотра</li>
               </SidebarList>
             </PaperPanel>
 
             <PaperPanel inset>
               <SidebarEyebrow>порядок</SidebarEyebrow>
               <PageCopy>
-                <p>Новые сохранённые котики появляются выше остальных.</p>
+                <p>Новые сохранения всегда лежат сверху.</p>
               </PageCopy>
             </PaperPanel>
           </>
@@ -66,10 +63,7 @@ export default async function Page() {
               <FavoritesBrowser initialCats={cats} />
             ) : (
               <AuthGate>
-                <p>
-                  Полка избранного теперь привязана к аккаунту. Войди или зарегистрируйся
-                  в клубе, и у тебя появится личная коллекция котиков.
-                </p>
+                <p>Войдите, чтобы собирать свою коллекцию любимых котиков.</p>
                 <InlineAuthActions
                   className={pageSurfaceClassNames.authGateActions}
                   loginClassName={pageSurfaceClassNames.authGatePrimary}

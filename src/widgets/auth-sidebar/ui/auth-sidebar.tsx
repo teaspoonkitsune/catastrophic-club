@@ -186,7 +186,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
 
         {session ? (
           <div className={styles.loggedInBlock}>
-            <p className={styles.loggedInLabel}>Ты вошёл как</p>
+            <p className={styles.loggedInLabel}>Вы вошли как</p>
             <p className={styles.loggedInValue}>{session.user.name ?? session.user.email}</p>
             <button
               type="button"
@@ -247,7 +247,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
             </form>
 
             <p className={styles.helperText}>
-              Войти можно прямо здесь. Регистрация откроется в отдельном окне.
+              Вход в боковой панели. Регистрация откроется в окне.
             </p>
           </>
         )}
@@ -266,7 +266,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className={styles.modalEyebrow}>регистрация</p>
+            <p className={styles.modalEyebrow}>аккаунт</p>
             <h2 className={styles.modalTitle}>Создать аккаунт</h2>
 
             <form

@@ -40,7 +40,7 @@ export function BattlesWorkspace({
 
   return (
     <>
-      <PanelSection title="Текущая пара" meta="Победитель +1, проигравший -1">
+      <PanelSection title="Текущая пара" meta="Победитель получает 1 очко">
         <PageCopy>
           <CatBattleArena
             initialPair={initialPair}

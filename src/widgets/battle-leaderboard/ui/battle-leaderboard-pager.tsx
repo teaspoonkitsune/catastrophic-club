@@ -23,21 +23,21 @@ export function BattleLeaderboardPager({
     <nav className={styles.pager} aria-label="Навигация по рейтингу">
       {offset > 0 ? (
         <Link className={styles.link} href={getLeaderboardHref(previousOffset)} scroll={false}>
-          Назад на 10
+          Назад
         </Link>
       ) : (
         <span className={styles.disabledLink} aria-disabled="true">
-          Назад на 10
+          Назад
         </span>
       )}
 
       {hasNext ? (
         <Link className={styles.link} href={getLeaderboardHref(nextOffset)} scroll={false}>
-          Вперёд на 10
+          Дальше
         </Link>
       ) : (
         <span className={styles.disabledLink} aria-disabled="true">
-          Вперёд на 10
+          Дальше
         </span>
       )}
     </nav>

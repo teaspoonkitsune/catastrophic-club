@@ -184,7 +184,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
     <div className={styles.mobileAuth}>
       {session ? (
         <>
-          <span className={styles.accountLabel}>Ты вошёл как {session.user.name ?? session.user.email}</span>
+          <span className={styles.accountLabel}>Вы вошли как {session.user.name ?? session.user.email}</span>
           <button type="button" className={styles.authButton} onClick={handleLogout}>
             Выйти
           </button>
@@ -221,7 +221,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
               </button>
             </div>
 
-            <h2 className={styles.modalTitle}>{mode === 'login' ? 'Войти' : 'Создать аккаунт'}</h2>
+            <h2 className={styles.modalTitle}>{mode === 'login' ? 'Вход' : 'Регистрация'}</h2>
 
             <div className={styles.modeTabs} aria-label="Выбор действия">
               <button
@@ -322,7 +322,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
                     {isRegistering ? 'Создаём...' : 'Создать аккаунт'}
                   </button>
                   <button type="button" className={styles.secondaryButton} onClick={() => openMode('login')}>
-                    Уже есть аккаунт
+                    Войти
                   </button>
                 </div>
               </form>

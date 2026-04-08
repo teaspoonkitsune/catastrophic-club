@@ -76,7 +76,7 @@ export function FavoritesBrowser({ initialCats }: FavoritesBrowserProps) {
       <HttpCatErrorState
         status={errorStatus}
         title="Не удалось обновить избранное"
-        description="Сервер вернул ошибку при обновлении избранных котиков."
+        description="Попробуйте еще раз."
         actionLabel="Скрыть"
         onAction={() => setErrorStatus(null)}
       />
@@ -85,10 +85,7 @@ export function FavoritesBrowser({ initialCats }: FavoritesBrowserProps) {
 
   if (cats.length === 0) {
     return (
-      <p>
-        У тебя пока нет избранных котиков. Добавь кого-нибудь со страницы кота
-        дня.
-      </p>
+      <p>В избранном пока ничего нет.</p>
     );
   }
 

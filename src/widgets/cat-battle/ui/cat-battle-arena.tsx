@@ -118,8 +118,8 @@ export function CatBattleArena({
     return (
       <HttpCatErrorState
         status={errorStatus}
-        title="Бой котиков временно недоступен"
-        description="Не удалось сохранить результат боя или загрузить новую пару."
+        title="Не удалось загрузить битву"
+        description="Попробуйте еще раз."
         actionLabel="Скрыть"
         onAction={() => setErrorStatus(null)}
       />
@@ -127,15 +127,13 @@ export function CatBattleArena({
   }
 
   if (pair.length < 2) {
-    return <p>Для битвы пока не хватает котиков в базе.</p>;
+    return <p>Недостаточно данных для битвы.</p>;
   }
 
   return (
     <>
       {isDailyLimitReached ? (
-        <p className={styles.limitNotice}>
-          На сегодня голоса закончились. Возвращайся завтра, и битвы снова откроются.
-        </p>
+        <p className={styles.limitNotice}>Лимит голосов на сегодня исчерпан.</p>
       ) : null}
 
       <section className={styles.wrapper}>

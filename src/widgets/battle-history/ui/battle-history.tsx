@@ -201,7 +201,7 @@ export function BattleHistory({
     <PaperPanel>
       <PanelHeader>
         <h2>История битв</h2>
-        <p>{isLoading ? 'Обновляем...' : 'Последние десять боёв'}</p>
+        <p>{isLoading ? 'Обновляем...' : 'Последние 10 боев'}</p>
       </PanelHeader>
 
       <div className={styles.body}>
@@ -211,7 +211,7 @@ export function BattleHistory({
             className={scope === 'global' ? styles.activeTab : styles.tab}
             onClick={() => void loadHistory('global', globalHistory.offset)}
           >
-            Общая
+            Все
           </button>
           <button
             type="button"
@@ -223,15 +223,11 @@ export function BattleHistory({
         </div>
 
         {scope === 'mine' && !isAuthenticated ? (
-          <p className={styles.empty}>
-            Войди в аккаунт, чтобы увидеть свою историю битв.
-          </p>
+          <p className={styles.empty}>Войдите, чтобы посмотреть свою историю.</p>
         ) : null}
 
         {errorStatus ? (
-          <p className={styles.empty}>
-            Не удалось загрузить историю. Код: {errorStatus}
-          </p>
+          <p className={styles.empty}>Не удалось загрузить историю. Код: {errorStatus}</p>
         ) : null}
 
         {currentPage && currentPage.items.length > 0 ? (
@@ -266,7 +262,7 @@ export function BattleHistory({
         {currentPage &&
         currentPage.items.length === 0 &&
         !(scope === 'mine' && !isAuthenticated) ? (
-          <p className={styles.empty}>История пока пустая.</p>
+          <p className={styles.empty}>История пуста.</p>
         ) : null}
 
         {currentPage ? (
@@ -283,7 +279,7 @@ export function BattleHistory({
                 (scope === 'mine' && !isAuthenticated)
               }
             >
-              Назад на 10
+              Назад
             </button>
             <button
               type="button"
@@ -295,7 +291,7 @@ export function BattleHistory({
                 (scope === 'mine' && !isAuthenticated)
               }
             >
-              Вперёд на 10
+              Дальше
             </button>
           </div>
         ) : null}

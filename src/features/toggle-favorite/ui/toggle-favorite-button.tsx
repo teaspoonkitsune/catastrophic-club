@@ -90,8 +90,8 @@ export function ToggleFavoriteButton({
           className={styles.authPopup}
           role="status"
         >
-          <p className={styles.authTitle}>Нужно войти в аккаунт</p>
-          <p className={styles.authText}>Избранное сохраняется только для участников клуба.</p>
+          <p className={styles.authTitle}>Нужно войти</p>
+          <p className={styles.authText}>Избранное доступно после входа.</p>
         </div>
       ) : null}
 
@@ -101,7 +101,7 @@ export function ToggleFavoriteButton({
             compact
             status={errorStatus}
             title="Не удалось сохранить"
-            description="Сервер вернул ошибку при работе с избранным."
+            description="Попробуйте еще раз."
             actionLabel="Ок"
             onAction={resetError}
           />

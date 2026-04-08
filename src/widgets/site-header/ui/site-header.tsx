@@ -19,9 +19,7 @@ export function SiteHeader({ session = null, currentPath }: SiteHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.brandBlock}>
-        <div className={styles.topRow}>
-          <p className={styles.kicker}>место для тех, кто любит котов</p>
-        </div>
+        <div className={styles.topRow} />
         <Link
           href="/"
           className={styles.title}
@@ -29,7 +27,7 @@ export function SiteHeader({ session = null, currentPath }: SiteHeaderProps) {
           CATastrophic club
         </Link>
         <p className={styles.subtitle}>
-          Здесь можно посмотреть кота дня, сохранить любимчиков и устроить небольшую битву мордочек.
+          Небольшой клуб для тех, кто любит котов, картинки и немного соревновательного духа.
         </p>
         <MobileAuthPanel session={session} currentPath={currentPath} />
       </div>

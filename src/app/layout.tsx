@@ -11,7 +11,7 @@ const jetBrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'CATastrophic club',
-  description: 'Клуб любителей котов с котом дня, боями и избранным.',
+  description: 'Кот дня, избранное, битвы и рейтинг для тех, кто любит котов.',
 };
 
 export default async function RootLayout({

@@ -15,7 +15,7 @@ export function InlineAuthActions({
   loginClassName,
   registerClassName,
   loginLabel = 'Войти',
-  registerLabel = 'Регистрация',
+  registerLabel = 'Создать аккаунт',
 }: InlineAuthActionsProps) {
   return (
     <div className={className}>
