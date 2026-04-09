@@ -152,6 +152,7 @@ type MessagesShape = {
       fillEmailPassword: string;
       loginFailed: string;
       registerFailed: string;
+      rateLimited: string;
       missingUsernamePassword: string;
       missingEmailPassword: string;
       invalidEmail: string;
@@ -358,6 +359,7 @@ export const messages: Record<Locale, Messages> = {
         fillEmailPassword: 'Заполни email и пароль.',
         loginFailed: 'Не удалось войти в аккаунт.',
         registerFailed: 'Не удалось создать аккаунт.',
+        rateLimited: 'Слишком много попыток. Попробуйте немного позже.',
         missingUsernamePassword: 'Введите логин и пароль.',
         missingEmailPassword: 'Введите email и пароль.',
         invalidEmail: 'Введите корректный email.',
@@ -561,6 +563,7 @@ export const messages: Record<Locale, Messages> = {
         fillEmailPassword: 'Enter your email and password.',
         loginFailed: 'Could not sign in.',
         registerFailed: 'Could not create the account.',
+        rateLimited: 'Too many attempts. Please try again a little later.',
         missingUsernamePassword: 'Username and password are required.',
         missingEmailPassword: 'Email and password are required.',
         invalidEmail: 'Enter a valid email address.',

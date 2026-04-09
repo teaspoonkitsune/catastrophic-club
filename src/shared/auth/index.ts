@@ -1,5 +1,8 @@
 export {
+  getAuthRateLimitMaxAttempts,
+  getAuthRateLimitWindowSeconds,
   getAppSessionTtlSeconds,
+  getAuthSecret,
   getAuthCallbackUrl,
   getAuthorizationEndpoint,
   getKeycloakAdminConfig,
@@ -9,6 +12,7 @@ export {
   getLogoutEndpoint,
   getTokenEndpoint,
   getUserInfoEndpoint,
+  validateAuthEnvironment,
 } from './config';
 export { createCodeChallenge, createRandomString } from './crypto';
 export {

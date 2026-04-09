@@ -1,5 +1,7 @@
 const DEFAULT_SCOPE = 'openid profile email';
 const DEFAULT_APP_SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const DEFAULT_AUTH_RATE_LIMIT_MAX_ATTEMPTS = 10;
+const DEFAULT_AUTH_RATE_LIMIT_WINDOW_SECONDS = 60;
 
 function trimTrailingSlash(value: string) {
   return value.endsWith('/') ? value.slice(0, -1) : value;
@@ -10,6 +12,16 @@ function getEnv(name: string) {
 
   if (!value) {
     throw new Error(`${name} is not set`);
+  }
+
+  return value;
+}
+
+function getEnvOrDefault(name: string, defaultValue: string) {
+  const value = process.env[name];
+
+  if (!value) {
+    return defaultValue;
   }
 
   return value;
@@ -35,6 +47,38 @@ export function getAppSessionTtlSeconds() {
   return parsed;
 }
 
+export function getAuthRateLimitMaxAttempts() {
+  const value = process.env.AUTH_RATE_LIMIT_MAX_ATTEMPTS;
+
+  if (!value) {
+    return DEFAULT_AUTH_RATE_LIMIT_MAX_ATTEMPTS;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return DEFAULT_AUTH_RATE_LIMIT_MAX_ATTEMPTS;
+  }
+
+  return parsed;
+}
+
+export function getAuthRateLimitWindowSeconds() {
+  const value = process.env.AUTH_RATE_LIMIT_WINDOW_SECONDS;
+
+  if (!value) {
+    return DEFAULT_AUTH_RATE_LIMIT_WINDOW_SECONDS;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return DEFAULT_AUTH_RATE_LIMIT_WINDOW_SECONDS;
+  }
+
+  return parsed;
+}
+
 export function getKeycloakConfig() {
   return {
     baseUrl: trimTrailingSlash(getEnv('KEYCLOAK_BASE_URL')),
@@ -45,16 +89,26 @@ export function getKeycloakConfig() {
   };
 }
 
+export function validateAuthEnvironment() {
+  getAuthSecret();
+  getKeycloakConfig();
+  getEnv('KEYCLOAK_CLIENT_SECRET');
+  getEnvOrDefault('KEYCLOAK_ADMIN_REALM', 'master');
+  getEnvOrDefault('KEYCLOAK_ADMIN_CLIENT_ID', 'admin-cli');
+  getEnv('KEYCLOAK_ADMIN_USERNAME');
+  getEnv('KEYCLOAK_ADMIN_PASSWORD');
+}
+
 export function getKeycloakAdminConfig() {
   const config = getKeycloakConfig();
 
   return {
     baseUrl: config.baseUrl,
     realm: config.realm,
-    adminRealm: process.env.KEYCLOAK_ADMIN_REALM ?? 'master',
-    adminClientId: process.env.KEYCLOAK_ADMIN_CLIENT_ID ?? 'admin-cli',
-    adminUsername: process.env.KEYCLOAK_ADMIN_USERNAME ?? 'admin',
-    adminPassword: process.env.KEYCLOAK_ADMIN_PASSWORD ?? 'admin',
+    adminRealm: getEnvOrDefault('KEYCLOAK_ADMIN_REALM', 'master'),
+    adminClientId: getEnvOrDefault('KEYCLOAK_ADMIN_CLIENT_ID', 'admin-cli'),
+    adminUsername: getEnv('KEYCLOAK_ADMIN_USERNAME'),
+    adminPassword: getEnv('KEYCLOAK_ADMIN_PASSWORD'),
   };
 }
 
