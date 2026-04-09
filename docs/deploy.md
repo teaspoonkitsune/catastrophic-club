@@ -9,6 +9,7 @@ This document describes the production requirements for deploying CATastrophic C
 - Keycloak instance reachable from the app
 - persistent environment variable management
 - a reverse proxy or hosting layer that terminates TLS
+- a container runtime if you use the bundled Docker deployment files
 
 ## Required Environment Variables
 
@@ -16,6 +17,7 @@ Start from [.env.example](../.env.example).
 
 Required in production:
 - `DATABASE_URL`
+- `DATABASE_SSL`
 - `AUTH_SECRET`
 - `AUTH_SESSION_TTL_SECONDS`
 - `KEYCLOAK_BASE_URL`
@@ -26,13 +28,16 @@ Required in production:
 - `KEYCLOAK_ADMIN_PASSWORD`
 
 Optional but supported:
+- `AUTO_RUN_MIGRATIONS`
 - `AUTH_RATE_LIMIT_MAX_ATTEMPTS`
 - `AUTH_RATE_LIMIT_WINDOW_SECONDS`
 
 Production expectations:
 - `DATABASE_URL` should use the real production database and SSL where appropriate
+- `DATABASE_SSL=false` is correct for the bundled internal Docker PostgreSQL service
 - `AUTH_SECRET` must be long, random, and private
 - Keycloak values must point to the production realm and client
+- `AUTO_RUN_MIGRATIONS=false` is recommended in production; run migrations explicitly during rollout
 
 ## Build And Start
 
@@ -48,12 +53,33 @@ Start:
 npm run start
 ```
 
+## Container Deployment
+
+The repository now includes a self-hosting baseline:
+
+- [Dockerfile](../Dockerfile)
+- [docker-compose.prod.yml](../docker-compose.prod.yml)
+- [docker/production.env.example](../docker/production.env.example)
+
+Typical flow:
+1. Copy `docker/production.env.example` to a private server-only env file
+2. Adjust domains, database users, passwords, and Keycloak values
+3. Build and start the internal services with Docker Compose
+4. Run the migration container explicitly
+5. Put Nginx in front of `127.0.0.1:3000` for the app and `127.0.0.1:8080` for Keycloak
+
 ## Database Rollout
 
 Run migrations before or during rollout:
 
 ```bash
 npm run db:migrate
+```
+
+When using Docker Compose:
+
+```bash
+docker compose --env-file /srv/catastrophic-club/env/app.env -f docker-compose.prod.yml run --rm migrate
 ```
 
 Recommended order:
@@ -107,7 +133,6 @@ Before exposing the deployment publicly, verify:
 
 The current repository does not yet include:
 - provider-specific deployment manifests
-- container build files
 - CI/CD definitions
 - monitoring integration
 

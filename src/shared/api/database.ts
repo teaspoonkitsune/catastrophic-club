@@ -3,16 +3,37 @@ import { Pool } from 'pg';
 import { Kysely, PostgresDialect } from 'kysely';
 import type { Database } from './types';
 
-function parseConnectionString(url: string) {
-  const parsed = new URL(url);
+function getDatabaseSslConfig(databaseUrl: string) {
+  const value = process.env.DATABASE_SSL?.trim().toLowerCase();
 
-  return {
-    host: parsed.hostname,
-    port: parsed.port ? Number.parseInt(parsed.port, 10) : 5432,
-    user: parsed.username,
-    password: parsed.password,
-    database: parsed.pathname.slice(1),
-  };
+  if (value === 'false' || value === '0' || value === 'off') {
+    return false;
+  }
+
+  if (value === 'no-verify') {
+    return {
+      rejectUnauthorized: false,
+    };
+  }
+
+  if (value === 'true' || value === '1' || value === 'on') {
+    return true;
+  }
+
+  const parsed = new URL(databaseUrl);
+  const sslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
+
+  if (!sslMode || sslMode === 'disable') {
+    return false;
+  }
+
+  if (sslMode === 'no-verify' || sslMode === 'allow' || sslMode === 'prefer') {
+    return {
+      rejectUnauthorized: false,
+    };
+  }
+
+  return true;
 }
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -21,12 +42,10 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is not set');
 }
 
-const connectionParams = parseConnectionString(databaseUrl);
-
 const dialect = new PostgresDialect({
   pool: new Pool({
-    ...connectionParams,
-    ssl: true,
+    connectionString: databaseUrl,
+    ssl: getDatabaseSslConfig(databaseUrl),
     max: 10,
   }),
 });

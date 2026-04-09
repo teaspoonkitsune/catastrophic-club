@@ -35,6 +35,7 @@ At minimum, configure:
 
 ```env
 DATABASE_URL=postgres://user:password@host:5432/database
+DATABASE_SSL=false
 AUTH_SECRET=replace-with-a-long-random-string
 AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
@@ -47,6 +48,7 @@ KEYCLOAK_ADMIN_PASSWORD=admin
 
 Notes:
 - `DATABASE_URL` must point to a working PostgreSQL instance.
+- `DATABASE_SSL=false` is usually correct for a local PostgreSQL instance without TLS.
 - The repository does not currently include a local PostgreSQL compose file.
 - `AUTH_SECRET` should be long and random even in development.
 

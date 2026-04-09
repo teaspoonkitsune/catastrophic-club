@@ -37,6 +37,8 @@ The app currently includes:
 
 ## Quick Start
 
+### Local Development
+
 1. Install dependencies:
 
 ```bash
@@ -64,6 +66,16 @@ npm run dev
 ```
 
 For the complete local flow, use [docs/local-setup.md](./docs/local-setup.md).
+
+### Self-Hosted Deployment
+
+The repository now includes a baseline self-hosting setup:
+
+- [Dockerfile](./Dockerfile)
+- [docker-compose.prod.yml](./docker-compose.prod.yml)
+- [docker/production.env.example](./docker/production.env.example)
+
+Use [docs/deploy.md](./docs/deploy.md) for the rollout flow, migration step, and production environment guidance.
 
 ## Available Scripts
 
@@ -97,5 +109,6 @@ Do not commit:
 ## Notes
 
 - The repository includes local Keycloak infrastructure, but not a local PostgreSQL compose setup.
+- The repository also includes a production-oriented Docker Compose baseline for self-hosted deployments.
 - Authentication uses the app's own encrypted session cookie after successful Keycloak login.
 - The app currently supports `ru` and `en` and chooses the initial locale from a saved cookie or the request language.

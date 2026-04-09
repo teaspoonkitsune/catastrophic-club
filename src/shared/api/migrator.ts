@@ -6,6 +6,20 @@ import { db } from './database';
 // Reuse the in-flight migration inside one Node process so parallel requests do not race.
 let migrationPromise: Promise<void> | null = null;
 
+function shouldAutoRunMigrations() {
+  const value = process.env.AUTO_RUN_MIGRATIONS?.trim().toLowerCase();
+
+  if (value === 'true' || value === '1' || value === 'on') {
+    return true;
+  }
+
+  if (value === 'false' || value === '0' || value === 'off') {
+    return false;
+  }
+
+  return process.env.NODE_ENV !== 'production';
+}
+
 function createMigrator() {
   return new Migrator({
     db,
@@ -31,6 +45,10 @@ export async function migrateToLatest(): Promise<void> {
 }
 
 export async function ensureDatabaseMigrated(): Promise<void> {
+  if (!shouldAutoRunMigrations()) {
+    return;
+  }
+
   if (!migrationPromise) {
     migrationPromise = migrateToLatest().catch((error) => {
       migrationPromise = null;

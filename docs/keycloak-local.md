@@ -13,7 +13,6 @@ Keep the auth flow consistent. Do not mix `localhost`, `127.0.0.1`, LAN IPs, or 
 The repository already contains:
 - realm: `catastrophic-club`
 - client: `catastrophic-club-web`
-- local-only client secret: `change-me-for-local-dev`
 - enabled self-registration
 - enabled direct access grants for inline login
 
@@ -77,7 +76,7 @@ AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
 KEYCLOAK_REALM=catastrophic-club
 KEYCLOAK_CLIENT_ID=catastrophic-club-web
-KEYCLOAK_CLIENT_SECRET=change-me-for-local-dev
+KEYCLOAK_CLIENT_SECRET=set-this-to-the-client-secret-from-your-local-keycloak
 KEYCLOAK_ADMIN_USERNAME=admin
 KEYCLOAK_ADMIN_PASSWORD=admin
 # Optional defaults:
@@ -86,7 +85,9 @@ KEYCLOAK_ADMIN_PASSWORD=admin
 # KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
 ```
 
-Replace the admin credentials when using any non-local environment.
+After the realm is imported, open the local Keycloak admin UI and verify the client secret for `catastrophic-club-web`. Keep that value in your local `.env`; do not commit real secrets.
+
+Replace the admin credentials and client secret when using any non-local environment.
 
 ## Verification
 

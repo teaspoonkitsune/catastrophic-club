@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.github
+.codex
+coverage
+npm-debug.log*
+.env*
+Dockerfile*
+docker-compose*.yml
+env
+infra/keycloak/.env
