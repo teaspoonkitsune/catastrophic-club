@@ -6,6 +6,7 @@ export {
   getAuthCallbackUrl,
   getAuthorizationEndpoint,
   getKeycloakAdminConfig,
+  getKeycloakAdminUserEndpoint,
   getKeycloakAdminTokenEndpoint,
   getKeycloakAdminUsersEndpoint,
   getKeycloakConfig,

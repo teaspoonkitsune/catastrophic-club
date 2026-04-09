@@ -1,6 +1,15 @@
 import 'server-only';
 
-import { getAppSessionTtlSeconds, getKeycloakAdminConfig, getKeycloakAdminTokenEndpoint, getKeycloakAdminUsersEndpoint, getKeycloakConfig, getTokenEndpoint, getUserInfoEndpoint } from './config';
+import {
+  getAppSessionTtlSeconds,
+  getKeycloakAdminConfig,
+  getKeycloakAdminTokenEndpoint,
+  getKeycloakAdminUserEndpoint,
+  getKeycloakAdminUsersEndpoint,
+  getKeycloakConfig,
+  getTokenEndpoint,
+  getUserInfoEndpoint,
+} from './config';
 import type { AuthSession } from './session';
 import { syncAuthenticatedUser } from './users';
 
@@ -96,7 +105,14 @@ export async function loginWithKeycloakPassword(
 
   if (!response.ok) {
     const message = await readErrorMessage(response, 'Invalid username or password');
-    throw new KeycloakAuthError(message, response.status === 401 ? 401 : 400);
+    const status =
+      message.toLowerCase().includes('account is not fully set up')
+        ? 409
+        : response.status === 401
+          ? 401
+          : 400;
+
+    throw new KeycloakAuthError(message, status);
   }
 
   const tokenPayload = (await response.json()) as KeycloakTokenResponse;
@@ -186,6 +202,39 @@ export async function registerKeycloakUser(input: RegisterKeycloakUserInput): Pr
   });
 
   if (response.ok) {
+    const locationHeader = response.headers.get('location');
+    const createdUserId = locationHeader?.split('/').at(-1);
+
+    if (createdUserId) {
+      const finalizeResponse = await fetch(getKeycloakAdminUserEndpoint(createdUserId), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminAccessToken}`,
+        },
+        body: JSON.stringify({
+          username: normalizedUsername,
+          email: normalizedEmail,
+          enabled: true,
+          emailVerified: true,
+          requiredActions: [],
+          credentials: [
+            {
+              type: 'password',
+              value: input.password,
+              temporary: false,
+            },
+          ],
+        }),
+        cache: 'no-store',
+      });
+
+      if (!finalizeResponse.ok) {
+        const message = await readErrorMessage(finalizeResponse, 'Failed to finalize account setup');
+        throw new KeycloakAuthError(message, 500);
+      }
+    }
+
     return;
   }
 

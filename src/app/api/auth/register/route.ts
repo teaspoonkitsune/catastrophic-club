@@ -79,7 +79,9 @@ export async function POST(request: Request) {
     if (error instanceof KeycloakAuthError) {
       const localizedError =
         error.status === 409
-          ? messages.auth.errors.accountExists
+          ? error.message === 'Account already exists'
+            ? messages.auth.errors.accountExists
+            : messages.auth.errors.accountSetupIncomplete
           : error.status === 502
             ? messages.auth.errors.loadAccountFailed
             : messages.auth.errors.genericCreateFailed;

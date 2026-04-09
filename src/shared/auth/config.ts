@@ -143,6 +143,10 @@ export function getKeycloakAdminUsersEndpoint() {
   return `${config.baseUrl}/admin/realms/${config.realm}/users`;
 }
 
+export function getKeycloakAdminUserEndpoint(userId: string) {
+  return `${getKeycloakAdminUsersEndpoint()}/${encodeURIComponent(userId)}`;
+}
+
 export function getAuthCallbackUrl(origin: string) {
   return `${origin}/api/auth/callback`;
 }

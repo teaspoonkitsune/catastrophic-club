@@ -63,6 +63,8 @@ export async function POST(request: Request) {
       const localizedError =
         error.status === 401
           ? messages.auth.errors.invalidCredentials
+          : error.status === 409
+            ? messages.auth.errors.accountSetupIncomplete
           : error.status === 502
             ? messages.auth.errors.loadAccountFailed
             : messages.auth.errors.genericLoginFailed;

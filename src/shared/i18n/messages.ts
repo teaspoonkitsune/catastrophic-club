@@ -147,22 +147,23 @@ type MessagesShape = {
     collectionPrompt: string;
     needLoginTitle: string;
     needLoginText: string;
-    errors: {
-      enterCredentials: string;
-      fillEmailPassword: string;
-      loginFailed: string;
-      registerFailed: string;
-      rateLimited: string;
-      missingUsernamePassword: string;
-      missingEmailPassword: string;
-      invalidEmail: string;
-      shortPassword: string;
-      invalidCredentials: string;
-      accountExists: string;
-      loadAccountFailed: string;
-      genericLoginFailed: string;
-      genericCreateFailed: string;
-    };
+      errors: {
+        enterCredentials: string;
+        fillEmailPassword: string;
+        loginFailed: string;
+        registerFailed: string;
+        rateLimited: string;
+        missingUsernamePassword: string;
+        missingEmailPassword: string;
+        invalidEmail: string;
+        shortPassword: string;
+        invalidCredentials: string;
+        accountSetupIncomplete: string;
+        accountExists: string;
+        loadAccountFailed: string;
+        genericLoginFailed: string;
+        genericCreateFailed: string;
+      };
   };
   errors: {
     genericTitle: string;
@@ -365,6 +366,7 @@ export const messages: Record<Locale, Messages> = {
         invalidEmail: 'Введите корректный email.',
         shortPassword: 'Пароль должен быть не короче 8 символов.',
         invalidCredentials: 'Неверный логин или пароль.',
+        accountSetupIncomplete: 'Аккаунт создан, но Keycloak считает его незавершенным. Проверь required actions в админке.',
         accountExists: 'Аккаунт с такой почтой или логином уже существует.',
         loadAccountFailed: 'Не удалось загрузить данные аккаунта.',
         genericLoginFailed: 'Не удалось войти в аккаунт.',
@@ -569,6 +571,7 @@ export const messages: Record<Locale, Messages> = {
         invalidEmail: 'Enter a valid email address.',
         shortPassword: 'Password must be at least 8 characters long.',
         invalidCredentials: 'Invalid username or password.',
+        accountSetupIncomplete: 'The account was created, but Keycloak still considers it incomplete. Check required actions in the admin panel.',
         accountExists: 'An account with this email or username already exists.',
         loadAccountFailed: 'Could not load account data.',
         genericLoginFailed: 'Could not sign in.',
