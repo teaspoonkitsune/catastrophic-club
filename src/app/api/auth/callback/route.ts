@@ -96,7 +96,7 @@ export async function GET(request: Request) {
     }
 
     const userInfo = (await userInfoResponse.json()) as UserInfoResponse;
-    const name = userInfo.name ?? userInfo.preferred_username ?? null;
+    const name = userInfo.preferred_username ?? userInfo.name ?? null;
     const email = userInfo.email ?? `${userInfo.sub}@keycloak.local`;
 
     await syncAuthenticatedUser({

@@ -43,15 +43,16 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as Partial<{
+    username: string;
     name: string;
     email: string;
     password: string;
   }> | null;
-  const name = body?.name?.trim() || null;
+  const username = body?.username?.trim() || body?.name?.trim() || null;
   const email = body?.email?.trim().toLowerCase();
   const password = body?.password;
 
-  if (!email || !password) {
+  if (!username || !email || !password) {
     return NextResponse.json({ error: messages.auth.errors.missingEmailPassword }, { status: 400 });
   }
 
@@ -65,12 +66,12 @@ export async function POST(request: Request) {
 
   try {
     await registerKeycloakUser({
+      username,
       email,
       password,
-      name,
     });
 
-    const { session, user } = await loginWithKeycloakPassword(email, password, name);
+    const { session, user } = await loginWithKeycloakPassword(username, password, username);
     const response = NextResponse.json({ ok: true, user }, { status: 201 });
     writeAuthSessionToResponse(response, session);
     return response;

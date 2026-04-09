@@ -125,7 +125,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
   async function handleRegisterSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!registerEmail.trim() || !registerPassword) {
+    if (!registerName.trim() || !registerEmail.trim() || !registerPassword) {
       setRegisterError(messages.auth.errors.fillEmailPassword);
       return;
     }
@@ -140,7 +140,7 @@ export function AuthSidebar({ session = null, currentPath }: AuthSidebarProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: registerName.trim(),
+          username: registerName.trim(),
           email: registerEmail.trim(),
           password: registerPassword,
         }),

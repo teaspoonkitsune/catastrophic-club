@@ -124,7 +124,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
   async function handleRegisterSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!registerEmail.trim() || !registerPassword) {
+    if (!registerName.trim() || !registerEmail.trim() || !registerPassword) {
       setError(messages.auth.errors.fillEmailPassword);
       return;
     }
@@ -139,7 +139,7 @@ export function MobileAuthPanel({ session = null, currentPath }: MobileAuthPanel
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: registerName.trim(),
+          username: registerName.trim(),
           email: registerEmail.trim(),
           password: registerPassword,
         }),

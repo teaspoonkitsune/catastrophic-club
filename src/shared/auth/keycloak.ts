@@ -17,9 +17,9 @@ type KeycloakUserInfoResponse = {
 };
 
 type RegisterKeycloakUserInput = {
+  username: string;
   email: string;
   password: string;
-  name: string | null;
 };
 
 type LoginResult = {
@@ -101,7 +101,7 @@ export async function loginWithKeycloakPassword(
 
   const tokenPayload = (await response.json()) as KeycloakTokenResponse;
   const userInfo = await fetchUserInfo(tokenPayload.access_token);
-  const name = userInfo.name ?? fallbackName ?? userInfo.preferred_username ?? null;
+  const name = userInfo.preferred_username ?? userInfo.name ?? fallbackName ?? null;
   const email = userInfo.email ?? `${userInfo.sub}@keycloak.local`;
   const user = {
     subject: userInfo.sub,
@@ -159,8 +159,8 @@ async function getKeycloakAdminAccessToken() {
 
 export async function registerKeycloakUser(input: RegisterKeycloakUserInput): Promise<void> {
   const adminAccessToken = await getKeycloakAdminAccessToken();
+  const normalizedUsername = input.username.trim();
   const normalizedEmail = input.email.trim().toLowerCase();
-  const name = input.name?.trim() || null;
 
   const response = await fetch(getKeycloakAdminUsersEndpoint(), {
     method: 'POST',
@@ -169,11 +169,11 @@ export async function registerKeycloakUser(input: RegisterKeycloakUserInput): Pr
       Authorization: `Bearer ${adminAccessToken}`,
     },
     body: JSON.stringify({
-      username: normalizedEmail,
+      username: normalizedUsername,
       email: normalizedEmail,
       enabled: true,
-      emailVerified: false,
-      firstName: name ?? undefined,
+      emailVerified: true,
+      requiredActions: [],
       credentials: [
         {
           type: 'password',
