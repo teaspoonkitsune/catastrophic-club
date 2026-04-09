@@ -25,6 +25,10 @@ Required in production:
 - `KEYCLOAK_ADMIN_USERNAME`
 - `KEYCLOAK_ADMIN_PASSWORD`
 
+Optional but supported:
+- `AUTH_RATE_LIMIT_MAX_ATTEMPTS`
+- `AUTH_RATE_LIMIT_WINDOW_SECONDS`
+
 Production expectations:
 - `DATABASE_URL` should use the real production database and SSL where appropriate
 - `AUTH_SECRET` must be long, random, and private
@@ -59,6 +63,21 @@ Recommended order:
 4. Build and deploy the app
 5. Verify auth, favorites, battles, and leaderboard
 
+## Health Check
+
+The app exposes:
+
+- `/api/health`
+
+Current checks:
+- auth-related environment validation
+- database connectivity
+
+Expected behavior:
+- `200` when checks pass
+- `503` when any required check fails
+- `Cache-Control: no-store`
+
 ## Keycloak Requirements
 
 The production Keycloak client must be configured for the real app origin.
@@ -90,8 +109,6 @@ The current repository does not yet include:
 - provider-specific deployment manifests
 - container build files
 - CI/CD definitions
-- a dedicated health endpoint
 - monitoring integration
-- rate limiting for auth routes
 
 Those should be handled before a serious public rollout.
