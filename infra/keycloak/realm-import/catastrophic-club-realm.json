@@ -16,6 +16,7 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
+      "secret": "catastrophic-club-local-dev-secret",
       "rootUrl": "http://localhost:3000",
       "baseUrl": "http://localhost:3000",
       "standardFlowEnabled": true,

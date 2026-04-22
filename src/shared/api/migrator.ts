@@ -17,7 +17,9 @@ function shouldAutoRunMigrations() {
     return false;
   }
 
-  return process.env.NODE_ENV !== 'production';
+  // Default to explicit migrations only. Next.js request runtimes do not reliably
+  // support loading raw TypeScript migration files during normal app requests.
+  return false;
 }
 
 function createMigrator() {
