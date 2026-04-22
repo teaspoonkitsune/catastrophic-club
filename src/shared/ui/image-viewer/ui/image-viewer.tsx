@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
+import { LoaderCircle } from 'lucide-react';
 import { useI18n } from '@/shared/i18n';
 import { isImageLoaded, markImageLoaded } from '../model/preload-image';
 import styles from './image-viewer.module.css';
@@ -33,7 +34,23 @@ export function ImageViewer({
   const [loadedSrc, setLoadedSrc] = useState<string | null>(() =>
     isImageLoaded(src) ? src : null,
   );
+  const [delayedLoaderSrc, setDelayedLoaderSrc] = useState<string | null>(null);
   const isLoaded = loadedSrc === src || isImageLoaded(src);
+  const showLoader = delayedLoaderSrc === src && !isLoaded;
+
+  useEffect(() => {
+    if (isLoaded) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setDelayedLoaderSrc(src);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isLoaded, src]);
 
   function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
     markImageLoaded(src, event.currentTarget);
@@ -96,6 +113,11 @@ export function ImageViewer({
           data-with-footer={footer ? 'true' : 'false'}
         >
           <div className={styles.imageWrap}>
+            {showLoader ? (
+              <div className={styles.loadingState} aria-hidden="true">
+                <LoaderCircle className={styles.loaderIcon} />
+              </div>
+            ) : null}
             {imageAction && isLoaded ? <div className={styles.imageAction}>{imageAction}</div> : null}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -104,6 +126,7 @@ export function ImageViewer({
               alt={alt}
               className={styles.image}
               data-loaded={isLoaded ? 'true' : 'false'}
+              aria-busy={isLoaded ? undefined : true}
               onLoad={handleImageLoad}
               onError={handleImageLoad}
             />
