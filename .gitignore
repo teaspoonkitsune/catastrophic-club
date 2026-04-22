@@ -42,6 +42,7 @@ yarn-error.log*
 # local editor and planning files
 .vscode/
 PLAN/
+.codex/
 
 # local AI assistant instructions
 AGENTS.md
@@ -52,3 +53,10 @@ CLAUDE.md
 next-env.d.ts
 
 /src/generated/prisma
+
+# local Keycloak runtime and overrides
+/infra/keycloak/.keycloak-local.pid
+/infra/keycloak/keycloak-local.log
+/infra/keycloak/docker-compose.override.yml
+/infra/keycloak/podman-compose.override.yml
+/infra/keycloak/*.local.env
