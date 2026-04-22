@@ -1,67 +1,129 @@
-## Operations
+# Operations
 
-This document covers the minimum operational expectations for running CATastrophic Club in a shared or production-like environment.
+## Overview
 
-## Backups
+This document collects the operational details that are visible from the codebase today: health checks, database behavior, auth dependencies, and the parts of the app most likely to surprise you in production.
 
-Back up at least:
-- PostgreSQL data
-- Keycloak realm configuration and relevant user data
-- environment variable definitions stored outside the repository
+## Health Check
 
-Recommended baseline:
-- scheduled database backups
-- tested restore flow
-- documented retention policy
+The health endpoint is:
 
-## Restore Readiness
+- `/api/health`
 
-Be able to restore:
-- application database
-- Keycloak client and realm configuration
-- app environment variables
+Implementation:
 
-Do not assume that having backups is enough. A restore procedure should be tested.
+- `src/app/api/health/route.ts`
 
-## Release Checks
+It verifies:
 
-For every release candidate:
-- run `npm run lint`
-- run `npm run build`
-- run `npm run db:migrate` in the target environment
-- verify auth, favorites, battles, and leaderboard
+- auth-related environment configuration
+- auth rate-limit configuration parsing
+- database connectivity with a simple `select 1`
 
-## Incident Basics
+The response includes:
 
-If the app fails after deployment, check in this order:
-1. app process startup and runtime logs
-2. database connectivity
-3. Keycloak connectivity
-4. environment variable correctness
-5. migration state
-6. cookie and auth behavior over HTTPS
+- `ok`
+- `checks.env`
+- `checks.database`
+- `timestamp`
 
-## Authentication Notes
+## Database Operations
 
-The app stores its own encrypted session cookie after successful Keycloak login.
+Migrations are run with:
 
-Current cookie properties:
-- `httpOnly`
-- `sameSite=lax`
-- `secure` in production
+```bash
+npm run db:migrate
+```
 
-Operationally, watch for:
-- mismatched app and Keycloak origins
-- broken redirect URIs
-- incorrect client secret
-- stale `AUTH_SECRET` rotation without rollout planning
+Relevant files:
 
-## Observability Gaps
+- `src/shared/api/run-migrations.ts`
+- `src/shared/api/migrator.ts`
+- `src/shared/api/migrations/*`
 
-The repository currently does not include:
-- centralized error monitoring
-- request tracing
-- structured application logs
-- alerting
+One important detail: repositories can also trigger migrations during normal request handling through `ensureDatabaseMigrated()`.
+In the current setup, automatic migrations are disabled by default and should be enabled only deliberately.
 
-These are not blockers for local development, but they are real gaps for production support.
+## Auth Operations
+
+Key auth files:
+
+- `src/shared/auth/config.ts`
+- `src/shared/auth/session.ts`
+- `src/shared/auth/keycloak.ts`
+- `src/shared/auth/users.ts`
+
+Operational dependencies:
+
+- working Keycloak client settings
+- working Keycloak admin credentials for registration
+- a stable `AUTH_SECRET` for cookie encryption
+
+## Runtime Risks
+
+### In-Memory Rate Limiting
+
+`src/shared/lib/rate-limit.ts` stores counters in a module-level `Map`.
+
+That means:
+
+- limits are local to a single process
+- counters are lost on restart
+- limits are not shared across multiple instances
+
+### In-Memory Favorite Cache
+
+`src/entities/favorite-cat/api/client.ts` keeps favorite state in a browser-side module cache.
+
+That means:
+
+- the UI can briefly hold stale favorite state
+- another tab or another session can change data without this cache knowing
+
+### Auto-Migrations on Request Paths
+
+Repositories call `ensureDatabaseMigrated()`.
+
+That is convenient in development, but operationally it means:
+
+- DB migration issues can surface as normal request failures
+- startup behavior depends on `AUTO_RUN_MIGRATIONS` and `NODE_ENV`
+
+The current recommended mode is explicit migrations via `npm run db:migrate`.
+
+### Split Auth Flow
+
+The codebase supports both:
+
+- direct credential login/register routes
+- an OAuth callback route
+
+That split makes auth changes a little more sensitive than they first appear.
+
+### Local Keycloak over HTTP
+
+For local development, the imported `catastrophic-club` realm already allows HTTP. The built-in `master` realm may still require SSL and block admin login over `http://localhost:8080`.
+
+If that happens, update `master` locally with `sslRequired=NONE` as described in `docs/keycloak-local.md`.
+
+## Manual Verification Checklist
+
+After infrastructure, auth, or DB changes, the practical smoke test is:
+
+1. `npm run lint`
+2. `npm run build`
+3. verify `/api/health`
+4. verify login
+5. verify registration
+6. verify logout
+7. verify `/favorites`
+8. verify `/battles`
+9. verify `/leaderboard`
+
+## Limits of This Document
+
+These things could not be confirmed from the repository itself:
+
+- CI/CD workflow
+- automated test setup
+- local PostgreSQL container setup

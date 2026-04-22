@@ -1,43 +1,33 @@
-## Local Setup
+# Local Setup
 
-This guide covers the expected local development flow for CATastrophic Club.
+## Overview
 
-## Requirements
+To run the project locally, you need the Next.js app itself, PostgreSQL, and Keycloak. The repository includes files for local Keycloak, but not for a local PostgreSQL container.
 
-- Node.js compatible with the project toolchain
-- npm
+## Prerequisites
+
+- Node.js compatible with `Next.js 16`
+- `npm`
 - PostgreSQL
-- Podman with `podman compose` if you want to run the bundled local Keycloak setup
+- Keycloak
 
-## 1. Install Dependencies
+## Installation
 
 ```bash
 npm install
-```
-
-## 2. Create Environment Files
-
-App env:
-
-```bash
 cp .env.example .env
 ```
 
-Optional local Keycloak env:
+## Environment Variables
 
-```bash
-cp infra/keycloak/.env.example infra/keycloak/.env
-```
+Use `.env.example` as the base file.
 
-## 3. Configure The App Environment
-
-At minimum, configure:
+Minimum setup:
 
 ```env
 DATABASE_URL=postgres://user:password@host:5432/database
 DATABASE_SSL=false
 AUTH_SECRET=replace-with-a-long-random-string
-AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
 KEYCLOAK_REALM=catastrophic-club
 KEYCLOAK_CLIENT_ID=catastrophic-club-web
@@ -46,48 +36,109 @@ KEYCLOAK_ADMIN_USERNAME=admin
 KEYCLOAK_ADMIN_PASSWORD=admin
 ```
 
-Notes:
-- `DATABASE_URL` must point to a working PostgreSQL instance.
-- `DATABASE_SSL=false` is usually correct for a local PostgreSQL instance without TLS.
-- The repository does not currently include a local PostgreSQL compose file.
-- `AUTH_SECRET` should be long and random even in development.
+Useful optional values:
 
-## 4. Start Local Keycloak
-
-Use [keycloak-local.md](./keycloak-local.md) for the exact flow.
-
-Quick start:
-
-```bash
-cd infra/keycloak
-podman compose up -d
+```env
+AUTH_SESSION_TTL_SECONDS=604800
+KEYCLOAK_SCOPE=openid profile email
+KEYCLOAK_ADMIN_REALM=master
+KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+AUTO_RUN_MIGRATIONS=false
+AUTH_RATE_LIMIT_MAX_ATTEMPTS=10
+AUTH_RATE_LIMIT_WINDOW_SECONDS=60
 ```
 
-## 5. Run Database Migrations
+## Database Setup
+
+Point `DATABASE_URL` at a running PostgreSQL instance.
+
+Before development, apply migrations:
 
 ```bash
 npm run db:migrate
 ```
 
-## 6. Start The App
+The codebase can also auto-run migrations through repositories. That behavior is controlled by `AUTO_RUN_MIGRATIONS`, but it is still a good idea to run migrations explicitly before starting work.
+By default, the app now expects explicit migrations. Turn on `AUTO_RUN_MIGRATIONS=true` only if you deliberately want request-time migration attempts.
+
+## Keycloak Setup
+
+For local Keycloak instructions, see [keycloak-local.md](./keycloak-local.md).
+
+The expected local baseline is:
+
+- app: `http://localhost:3000`
+- Keycloak: `http://localhost:8080`
+
+If the Keycloak admin console still complains about HTTPS on localhost, also apply the local `master` realm override described in `docs/keycloak-local.md`. The application realm already allows HTTP, but the built-in admin realm may not.
+
+## Start Development Mode
 
 ```bash
 npm run dev
 ```
 
-## 7. Optional Seed Data
-
-If you need battle data:
+## Useful Commands
 
 ```bash
+npm run lint
+npm run build
 npm run seed:battle-cats
 ```
 
-## Verification Checklist
+`npm run seed:battle-cats` runs `src/script.ts`.
 
-- `npm run lint` passes
-- `npm run build` passes
-- the app opens on `http://localhost:3000`
-- home, favorites, battles, and leaderboard render
-- auth works against the local Keycloak realm
-- database-backed pages work after migrations
+## Typical Problems
+
+### Missing `DATABASE_URL`
+
+You will get:
+
+- `DATABASE_URL is not set`
+
+Source:
+
+- `src/shared/api/database.ts`
+
+### Missing auth settings
+
+You can hit errors such as:
+
+- `AUTH_SECRET is not set`
+- missing `KEYCLOAK_*` values
+
+Source:
+
+- `src/shared/auth/config.ts`
+
+### Broken Keycloak admin credentials
+
+Symptom:
+
+- registration fails even if the app itself starts
+
+Source:
+
+- `src/shared/auth/keycloak.ts`
+
+### Migration problems
+
+Symptom:
+
+- normal page loads or API requests fail because repository access triggers migrations
+
+Recommendation:
+
+- keep `AUTO_RUN_MIGRATIONS` unset or `false`
+- run `npm run db:migrate` manually before starting the app
+## Suggested Smoke Check
+
+After setup:
+
+1. run `npm run lint`
+2. run `npm run build`
+3. open `/`
+4. open `/favorites`
+5. open `/battles`
+6. open `/leaderboard`
+7. check `/api/health`

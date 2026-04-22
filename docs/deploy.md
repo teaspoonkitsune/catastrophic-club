@@ -1,139 +1,111 @@
-## Deployment Guide
+# Build and Deployment
 
-This document describes the production requirements for deploying CATastrophic Club. It intentionally stays provider-agnostic.
+## Overview
 
-## Runtime Requirements
+The repository contains a practical baseline for self-hosting:
 
-- Node.js runtime compatible with `Next.js 16`
-- PostgreSQL database
-- Keycloak instance reachable from the app
-- persistent environment variable management
-- a reverse proxy or hosting layer that terminates TLS
-- a container runtime if you use the bundled Docker deployment files
+- a multi-stage `Dockerfile`
+- `docker-compose.prod.yml`
+- a production env example in `docker/production.env.example`
 
-## Required Environment Variables
+What is not confirmed by code:
 
-Start from [.env.example](../.env.example).
+- CI/CD
+- staging configuration
+- deploy automation on merge
 
-Required in production:
-- `DATABASE_URL`
+## Dockerfile
+
+The `Dockerfile` has four stages:
+
+| Stage | Purpose |
+| --- | --- |
+| `deps` | install dependencies with `npm ci` |
+| `builder` | build the app |
+| `tools` | run migrations |
+| `runner` | serve the standalone Next.js build |
+
+Important details:
+
+- the build uses `output: 'standalone'`
+- placeholder env values are set in the build stage so `next build` can complete
+- the runtime container exposes port `3000`
+
+## Production Compose Setup
+
+`docker-compose.prod.yml` defines four services.
+
+### `postgres`
+
+This service stores both the app database and the Keycloak database. Initialization scripts are mounted from `docker/postgres/init`.
+
+### `keycloak`
+
+Keycloak runs from `quay.io/keycloak/keycloak:26.5.5`, imports the realm from `infra/keycloak/realm-import`, and binds to `127.0.0.1:8080`.
+
+### `migrate`
+
+This service is built from the `tools` stage and is intended to run migrations against the application database.
+
+### `app`
+
+This is the Next.js production container built from the `runner` stage. It binds to `127.0.0.1:3000`.
+
+## Production Environment
+
+The sample file is `docker/production.env.example`.
+
+Confirmed variables:
+
+- `APP_DOMAIN`
+- `KEYCLOAK_HOSTNAME`
+- `POSTGRES_SUPERUSER`
+- `POSTGRES_SUPERPASSWORD`
+- `APP_DB_NAME`
+- `APP_DB_USER`
+- `APP_DB_PASSWORD`
+- `KEYCLOAK_DB_NAME`
+- `KEYCLOAK_DB_USER`
+- `KEYCLOAK_DB_PASSWORD`
 - `DATABASE_SSL`
+- `AUTO_RUN_MIGRATIONS`
 - `AUTH_SECRET`
 - `AUTH_SESSION_TTL_SECONDS`
-- `KEYCLOAK_BASE_URL`
 - `KEYCLOAK_REALM`
 - `KEYCLOAK_CLIENT_ID`
 - `KEYCLOAK_CLIENT_SECRET`
 - `KEYCLOAK_ADMIN_USERNAME`
 - `KEYCLOAK_ADMIN_PASSWORD`
-
-Optional but supported:
-- `AUTO_RUN_MIGRATIONS`
 - `AUTH_RATE_LIMIT_MAX_ATTEMPTS`
 - `AUTH_RATE_LIMIT_WINDOW_SECONDS`
 
-Production expectations:
-- `DATABASE_URL` should use the real production database and SSL where appropriate
-- `DATABASE_SSL=false` is correct for the bundled internal Docker PostgreSQL service
-- `AUTH_SECRET` must be long, random, and private
-- Keycloak values must point to the production realm and client
-- `AUTO_RUN_MIGRATIONS=false` is recommended in production; run migrations explicitly during rollout
+## Deployment Flow Implied by the Repo
 
-## Build And Start
+The files suggest this order:
 
-Build:
+1. prepare env values from `docker/production.env.example`
+2. build the images
+3. start PostgreSQL and Keycloak
+4. run the `migrate` profile
+5. start the app
+6. verify `/api/health`
 
-```bash
-npm run build
-```
+## What Should Be Verified After Deployment
 
-Start:
-
-```bash
-npm run start
-```
-
-## Container Deployment
-
-The repository now includes a self-hosting baseline:
-
-- [Dockerfile](../Dockerfile)
-- [docker-compose.prod.yml](../docker-compose.prod.yml)
-- [docker/production.env.example](../docker/production.env.example)
-
-Typical flow:
-1. Copy `docker/production.env.example` to a private server-only env file
-2. Adjust domains, database users, passwords, and Keycloak values
-3. Build and start the internal services with Docker Compose
-4. Run the migration container explicitly
-5. Put Nginx in front of `127.0.0.1:3000` for the app and `127.0.0.1:8080` for Keycloak
-
-## Database Rollout
-
-Run migrations before or during rollout:
-
-```bash
-npm run db:migrate
-```
-
-When using Docker Compose:
-
-```bash
-docker compose --env-file /srv/catastrophic-club/env/app.env -f docker-compose.prod.yml run --rm migrate
-```
-
-Recommended order:
-1. Provision database and Keycloak
-2. Configure production environment variables
-3. Run migrations
-4. Build and deploy the app
-5. Verify auth, favorites, battles, and leaderboard
-
-## Health Check
-
-The app exposes:
+At minimum:
 
 - `/api/health`
+- login
+- registration
+- favorites loading
+- battle voting
+- leaderboard pagination
 
-Current checks:
-- auth-related environment validation
-- database connectivity
+## Gaps
 
-Expected behavior:
-- `200` when checks pass
-- `503` when any required check fails
-- `Cache-Control: no-store`
+The repository does not confirm:
 
-## Keycloak Requirements
-
-The production Keycloak client must be configured for the real app origin.
-
-At minimum, align:
-- redirect URIs
-- post logout redirect URIs
-- allowed web origins
-- client secret
-- registration policy
-- direct access grant usage if inline password login remains part of the product
-
-## Validation Checklist
-
-Before exposing the deployment publicly, verify:
-- `npm run lint` passes on the release commit
-- `npm run build` passes on the release commit
-- auth login works
-- auth registration works if enabled
-- logout clears the local app session
-- favorites read/write works
-- battle voting works
-- leaderboard renders
-- localized content renders correctly for both `ru` and `en`
-
-## Known Gaps To Address
-
-The current repository does not yet include:
-- provider-specific deployment manifests
-- CI/CD definitions
-- monitoring integration
-
-Those should be handled before a serious public rollout.
+- reverse proxy configuration
+- TLS termination strategy
+- staging rollout flow
+- CI/CD pipeline files
