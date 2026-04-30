@@ -9,6 +9,10 @@
   opacity: 0.18;
 }
 
+.preview[data-error='true'] img {
+  opacity: 0;
+}
+
 .preview:hover [data-hover-only='true'],
 .preview:focus-within [data-hover-only='true'] {
   opacity: 1;
@@ -31,6 +35,29 @@
   background-size: 220% 100%;
   animation: preview-shimmer 1.2s linear infinite;
   pointer-events: none;
+}
+
+.errorState {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
+  color: color-mix(in srgb, var(--paper-ink) 78%, var(--paper-secondary) 22%);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.errorIcon {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 @keyframes preview-shimmer {

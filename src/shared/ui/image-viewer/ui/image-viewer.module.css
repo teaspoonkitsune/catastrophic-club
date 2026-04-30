@@ -30,6 +30,9 @@
   position: relative;
   display: block;
   line-height: 0;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 20rem);
+  overflow: hidden;
 }
 
 .image {
@@ -47,8 +50,55 @@
   transition: opacity 160ms ease-out;
 }
 
+.loadingState {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: image-viewer-loader-fade 180ms ease-out both;
+}
+
+.loaderIcon {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: color-mix(in srgb, var(--paper-ink) 72%, var(--paper-accent) 28%);
+  animation: image-viewer-spin 1s linear infinite;
+}
+
 .image[data-loaded='true'] {
   opacity: 1;
+}
+
+.image[data-error='true'] {
+  opacity: 0;
+}
+
+.errorState {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-width: min(35vw, 32rem);
+  min-height: min(35vh, 20rem);
+  border: 2px solid var(--paper-rule);
+  background: var(--paper);
+  color: color-mix(in srgb, var(--paper-ink) 78%, var(--paper-secondary) 22%);
+  font-size: 0.92rem;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.errorIcon {
+  width: 2.4rem;
+  height: 2.4rem;
 }
 
 .imageFrame[data-with-footer='true'] .image {
@@ -148,6 +198,16 @@
     min-height: min(42vh, 16rem);
   }
 
+  .imageWrap {
+    min-width: min(92vw, 22rem);
+    min-height: min(42vh, 16rem);
+  }
+
+  .errorState {
+    min-width: min(92vw, 22rem);
+    min-height: min(42vh, 16rem);
+  }
+
   .footer {
     font-size: 0.78rem;
     padding: 0.8rem 1rem;
@@ -166,5 +226,25 @@
   .arrowRight {
     right: auto;
     left: calc(50% + 0.5rem);
+  }
+}
+
+@keyframes image-viewer-loader-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes image-viewer-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { ImageOff, LoaderCircle } from 'lucide-react';
 import { useI18n } from '@/shared/i18n';
 import { isImageLoaded, markImageLoaded } from '../model/preload-image';
 import styles from './image-viewer.module.css';
@@ -34,9 +34,11 @@ export function ImageViewer({
   const [loadedSrc, setLoadedSrc] = useState<string | null>(() =>
     isImageLoaded(src) ? src : null,
   );
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const [delayedLoaderSrc, setDelayedLoaderSrc] = useState<string | null>(null);
+  const isFailed = failedSrc === src;
   const isLoaded = loadedSrc === src || isImageLoaded(src);
-  const showLoader = delayedLoaderSrc === src && !isLoaded;
+  const showLoader = delayedLoaderSrc === src && !isLoaded && !isFailed;
 
   useEffect(() => {
     if (isLoaded) {
@@ -45,7 +47,7 @@ export function ImageViewer({
 
     const timeoutId = window.setTimeout(() => {
       setDelayedLoaderSrc(src);
-    }, 1000);
+    }, 300);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -55,6 +57,12 @@ export function ImageViewer({
   function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
     markImageLoaded(src, event.currentTarget);
     setLoadedSrc(src);
+    setFailedSrc((current) => current === src ? null : current);
+  }
+
+  function handleImageError() {
+    setLoadedSrc(src);
+    setFailedSrc(src);
   }
 
   return (
@@ -118,7 +126,13 @@ export function ImageViewer({
                 <LoaderCircle className={styles.loaderIcon} />
               </div>
             ) : null}
-            {imageAction && isLoaded ? <div className={styles.imageAction}>{imageAction}</div> : null}
+            {isFailed ? (
+              <div className={styles.errorState} aria-hidden="true">
+                <ImageOff className={styles.errorIcon} />
+                <span>{messages.images.unavailable}</span>
+              </div>
+            ) : null}
+            {imageAction && isLoaded && !isFailed ? <div className={styles.imageAction}>{imageAction}</div> : null}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               key={src}
@@ -126,9 +140,10 @@ export function ImageViewer({
               alt={alt}
               className={styles.image}
               data-loaded={isLoaded ? 'true' : 'false'}
+              data-error={isFailed ? 'true' : 'false'}
               aria-busy={isLoaded ? undefined : true}
               onLoad={handleImageLoad}
-              onError={handleImageLoad}
+              onError={handleImageError}
             />
           </div>
 

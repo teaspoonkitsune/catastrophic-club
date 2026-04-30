@@ -179,6 +179,7 @@ type MessagesShape = {
     next: string;
     defaultViewerAria: string;
     openImageWithAlt: string;
+    unavailable: string;
   };
   favoriteButton: {
     add: string;
@@ -388,6 +389,7 @@ export const messages: Record<Locale, Messages> = {
       next: 'Следующее фото',
       defaultViewerAria: 'Просмотр изображения',
       openImageWithAlt: 'Открыть изображение:',
+      unavailable: 'Изображение недоступно',
     },
     favoriteButton: {
       add: 'Добавить в избранное',
@@ -593,6 +595,7 @@ export const messages: Record<Locale, Messages> = {
       next: 'Next photo',
       defaultViewerAria: 'Image viewer',
       openImageWithAlt: 'Open image:',
+      unavailable: 'Image unavailable',
     },
     favoriteButton: {
       add: 'Add to favorites',

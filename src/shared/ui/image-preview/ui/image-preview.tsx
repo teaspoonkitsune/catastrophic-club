@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { ImageOff } from 'lucide-react';
 import { useI18n } from '@/shared/i18n';
 import styles from './image-preview.module.css';
 
@@ -39,11 +40,19 @@ export function ImagePreview({
 }: ImagePreviewProps) {
   const { messages } = useI18n();
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const isLoading = loadedSrc !== src;
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const isFailed = failedSrc === src;
+  const isLoading = loadedSrc !== src && !isFailed;
 
   function handleLoad() {
     setLoadedSrc(src);
+    setFailedSrc((current) => current === src ? null : current);
     onLoad?.();
+  }
+
+  function handleError() {
+    setLoadedSrc(src);
+    setFailedSrc(src);
   }
 
   function handleOpen() {
@@ -64,11 +73,18 @@ export function ImagePreview({
         }}
         onClick={renderAs === 'div' && onOpen ? handleOpen : undefined}
         onLoad={handleLoad}
-        onError={() => setLoadedSrc(src)}
+        onError={handleError}
         sizes={sizes}
       />
 
       {isLoading ? <span className={styles.skeleton} aria-hidden="true" /> : null}
+
+      {isFailed ? (
+        <span className={styles.errorState} aria-hidden="true">
+          <ImageOff className={styles.errorIcon} />
+          <span>{messages.images.unavailable}</span>
+        </span>
+      ) : null}
 
       {children}
     </>
@@ -84,6 +100,7 @@ export function ImagePreview({
         type="button"
         className={rootClassName}
         data-loading={isLoading ? 'true' : 'false'}
+        data-error={isFailed ? 'true' : 'false'}
         onClick={onOpen ? handleOpen : undefined}
         aria-label={`${messages.images.openImageWithAlt} ${alt}`}
         style={rootStyle}
@@ -98,6 +115,7 @@ export function ImagePreview({
     <div
       className={rootClassName}
       data-loading={isLoading ? 'true' : 'false'}
+      data-error={isFailed ? 'true' : 'false'}
       style={rootStyle}
       {...dataAttributes}
     >
