@@ -36,6 +36,14 @@ function getDatabaseSslConfig(databaseUrl: string) {
   return true;
 }
 
+function getDatabaseConnectionString(databaseUrl: string) {
+  const parsed = new URL(databaseUrl);
+
+  parsed.searchParams.delete('sslmode');
+
+  return parsed.toString();
+}
+
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
@@ -44,7 +52,7 @@ if (!databaseUrl) {
 
 const dialect = new PostgresDialect({
   pool: new Pool({
-    connectionString: databaseUrl,
+    connectionString: getDatabaseConnectionString(databaseUrl),
     ssl: getDatabaseSslConfig(databaseUrl),
     max: 10,
   }),
