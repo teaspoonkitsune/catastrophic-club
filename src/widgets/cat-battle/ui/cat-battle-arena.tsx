@@ -150,7 +150,7 @@ export function CatBattleArena({
               id={pair[0].id}
               imageUrl={pair[0].imageUrl}
               isAuthenticated={isAuthenticated}
-              loadOnMount={false}
+              showOnHover={false}
             />
           )}
           disabled={isSubmitting || isDailyLimitReached}
@@ -171,7 +171,7 @@ export function CatBattleArena({
               id={pair[1].id}
               imageUrl={pair[1].imageUrl}
               isAuthenticated={isAuthenticated}
-              loadOnMount={false}
+              showOnHover={false}
             />
           )}
           disabled={isSubmitting || isDailyLimitReached}

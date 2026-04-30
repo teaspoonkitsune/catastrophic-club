@@ -11,6 +11,7 @@ export const pageSurfaceClassNames = {
   authGateActions: styles.authGateActions,
   authGatePrimary: styles.authGatePrimary,
   authGateSecondary: styles.authGateSecondary,
+  sidebarLink: styles.sidebarLink,
 };
 
 export function PageIntro({ className, ...props }: ElementProps<'section'>) {

@@ -8,6 +8,7 @@ import {
   PaperPanel,
   SidebarEyebrow,
   SidebarList,
+  pageSurfaceClassNames,
 } from '@/shared/ui/page-surface';
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
@@ -44,7 +45,16 @@ export default async function Page() {
               <SidebarEyebrow>{messages.home.dataEyebrow}</SidebarEyebrow>
               <SidebarList variant="stamp">
                 {messages.home.data.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={pageSurfaceClassNames.sidebarLink}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
                 ))}
               </SidebarList>
             </PaperPanel>

@@ -5,6 +5,11 @@ export type Locale = (typeof supportedLocales)[number];
 export const defaultLocale: Locale = 'en';
 export const localeCookieName = 'locale';
 
+type HomeDataItem = {
+  label: string;
+  href: string;
+};
+
 type MessagesShape = {
   metadata: {
     description: string;
@@ -48,7 +53,7 @@ type MessagesShape = {
     sectionsEyebrow: string;
     sections: string[];
     dataEyebrow: string;
-    data: string[];
+    data: HomeDataItem[];
     featuredTitle: string;
     actionsEyebrow: string;
     actionsText: string;
@@ -147,23 +152,23 @@ type MessagesShape = {
     collectionPrompt: string;
     needLoginTitle: string;
     needLoginText: string;
-      errors: {
-        enterCredentials: string;
-        fillEmailPassword: string;
-        loginFailed: string;
-        registerFailed: string;
-        rateLimited: string;
-        missingUsernamePassword: string;
-        missingEmailPassword: string;
-        invalidEmail: string;
-        shortPassword: string;
-        invalidCredentials: string;
-        accountSetupIncomplete: string;
-        accountExists: string;
-        loadAccountFailed: string;
-        genericLoginFailed: string;
-        genericCreateFailed: string;
-      };
+    errors: {
+      enterCredentials: string;
+      fillEmailPassword: string;
+      loginFailed: string;
+      registerFailed: string;
+      rateLimited: string;
+      missingUsernamePassword: string;
+      missingEmailPassword: string;
+      invalidEmail: string;
+      shortPassword: string;
+      invalidCredentials: string;
+      accountSetupIncomplete: string;
+      accountExists: string;
+      loadAccountFailed: string;
+      genericLoginFailed: string;
+      genericCreateFailed: string;
+    };
   };
   errors: {
     genericTitle: string;
@@ -231,7 +236,7 @@ export const messages: Record<Locale, Messages> = {
     },
     footer: {
       email: 'Почта: teaspoonkitsune@proton.me', // kitty-committee@catastrophic.club is still cool alternative, but not registered
-      builtWith: 'Сделано на Next 16 и React 19',
+      builtWith: 'Сделано на Next 16',
       copyright: '2026 CATastrophic club',
     },
     home: {
@@ -245,7 +250,10 @@ export const messages: Record<Locale, Messages> = {
         'Рейтинг для победителей',
       ],
       dataEyebrow: 'данные',
-      data: ['Фото: `cataas.com`', 'Факты: `catfact.ninja`', 'Избранное хранится в Postgres'],
+      data: [
+        { label: 'Фото: cataas.com', href: 'https://cataas.com/' },
+        { label: 'Факты: catfact.ninja', href: 'https://catfact.ninja/' },
+      ],
       featuredTitle: 'Кот дня',
       actionsEyebrow: 'действия',
       actionsText:
@@ -367,7 +375,8 @@ export const messages: Record<Locale, Messages> = {
         invalidEmail: 'Введите корректный email.',
         shortPassword: 'Пароль должен быть не короче 8 символов.',
         invalidCredentials: 'Неверный логин или пароль.',
-        accountSetupIncomplete: 'Аккаунт создан, но Keycloak считает его незавершенным. Проверь required actions в админке.',
+        accountSetupIncomplete:
+          'Аккаунт создан, но Keycloak считает его незавершенным. Проверь required actions в админке.',
         accountExists: 'Аккаунт с такой почтой или логином уже существует.',
         loadAccountFailed: 'Не удалось загрузить данные аккаунта.',
         genericLoginFailed: 'Не удалось войти в аккаунт.',
@@ -437,7 +446,7 @@ export const messages: Record<Locale, Messages> = {
     },
     footer: {
       email: 'Email: teaspoonkitsune@proton.me', // kitty-committee@catastrophic.club is still cool alternative, but not registered
-      builtWith: 'Built with Next 16 and React 19',
+      builtWith: 'Built with Next 16',
       copyright: '2026 CATastrophic club',
     },
     home: {
@@ -451,7 +460,10 @@ export const messages: Record<Locale, Messages> = {
         'Leaderboard for the winners',
       ],
       dataEyebrow: 'data',
-      data: ['Photos: `cataas.com`', 'Facts: `catfact.ninja`', 'Favorites are stored in Postgres'],
+      data: [
+        { label: 'Photos: cataas.com', href: 'https://cataas.com/' },
+        { label: 'Facts: catfact.ninja', href: 'https://catfact.ninja/' },
+      ],
       featuredTitle: 'Cat of the day',
       actionsEyebrow: 'actions',
       actionsText:
@@ -573,7 +585,8 @@ export const messages: Record<Locale, Messages> = {
         invalidEmail: 'Enter a valid email address.',
         shortPassword: 'Password must be at least 8 characters long.',
         invalidCredentials: 'Invalid username or password.',
-        accountSetupIncomplete: 'The account was created, but Keycloak still considers it incomplete. Check required actions in the admin panel.',
+        accountSetupIncomplete:
+          'The account was created, but Keycloak still considers it incomplete. Check required actions in the admin panel.',
         accountExists: 'An account with this email or username already exists.',
         loadAccountFailed: 'Could not load account data.',
         genericLoginFailed: 'Could not sign in.',

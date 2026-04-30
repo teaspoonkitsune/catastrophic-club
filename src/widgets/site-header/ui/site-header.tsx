@@ -31,10 +31,11 @@ export function SiteHeader({ messages, session = null, currentPath }: SiteHeader
         >
           {messages.header.title}
         </Link>
-        <p className={styles.subtitle}>
-          {messages.header.subtitle}
-        </p>
-        <MobileAuthPanel session={session} currentPath={currentPath} />
+        <p className={styles.subtitle}>{messages.header.subtitle}</p>
+        <MobileAuthPanel
+          session={session}
+          currentPath={currentPath}
+        />
       </div>
       <nav
         className={styles.nav}
