@@ -42,7 +42,7 @@ yarn-error.log*
 # local editor and planning files
 .vscode/
 PLAN/
-.codex/
+.codex
 
 # local AI assistant instructions
 AGENTS.md
