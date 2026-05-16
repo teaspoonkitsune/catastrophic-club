@@ -16,6 +16,8 @@ type GalleryImageProps = {
   previewAspectRatio?: `${number} / ${number}`;
   previewObjectFit?: 'cover' | 'contain';
   children?: ReactNode;
+  loading?: 'eager' | 'lazy';
+  fetchPriority?: 'high' | 'low' | 'auto';
   onLoad?: () => void;
   onOpen?: () => void;
   galleryItems?: string[];
@@ -37,6 +39,8 @@ export function GalleryImage({
   previewAspectRatio,
   previewObjectFit = 'cover',
   children,
+  loading,
+  fetchPriority,
   onLoad,
   onOpen,
   galleryItems,
@@ -67,6 +71,8 @@ export function GalleryImage({
         aspectRatio={previewAspectRatio}
         objectFit={previewObjectFit}
         onOpen={handlePreviewClick}
+        loading={loading}
+        fetchPriority={fetchPriority}
         onLoad={onLoad}
       >
         {children}

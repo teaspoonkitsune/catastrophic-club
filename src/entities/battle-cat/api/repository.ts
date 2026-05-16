@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { sql, type Transaction } from 'kysely';
-import { getRandomCatImage } from '@/entities/cat';
+import { getRandomCatImage, type CatImage } from '@/entities/cat';
 import { db, ensureDatabaseMigrated } from '@/shared/api';
 import type { Database } from '@/shared/api';
 import type {
@@ -16,6 +16,7 @@ const BATTLE_HISTORY_MAX_OFFSET = 10_000;
 const BATTLE_LEADERBOARD_LIMIT = 10;
 const BATTLE_LEADERBOARD_MAX_OFFSET = 10_000;
 const DAILY_BATTLE_VOTE_LIMIT = 5;
+const BATTLE_PAIR_RANDOM_ATTEMPTS = 8;
 
 function getUtcDateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -39,19 +40,51 @@ function toBattleHistoryRecord(entry: {
   };
 }
 
-async function createBattleCat(): Promise<void> {
-  const cat = await getRandomCatImage();
+async function getRandomBattleCatImages(): Promise<[CatImage, CatImage]> {
+  const firstCat = await getRandomCatImage();
+  let attempts = 0;
+
+  while (attempts < BATTLE_PAIR_RANDOM_ATTEMPTS) {
+    const secondCat = await getRandomCatImage();
+    attempts += 1;
+
+    if (secondCat.id !== firstCat.id) {
+      return [firstCat, secondCat];
+    }
+  }
+
+  throw new Error('Failed to load two different cats for battle');
+}
+
+async function syncBattleCats(cats: [CatImage, CatImage]): Promise<[BattleCat, BattleCat]> {
+  const now = new Date();
 
   await db
     .insertInto('battle_cats')
-    .values({
+    .values(cats.map((cat) => ({
       id: cat.id,
       imageUrl: cat.imageUrl,
       score: 0,
-      createdAt: new Date(),
-    })
+      createdAt: now,
+    })))
     .onConflict((conflict) => conflict.column('id').doNothing())
     .execute();
+
+  const rows = await db
+    .selectFrom('battle_cats')
+    .selectAll()
+    .where('id', 'in', cats.map((cat) => cat.id))
+    .execute();
+
+  const rowById = new Map(rows.map((row) => [row.id, row]));
+  const firstCat = rowById.get(cats[0].id);
+  const secondCat = rowById.get(cats[1].id);
+
+  if (!firstCat || !secondCat) {
+    throw new Error('Failed to sync battle cats');
+  }
+
+  return [firstCat, secondCat];
 }
 
 async function claimDailyBattleVote(
@@ -74,46 +107,10 @@ async function claimDailyBattleVote(
   return result.rows.length > 0;
 }
 
-export async function ensureBattleCatPool(minCount = 6): Promise<void> {
+export async function getBattlePair(): Promise<BattleCat[]> {
   await ensureDatabaseMigrated();
 
-  let currentCount = Number(
-    (await db
-      .selectFrom('battle_cats')
-      .select((builder) => builder.fn.count<string>('id').as('count'))
-      .executeTakeFirstOrThrow()).count,
-  );
-
-  let attempts = 0;
-
-  // Cataas can return duplicate ids, so onConflict may make an attempt a no-op.
-  while (currentCount < minCount && attempts < minCount * 3) {
-    await createBattleCat();
-    currentCount = Number(
-      (await db
-        .selectFrom('battle_cats')
-        .select((builder) => builder.fn.count<string>('id').as('count'))
-        .executeTakeFirstOrThrow()).count,
-    );
-    attempts += 1;
-  }
-}
-
-export async function getBattlePair(): Promise<BattleCat[]> {
-  await ensureBattleCatPool(6);
-
-  const pair = await db
-    .selectFrom('battle_cats')
-    .selectAll()
-    .orderBy(sql`random()`)
-    .limit(2)
-    .execute();
-
-  if (pair.length < 2) {
-    throw new Error('Not enough cats for battle');
-  }
-
-  return pair;
+  return syncBattleCats(await getRandomBattleCatImages());
 }
 
 export async function getBattleLeaderboard({

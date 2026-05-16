@@ -1,4 +1,4 @@
-import { getRandomCatFact, getRandomCatImage } from '@/entities/cat';
+import { getCatOfTheDay, getRandomCatFact } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
 import { getRequestI18n } from '@/shared/i18n/server';
 import {
@@ -16,7 +16,7 @@ import { SitePageGrid } from '@/widgets/site-layout';
 export default async function Page() {
   const [fact, cat, session, { messages }] = await Promise.all([
     getRandomCatFact(),
-    getRandomCatImage(),
+    getCatOfTheDay(),
     getAuthSession(),
     getRequestI18n(),
   ]);

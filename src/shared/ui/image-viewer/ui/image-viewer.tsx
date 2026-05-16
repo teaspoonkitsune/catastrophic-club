@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
-import { ImageOff, LoaderCircle } from 'lucide-react';
+import { ImageOff } from 'lucide-react';
 import { useI18n } from '@/shared/i18n';
 import { isImageLoaded, markImageLoaded } from '../model/preload-image';
 import styles from './image-viewer.module.css';
@@ -122,9 +122,7 @@ export function ImageViewer({
         >
           <div className={styles.imageWrap}>
             {showLoader ? (
-              <div className={styles.loadingState} aria-hidden="true">
-                <LoaderCircle className={styles.loaderIcon} />
-              </div>
+              <div className={styles.loadingState} aria-hidden="true" />
             ) : null}
             {isFailed ? (
               <div className={styles.errorState} aria-hidden="true">

@@ -9,8 +9,11 @@
   position: relative;
   width: 100%;
   border: 1px solid var(--paper-rule);
-  background: rgba(53, 200, 193, 0.08);
+  background:
+    linear-gradient(135deg, rgba(53, 200, 193, 0.12), rgba(241, 212, 71, 0.1)),
+    var(--paper);
   box-shadow: var(--page-shadow);
+  overflow: hidden;
 }
 
 .imageButton {
@@ -49,24 +52,36 @@
 }
 
 .imageContainer[data-loading='true'] .image {
-  opacity: 0.18;
+  opacity: 0;
 }
 
 .skeleton {
   position: absolute;
-  inset: 0;
+  inset: 14px;
   z-index: 1;
+  display: grid;
+  place-items: center;
+  border: 1px dashed color-mix(in srgb, var(--paper-rule) 45%, transparent);
   background:
-    linear-gradient(
-      110deg,
-      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 8%,
-      color-mix(in srgb, var(--paper-ink) 24%, var(--paper) 76%) 18%,
-      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 33%
-    ),
-    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
-  background-size: 220% 100%;
-  animation: shimmer 1.2s linear infinite;
+    linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.1)),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--paper-secondary) 16%, transparent) 0 10px,
+      transparent 10px 20px
+    );
   pointer-events: none;
+}
+
+.skeleton::before {
+  content: '';
+  width: 54px;
+  height: 54px;
+  border: 2px solid color-mix(in srgb, var(--paper-rule) 18%, transparent);
+  border-top-color: var(--paper-rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--paper) 54%, transparent);
+  animation: photoLoaderSpin 0.9s linear infinite;
 }
 
 .actions {
@@ -110,12 +125,18 @@
   line-height: 1.2;
 }
 
-@keyframes shimmer {
+@keyframes photoLoaderSpin {
   from {
-    background-position: 100% 0;
+    transform: rotate(0deg);
   }
 
   to {
-    background-position: -100% 0;
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::before {
+    animation: none;
   }
 }

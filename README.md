@@ -8,7 +8,7 @@ The project is a full-stack App Router application. Pages are rendered on the se
 
 The current product surface is small and easy to map:
 
-- `/` shows a random cat image and a cat fact
+- `/` shows the cat of the day and a cat fact
 - `/favorites` shows the authenticated user's saved cats
 - `/battles` lets authenticated users vote between two cats
 - `/leaderboard` shows battle rankings with pagination through `offset`

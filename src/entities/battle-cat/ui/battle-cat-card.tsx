@@ -34,6 +34,8 @@ export function BattleCatCard({
         alt={messages.battles.battleImageAlt}
         previewSize="full"
         galleryItems={galleryItems}
+        loading="eager"
+        fetchPriority="high"
         onOpen={onImageOpen}
       >
         {actionSlot}

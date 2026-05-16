@@ -4,6 +4,7 @@ export interface Database {
   battle_cats: BattleCatsTable;
   battle_history: BattleHistoryTable;
   battle_vote_limits: BattleVoteLimitsTable;
+  cat_of_the_day: CatOfTheDayTable;
 }
 
 export interface UsersTable {
@@ -41,4 +42,11 @@ export interface BattleVoteLimitsTable {
   voteDate: string;
   voteCount: number;
   updatedAt: Date;
+}
+
+export interface CatOfTheDayTable {
+  dateKey: string;
+  catId: string;
+  imageUrl: string;
+  createdAt: Date;
 }

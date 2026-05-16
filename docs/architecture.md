@@ -115,7 +115,7 @@ Main routes:
 
 | Route | Purpose | Source |
 | --- | --- | --- |
-| `/` | home page with random cat and fact | `src/app/page.tsx` |
+| `/` | home page with cat of the day and fact | `src/app/page.tsx` |
 | `/favorites` | authenticated favorites browser | `src/app/favorites/page.tsx` |
 | `/battles` | battle arena and history | `src/app/battles/page.tsx` |
 | `/leaderboard` | ranked battle results | `src/app/leaderboard/page.tsx` |
@@ -170,7 +170,6 @@ Confirmed caches and local persistence:
 
 - favorite state cache in `src/entities/favorite-cat/api/client.ts`
 - auth rate-limit buckets in `src/shared/lib/rate-limit.ts`
-- home-page cat cache in `localStorage` inside `src/widgets/featured-cat/ui/featured-cat-widget.tsx`
 
 This keeps the app simple, but it also means there is no shared, durable client state model.
 
@@ -178,7 +177,7 @@ This keeps the app simple, but it also means there is no shared, durable client 
 
 ### Home Page
 
-`src/app/page.tsx` fetches a random cat and fact on the server. `FeaturedCatWidget` then handles refreshes on the client and can reuse a short-lived cached cat from `localStorage`.
+`src/app/page.tsx` fetches the cat of the day and a random fact on the server. The cat of the day is stored in `cat_of_the_day`, is keyed by UTC date, and tries to avoid reusing cats across days. `FeaturedCatWidget` then handles optional random photo refreshes on the client without changing the stored daily cat.
 
 ### Favorites
 
@@ -186,7 +185,7 @@ This keeps the app simple, but it also means there is no shared, durable client 
 
 ### Battles
 
-`src/app/battles/page.tsx` loads the current pair and the initial history on the server. The client widget submits votes to `/api/battles`, updates the pair, and keeps the recent history view warm by polling `/api/battles/history`.
+`src/app/battles/page.tsx` loads the current pair and the initial history on the server. The battle pair is sourced from random Cataas responses and then synchronized into `battle_cats`; existing rows keep their stored score and metadata, while missing rows are inserted with default values. The client widget submits votes to `/api/battles`, updates the pair, and keeps the recent history view warm by polling `/api/battles/history`.
 
 ### Leaderboard
 

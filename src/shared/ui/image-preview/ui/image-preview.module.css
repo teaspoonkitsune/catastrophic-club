@@ -3,10 +3,13 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(53, 200, 193, 0.12), rgba(241, 212, 71, 0.1)),
+    var(--paper);
 }
 
 .preview[data-loading='true'] img {
-  opacity: 0.18;
+  opacity: 0;
 }
 
 .preview[data-error='true'] img {
@@ -22,19 +25,31 @@
 
 .skeleton {
   position: absolute;
-  inset: 0;
+  inset: 10px;
   z-index: 1;
+  display: grid;
+  place-items: center;
+  border: 1px dashed color-mix(in srgb, var(--paper-rule) 42%, transparent);
   background:
-    linear-gradient(
-      110deg,
-      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 8%,
-      color-mix(in srgb, var(--paper-ink) 24%, var(--paper) 76%) 18%,
-      color-mix(in srgb, var(--paper-secondary) 18%, var(--paper) 82%) 33%
-    ),
-    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
-  background-size: 220% 100%;
-  animation: preview-shimmer 1.2s linear infinite;
+    linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.08)),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--paper-secondary) 14%, transparent) 0 9px,
+      transparent 9px 18px
+    );
   pointer-events: none;
+}
+
+.skeleton::before {
+  content: '';
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 2px solid color-mix(in srgb, var(--paper-rule) 18%, transparent);
+  border-top-color: var(--paper-rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--paper) 52%, transparent);
+  animation: preview-loader-spin 0.9s linear infinite;
 }
 
 .errorState {
@@ -60,12 +75,18 @@
   height: 1.35rem;
 }
 
-@keyframes preview-shimmer {
+@keyframes preview-loader-spin {
   from {
-    background-position: 100% 0;
+    transform: rotate(0deg);
   }
 
   to {
-    background-position: -100% 0;
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::before {
+    animation: none;
   }
 }

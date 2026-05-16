@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/shared/i18n';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
@@ -9,8 +9,7 @@ import { ImageViewer } from '@/shared/ui/image-viewer';
 import { ToggleFavoriteButton } from '@/features/toggle-favorite';
 import styles from './featured-cat-widget.module.css';
 
-const HOME_CAT_STORAGE_KEY = 'catastrophic-club:home-cat';
-const HOME_CAT_TTL_MS = 1000 * 60 * 60;
+const loadedImageUrls = new Set<string>();
 
 type FeaturedCatWidgetProps = {
   id: string;
@@ -19,65 +18,6 @@ type FeaturedCatWidgetProps = {
   isAuthenticated?: boolean;
 };
 
-type StoredHomeCat = {
-  id: string;
-  imageUrl: string;
-  savedAt: number;
-};
-
-// The home cat is client-cached briefly to avoid changing on every navigation refresh.
-function readStoredCat(): StoredHomeCat | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  try {
-    const raw = window.localStorage.getItem(HOME_CAT_STORAGE_KEY);
-
-    if (!raw) {
-      return null;
-    }
-
-    const parsed = JSON.parse(raw) as Partial<StoredHomeCat>;
-
-    if (
-      typeof parsed.id !== 'string'
-      || typeof parsed.imageUrl !== 'string'
-      || typeof parsed.savedAt !== 'number'
-    ) {
-      window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
-      return null;
-    }
-
-    if (Date.now() - parsed.savedAt > HOME_CAT_TTL_MS) {
-      window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
-      return null;
-    }
-
-    return {
-      id: parsed.id,
-      imageUrl: parsed.imageUrl,
-      savedAt: parsed.savedAt,
-    };
-  } catch {
-    window.localStorage.removeItem(HOME_CAT_STORAGE_KEY);
-    return null;
-  }
-}
-
-function persistCat(cat: { id: string; imageUrl: string }) {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  const payload: StoredHomeCat = {
-    ...cat,
-    savedAt: Date.now(),
-  };
-
-  window.localStorage.setItem(HOME_CAT_STORAGE_KEY, JSON.stringify(payload));
-}
-
 export function FeaturedCatWidget({
   id,
   imageUrl,
@@ -85,38 +25,34 @@ export function FeaturedCatWidget({
   isAuthenticated = false,
 }: FeaturedCatWidgetProps) {
   const { messages } = useI18n();
+  const imageRef = useRef<HTMLImageElement>(null);
   const [imageAspectRatio, setImageAspectRatio] = useState<string | null>(null);
   const [cat, setCat] = useState({
     id,
     imageUrl,
   });
-  const [isLoadingImage, setIsLoadingImage] = useState(true);
+  const [isLoadingImage, setIsLoadingImage] = useState(!loadedImageUrls.has(imageUrl));
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   useEffect(() => {
-    const storedCat = readStoredCat();
+    setCat({ id, imageUrl });
+    setImageAspectRatio(null);
+    setIsLoadingImage(!loadedImageUrls.has(imageUrl));
+  }, [id, imageUrl]);
 
-    if (storedCat) {
-      if (storedCat.id !== id || storedCat.imageUrl !== imageUrl) {
-        setCat({
-          id: storedCat.id,
-          imageUrl: storedCat.imageUrl,
-        });
-      }
+  useEffect(() => {
+    const image = imageRef.current;
 
-      setImageAspectRatio(null);
-      setIsLoadingImage(true);
-
+    if (!image?.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
       return;
     }
 
-    setCat({ id, imageUrl });
-    setImageAspectRatio(null);
-    setIsLoadingImage(true);
-    persistCat({ id, imageUrl });
-  }, [id, imageUrl]);
+    loadedImageUrls.add(cat.imageUrl);
+    setImageAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`);
+    setIsLoadingImage(false);
+  }, [cat.imageUrl]);
 
   async function handleRefreshImage() {
     try {
@@ -148,8 +84,8 @@ export function FeaturedCatWidget({
       };
 
       setImageAspectRatio(null);
+      setIsLoadingImage(!loadedImageUrls.has(nextCat.imageUrl));
       setCat(nextCat);
-      persistCat(nextCat);
     } catch (error) {
       console.error('Failed to refresh cat image', error);
       setErrorStatus(toHttpCatError(error).status);
@@ -168,6 +104,7 @@ export function FeaturedCatWidget({
 
     if (naturalWidth > 0 && naturalHeight > 0) {
       setImageAspectRatio(`${naturalWidth} / ${naturalHeight}`);
+      loadedImageUrls.add(cat.imageUrl);
     }
 
     setIsLoadingImage(false);
@@ -188,6 +125,7 @@ export function FeaturedCatWidget({
           style={imageAspectRatio ? { aspectRatio: imageAspectRatio } : undefined}
         >
           <Image
+            ref={imageRef}
             key={cat.id}
             src={cat.imageUrl}
             alt={messages.featuredCat.alt}

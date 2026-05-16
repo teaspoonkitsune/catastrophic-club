@@ -19,6 +19,8 @@ type ImagePreviewProps = {
   children?: ReactNode;
   renderAs?: 'button' | 'div';
   rootDataAttributes?: Record<`data-${string}`, string | undefined>;
+  loading?: 'eager' | 'lazy';
+  fetchPriority?: 'high' | 'low' | 'auto';
   onOpen?: () => void;
   onLoad?: () => void;
 };
@@ -35,6 +37,8 @@ export function ImagePreview({
   children,
   renderAs = 'div',
   rootDataAttributes,
+  loading,
+  fetchPriority,
   onOpen,
   onLoad,
 }: ImagePreviewProps) {
@@ -75,6 +79,8 @@ export function ImagePreview({
         onLoad={handleLoad}
         onError={handleError}
         sizes={sizes}
+        loading={loading}
+        fetchPriority={fetchPriority}
       />
 
       {isLoading ? <span className={styles.skeleton} aria-hidden="true" /> : null}

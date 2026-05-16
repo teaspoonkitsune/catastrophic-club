@@ -24,7 +24,7 @@ On the client side, browser code talks to those routes through small wrapper mod
 | `/api/favorites` | `GET`, `POST`, `DELETE` | manage saved cats |
 | `/api/battles` | `GET`, `POST` | fetch a pair and submit battle results |
 | `/api/battles/history` | `GET` | fetch paginated battle history |
-| `/api/cat-image` | `GET` | fetch a new random cat image |
+| `/api/cat-image` | `GET` | fetch a new random cat image for optional refreshes |
 | `/api/health` | `GET` | check env and database readiness |
 
 ## How Server Data Access Is Structured
@@ -144,10 +144,10 @@ Behavior:
 
 Behavior:
 
-- `GET` returns a pair of battle cats
+- `GET` fetches random cats from Cataas, ensures matching `battle_cats` rows exist, and returns the saved records
 - `POST` requires auth and records a vote
 - daily battle votes are capped
-- success returns a refreshed pair and a history entry
+- success returns a refreshed random pair and a history entry
 
 ### `/api/battles/history`
 
@@ -180,7 +180,7 @@ Confirmed behavior:
 - most API fetches use `cache: 'no-store'`
 - battle history polls every `15` seconds on the first global page
 - favorite status uses a small module-level browser cache
-- the home-page cat is cached in `localStorage` for one hour
+- the home-page cat of the day is stored in PostgreSQL by UTC date
 
 There is no confirmed shared query cache, retry layer, or refresh-token mechanism.
 
