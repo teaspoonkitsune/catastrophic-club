@@ -63,15 +63,16 @@ export function BattleLeaderboardTable({
             <tr>
               <th>#</th>
               <th>{messages.leaderboard.table.photo}</th>
-              <th>{messages.leaderboard.table.link}</th>
               <th>{messages.leaderboard.table.score}</th>
             </tr>
           </thead>
           <tbody>
             {cats.map((cat, index) => (
               <tr key={cat.id}>
-                <td className={styles.rank}>{rankOffset + index + 1}</td>
-                <td>
+                <td className={styles.rank} data-label="#">
+                  <span className={styles.rankBadge}>{rankOffset + index + 1}</span>
+                </td>
+                <td className={styles.photoCell} data-label={messages.leaderboard.table.photo}>
                   <div className={styles.imageCell}>
                     <ImagePreview
                       className={styles.preview}
@@ -83,12 +84,9 @@ export function BattleLeaderboardTable({
                     />
                   </div>
                 </td>
-                <td>
-                  <a className={styles.link} href={cat.imageUrl} target="_blank" rel="noreferrer">
-                    {messages.leaderboard.table.open}
-                  </a>
+                <td className={styles.score} data-label={messages.leaderboard.table.score}>
+                  <span className={styles.scoreValue}>{cat.score}</span>
                 </td>
-                <td className={styles.score}>{cat.score}</td>
               </tr>
             ))}
           </tbody>
