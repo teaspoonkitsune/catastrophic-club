@@ -14,11 +14,20 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
+  width: fit-content;
   max-width: 80vw;
   min-width: min(35vw, 32rem);
   min-height: min(35vh, 24rem);
+  transition:
+    min-width 180ms ease-out,
+    min-height 180ms ease-out;
+}
+
+.viewer[data-size-known='true'] {
+  min-width: 0;
+  min-height: 0;
 }
 
 .imageFrame {
@@ -29,28 +38,92 @@
 .imageWrap {
   position: relative;
   display: block;
+  width: var(--viewer-image-width, min(35vw, 32rem));
+  height: var(--viewer-image-height, min(35vh, 20rem));
   line-height: 0;
   min-width: min(35vw, 32rem);
   min-height: min(35vh, 20rem);
   overflow: hidden;
+  background: transparent;
+  transition:
+    width 180ms ease-out,
+    height 180ms ease-out,
+    background-color 180ms ease-out;
+}
+
+.imageWrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border: 2px solid var(--paper-rule);
+  pointer-events: none;
+}
+
+.imageWrap[data-size-known='false'] {
+  width: min(35vw, 24rem);
+  height: min(35vw, 24rem);
+  min-width: min(35vw, 24rem);
+  min-height: min(35vw, 24rem);
+}
+
+.imageWrap[data-size-known='true'] {
+  min-width: 0;
+  min-height: 0;
   background:
     linear-gradient(135deg, rgba(53, 200, 193, 0.14), rgba(241, 212, 71, 0.12)),
     var(--paper);
 }
 
+.imageWrap[data-loaded='true'] {
+  width: fit-content;
+  height: fit-content;
+  background: transparent;
+}
+
+.measuringState {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--paper-rule) 30%, transparent);
+  background:
+    linear-gradient(135deg, rgba(53, 200, 193, 0.08), rgba(241, 212, 71, 0.08)),
+    color-mix(in srgb, var(--paper) 72%, transparent);
+  pointer-events: none;
+  animation: image-viewer-loader-fade 180ms ease-out both;
+}
+
+.measuringState::before {
+  content: '';
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px solid color-mix(in srgb, var(--paper-rule) 16%, transparent);
+  border-top-color: color-mix(in srgb, var(--paper-rule) 84%, var(--paper-accent) 16%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  animation: image-viewer-spin 1s linear infinite;
+}
+
 .image {
   display: block;
-  width: auto;
-  max-width: 80vw;
-  max-height: 80vh;
-  min-width: min(35vw, 32rem);
-  min-height: min(35vh, 20rem);
-  border: 2px solid var(--paper-rule);
+  width: var(--viewer-image-width, 100%);
+  height: var(--viewer-image-height, 100%);
+  border: 0;
   border-radius: 0;
   background: #fff;
-  object-fit: contain;
+  object-fit: fill;
   opacity: 0;
   transition: opacity 160ms ease-out;
+}
+
+.image[data-loaded='true'] {
+  width: auto;
+  height: auto;
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
 }
 
 .loadingState {
@@ -83,12 +156,12 @@
   animation: image-viewer-spin 1s linear infinite;
 }
 
-.image[data-loaded='true'] {
-  opacity: 1;
-}
-
 .image[data-error='true'] {
   opacity: 0;
+}
+
+.image[data-visible='true'] {
+  opacity: 1;
 }
 
 .errorState {
@@ -197,8 +270,7 @@
   }
 
   .viewer,
-  .imageFrame,
-  .image {
+  .imageFrame {
     max-width: 92vw;
   }
 
@@ -207,15 +279,28 @@
     min-height: min(50vh, 20rem);
   }
 
-  .image {
-    max-height: 66vh;
+  .viewer[data-size-known='true'] {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .imageWrap {
+    width: var(--viewer-image-width, min(92vw, 22rem));
+    height: var(--viewer-image-height, min(42vh, 16rem));
     min-width: min(92vw, 22rem);
     min-height: min(42vh, 16rem);
   }
 
-  .imageWrap {
-    min-width: min(92vw, 22rem);
-    min-height: min(42vh, 16rem);
+  .imageWrap[data-size-known='false'] {
+    width: min(72vw, 18rem);
+    height: min(72vw, 18rem);
+    min-width: min(72vw, 18rem);
+    min-height: min(72vw, 18rem);
+  }
+
+  .image[data-loaded='true'] {
+    max-width: 92vw;
+    max-height: 66vh;
   }
 
   .errorState {
@@ -266,6 +351,19 @@
 
 @media (prefers-reduced-motion: reduce) {
   .loadingState::before {
+    animation: none;
+  }
+
+  .imageWrap {
+    transition: none;
+  }
+
+  .measuringState,
+  .loadingState {
+    animation-duration: 1ms;
+  }
+
+  .measuringState::before {
     animation: none;
   }
 }

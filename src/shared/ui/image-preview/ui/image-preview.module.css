@@ -8,6 +8,11 @@
     var(--paper);
 }
 
+.preview img {
+  opacity: 1;
+  transition: opacity 180ms ease-out;
+}
+
 .preview[data-loading='true'] img {
   opacity: 0;
 }
@@ -36,8 +41,9 @@
       -45deg,
       color-mix(in srgb, var(--paper-secondary) 14%, transparent) 0 9px,
       transparent 9px 18px
-    );
+  );
   pointer-events: none;
+  animation: preview-loader-fade 180ms ease-out both;
 }
 
 .skeleton::before {
@@ -85,7 +91,23 @@
   }
 }
 
+@keyframes preview-loader-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .preview img,
+  .skeleton {
+    transition: none;
+    animation-duration: 1ms;
+  }
+
   .skeleton::before {
     animation: none;
   }

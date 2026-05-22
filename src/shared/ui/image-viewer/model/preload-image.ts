@@ -3,6 +3,11 @@ const loadedImages = new Set<string>();
 const loadedImageElements = new Map<string, HTMLImageElement>();
 const MAX_MEMORY_CACHED_IMAGES = 64;
 
+export type ImageDimensions = {
+  width: number;
+  height: number;
+};
+
 function rememberImageElement(src: string, image: HTMLImageElement) {
   loadedImageElements.delete(src);
   loadedImageElements.set(src, image);
@@ -22,6 +27,18 @@ function rememberImageElement(src: string, image: HTMLImageElement) {
 
 export function isImageLoaded(src: string) {
   return loadedImages.has(src);
+}
+
+export function getLoadedImageDimensions(src: string): ImageDimensions | null {
+  const image = loadedImageElements.get(src);
+  const width = image?.naturalWidth ?? 0;
+  const height = image?.naturalHeight ?? 0;
+
+  if (width <= 0 || height <= 0) {
+    return null;
+  }
+
+  return { width, height };
 }
 
 export function markImageLoaded(src: string, image?: HTMLImageElement) {
