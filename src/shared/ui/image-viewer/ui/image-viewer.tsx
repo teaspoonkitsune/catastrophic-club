@@ -34,6 +34,9 @@ type MeasuredImage = {
   dimensions: ImageDimensions;
 };
 
+const MEASURING_LOADER_DELAY_MS = 250;
+const IMAGE_RESIZE_TRANSITION_MS = 180;
+
 function getViewportBounds() {
   if (typeof window === 'undefined') {
     return { maxWidth: 960, maxHeight: 720 };
@@ -77,6 +80,8 @@ export function ImageViewer({
     isImageLoaded(src) ? src : null,
   );
   const [visibleSrc, setVisibleSrc] = useState<string | null>(null);
+  const [loadedInViewerSrc, setLoadedInViewerSrc] = useState<string | null>(null);
+  const [delayedMeasuringSrc, setDelayedMeasuringSrc] = useState<string | null>(null);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const [measuredImage, setMeasuredImage] = useState<MeasuredImage | null>(() =>
     getLoadedImageDimensions(src)
@@ -85,6 +90,7 @@ export function ImageViewer({
   );
   const [viewportKey, setViewportKey] = useState(0);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const imageWrapRef = useRef<HTMLDivElement | null>(null);
   const isFailed = failedSrc === src;
   const isLoaded = loadedSrc === src || isImageLoaded(src);
   const imageDimensions = measuredImage?.src === src
@@ -93,9 +99,12 @@ export function ImageViewer({
   const fittedSize = fitImageSize(imageDimensions);
   void viewportKey;
   const hasMeasuredSize = Boolean(fittedSize);
-  const showMeasuringLoader = !hasMeasuredSize && !isLoaded && !isFailed;
-  const showLoader = hasMeasuredSize && !isLoaded && !isFailed;
+  const wantsMeasuringLoader = !hasMeasuredSize && !isLoaded && !isFailed;
+  const showMeasuringLoader = wantsMeasuringLoader && delayedMeasuringSrc === src;
+  const isCachedOpen = isImageLoaded(src) && loadedInViewerSrc !== src;
   const isVisible = visibleSrc === src && isLoaded;
+  const showLoader = hasMeasuredSize && !isVisible && !isFailed && !isCachedOpen;
+  const isFrameVisible = showMeasuringLoader || showLoader || isLoaded || isFailed;
 
   useEffect(() => {
     if (imageDimensions || isFailed) {
@@ -147,27 +156,71 @@ export function ImageViewer({
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || !hasMeasuredSize) {
       return;
     }
 
-    let firstFrameId = 0;
-    let secondFrameId = 0;
-
-    firstFrameId = window.requestAnimationFrame(() => {
-      secondFrameId = window.requestAnimationFrame(() => {
+    if (isCachedOpen) {
+      const frameId = window.requestAnimationFrame(() => {
         setVisibleSrc(src);
       });
-    });
+
+      return () => {
+        window.cancelAnimationFrame(frameId);
+      };
+    }
+
+    const imageWrap = imageWrapRef.current;
+    let isDone = false;
+    let frameId = 0;
+    let timeoutId = 0;
+
+    function showImage() {
+      if (isDone) {
+        return;
+      }
+
+      isDone = true;
+      frameId = window.requestAnimationFrame(() => {
+        setVisibleSrc(src);
+      });
+    }
+
+    function handleTransitionEnd(event: TransitionEvent) {
+      if (event.target !== imageWrap || !['width', 'height'].includes(event.propertyName)) {
+        return;
+      }
+
+      showImage();
+    }
+
+    imageWrap?.addEventListener('transitionend', handleTransitionEnd);
+    timeoutId = window.setTimeout(showImage, IMAGE_RESIZE_TRANSITION_MS + 40);
 
     return () => {
-      window.cancelAnimationFrame(firstFrameId);
-      window.cancelAnimationFrame(secondFrameId);
+      imageWrap?.removeEventListener('transitionend', handleTransitionEnd);
+      window.clearTimeout(timeoutId);
+      window.cancelAnimationFrame(frameId);
     };
-  }, [isLoaded, src]);
+  }, [hasMeasuredSize, isCachedOpen, isLoaded, src]);
+
+  useEffect(() => {
+    if (!wantsMeasuringLoader) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setDelayedMeasuringSrc(src);
+    }, MEASURING_LOADER_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [src, wantsMeasuringLoader]);
 
   function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
     markImageLoaded(src, event.currentTarget);
+    setLoadedInViewerSrc(src);
     setMeasuredImage({
       src,
       dimensions: {
@@ -242,9 +295,11 @@ export function ImageViewer({
           data-with-footer={footer ? 'true' : 'false'}
         >
           <div
+            ref={imageWrapRef}
             className={styles.imageWrap}
             data-size-known={hasMeasuredSize ? 'true' : 'false'}
             data-loaded={isLoaded ? 'true' : 'false'}
+            data-frame-visible={isFrameVisible ? 'true' : 'false'}
             style={fittedSize ? {
               '--viewer-image-width': `${fittedSize.width}px`,
               '--viewer-image-height': `${fittedSize.height}px`,

@@ -57,7 +57,13 @@
   inset: 0;
   z-index: 4;
   border: 2px solid var(--paper-rule);
+  opacity: 0;
   pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+
+.imageWrap[data-frame-visible='true']::after {
+  opacity: 1;
 }
 
 .imageWrap[data-size-known='false'] {
@@ -71,8 +77,8 @@
   min-width: 0;
   min-height: 0;
   background:
-    linear-gradient(135deg, rgba(53, 200, 193, 0.14), rgba(241, 212, 71, 0.12)),
-    var(--paper);
+    linear-gradient(135deg, rgba(53, 200, 193, 0.08), rgba(241, 212, 71, 0.06)),
+    color-mix(in srgb, var(--paper) 54%, transparent);
 }
 
 .imageWrap[data-loaded='true'] {
@@ -83,26 +89,31 @@
 
 .measuringState {
   position: absolute;
-  inset: 0;
+  inset: 1rem;
   z-index: 1;
   display: grid;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--paper-rule) 30%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--paper-rule) 42%, transparent);
   background:
-    linear-gradient(135deg, rgba(53, 200, 193, 0.08), rgba(241, 212, 71, 0.08)),
-    color-mix(in srgb, var(--paper) 72%, transparent);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04)),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--paper-secondary) 8%, transparent) 0 11px,
+      transparent 11px 22px
+    );
   pointer-events: none;
   animation: image-viewer-loader-fade 180ms ease-out both;
 }
 
 .measuringState::before {
   content: '';
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 2px solid color-mix(in srgb, var(--paper-rule) 16%, transparent);
-  border-top-color: color-mix(in srgb, var(--paper-rule) 84%, var(--paper-accent) 16%);
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid color-mix(in srgb, var(--paper-rule) 18%, transparent);
+  border-top-color: var(--paper-rule);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
+  box-shadow: 0 0 0 0.65rem color-mix(in srgb, var(--paper) 30%, transparent);
   animation: image-viewer-spin 1s linear infinite;
 }
 
@@ -134,10 +145,10 @@
   place-items: center;
   border: 1px dashed color-mix(in srgb, var(--paper-rule) 42%, transparent);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04)),
     repeating-linear-gradient(
       -45deg,
-      color-mix(in srgb, var(--paper-secondary) 14%, transparent) 0 11px,
+      color-mix(in srgb, var(--paper-secondary) 8%, transparent) 0 11px,
       transparent 11px 22px
     );
   pointer-events: none;
@@ -151,8 +162,8 @@
   border: 2px solid color-mix(in srgb, var(--paper-rule) 18%, transparent);
   border-top-color: var(--paper-rule);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  box-shadow: 0 0 0 0.65rem color-mix(in srgb, var(--paper) 52%, transparent);
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
+  box-shadow: 0 0 0 0.65rem color-mix(in srgb, var(--paper) 30%, transparent);
   animation: image-viewer-spin 1s linear infinite;
 }
 
