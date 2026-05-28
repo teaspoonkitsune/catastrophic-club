@@ -22,8 +22,7 @@
   justify-content: center;
   border: 1px solid var(--paper-rule);
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 237, 115, 0.45), transparent 58%),
-    var(--paper);
+    radial-gradient(circle at 30% 30%, rgba(255, 237, 115, 0.45), transparent 58%), var(--paper);
   color: var(--paper-ink);
   box-shadow: var(--page-shadow);
   font-size: 1.45rem;
@@ -48,4 +47,43 @@
   background: color-mix(in srgb, var(--paper-accent) 16%, var(--paper) 84%);
   color: var(--paper-ink);
   line-height: 1.25;
+  animation:
+    limitNoticeEnter 360ms ease-out both,
+    limitNoticePulse 480ms ease-out 120ms 2 both;
+}
+
+@keyframes limitNoticeEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.45rem) scale(0.98);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(0.08rem) scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes limitNoticePulse {
+  0%,
+  100% {
+    box-shadow: none;
+  }
+
+  35% {
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--paper-accent) 24%, transparent),
+      var(--page-shadow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .limitNotice {
+    animation: limitNoticeEnter 1ms ease-out both;
+  }
 }
