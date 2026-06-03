@@ -30,7 +30,17 @@ export function getClientLocale(): Locale {
   }
 
   if (typeof navigator !== 'undefined') {
-    return navigator.language.toLowerCase().startsWith('ru') ? 'ru' : defaultLocale;
+    const language = navigator.language.toLowerCase();
+
+    if (language.startsWith('uk')) {
+      return 'uk';
+    }
+
+    if (language.startsWith('ru')) {
+      return 'ru';
+    }
+
+    return defaultLocale;
   }
 
   return defaultLocale;

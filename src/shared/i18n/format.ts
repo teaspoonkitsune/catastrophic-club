@@ -3,10 +3,11 @@ import { defaultLocale, type Locale } from './messages';
 const intlLocaleMap: Record<Locale, string> = {
   ru: 'ru-RU',
   en: 'en-US',
+  uk: 'uk-UA',
 };
 
 export function getIntlLocale(locale: Locale | string | null | undefined) {
-  if (locale === 'ru' || locale === 'en') {
+  if (locale === 'ru' || locale === 'en' || locale === 'uk') {
     return intlLocaleMap[locale];
   }
 

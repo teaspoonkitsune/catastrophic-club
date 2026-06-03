@@ -1,4 +1,4 @@
-export const supportedLocales = ['ru', 'en'] as const;
+export const supportedLocales = ['ru', 'en', 'uk'] as const;
 
 export type Locale = (typeof supportedLocales)[number];
 
@@ -40,6 +40,7 @@ type MessagesShape = {
       label: string;
       ru: string;
       en: string;
+      uk: string;
     };
   };
   footer: {
@@ -50,6 +51,7 @@ type MessagesShape = {
   home: {
     introTitle: string;
     introText: string;
+    fallbackFact: string;
     sectionsEyebrow: string;
     sections: string[];
     dataEyebrow: string;
@@ -232,6 +234,7 @@ export const messages: Record<Locale, Messages> = {
         label: 'Язык',
         ru: 'Русский',
         en: 'English',
+        uk: 'Українська',
       },
     },
     footer: {
@@ -243,6 +246,8 @@ export const messages: Record<Locale, Messages> = {
       introTitle: 'CATastrophic club',
       introText:
         'Здесь кот, там кот. Заходи посмотреть кота дня, собрать избранное и устроить пару честных битв за звание самой обаятельной мордочки.',
+      fallbackFact:
+        'Сегодня факты о котах отдыхают, но клуб все еще открыт для просмотров, битв и избранного.',
       sectionsEyebrow: 'разделы',
       sections: [
         'Избранное для любимых находок',
@@ -411,6 +416,218 @@ export const messages: Record<Locale, Messages> = {
       like: 'Лайк',
     },
   },
+  uk: {
+    metadata: {
+      description: 'Кіт дня, обране, битви та рейтинг для тих, хто любить котів.',
+    },
+    common: {
+      back: 'Назад',
+      close: 'Закрити',
+      hide: 'Сховати',
+      loading: 'Оновлюємо...',
+      next: 'Далі',
+      ok: 'Гаразд',
+      openImage: 'Відкрити зображення',
+      retry: 'Спробувати ще раз',
+      save: 'Зберегти',
+      viewImage: 'Перегляд зображення',
+    },
+    header: {
+      title: 'CATastrophic club',
+      subtitle: 'Невеликий клуб для тих, хто любить котів, картинки й трохи змагального духу.',
+      navigationLabel: 'Основна навігація',
+      nav: {
+        home: 'Головна',
+        favorites: 'Обране',
+        battles: 'Битви',
+        leaderboard: 'Рейтинг',
+      },
+      locale: {
+        label: 'Мова',
+        ru: 'Русский',
+        en: 'English',
+        uk: 'Українська',
+      },
+    },
+    footer: {
+      email: 'Пошта: teaspoonkitsune@proton.me', // kitty-committee@catastrophic.club is still cool alternative, but not registered
+      builtWith: 'Створено на Next 16',
+      copyright: '2026 CATastrophic club',
+    },
+    home: {
+      introTitle: 'CATastrophic club',
+      introText:
+        'Тут кіт, там кіт. Заходь подивитися на кота дня, зібрати обране й влаштувати кілька чесних битв за звання найчарівнішої мордочки.',
+      fallbackFact:
+        'Сьогодні факти про котів відпочивають, але клуб усе ще відкритий для переглядів, битв і обраного.',
+      sectionsEyebrow: 'розділи',
+      sections: [
+        'Обране для найкращих знахідок',
+        'Битви для швидких дуелей',
+        'Рейтинг для переможців',
+      ],
+      dataEyebrow: 'дані',
+      data: [
+        { label: 'Фото: cataas.com', href: 'https://cataas.com/' },
+        { label: 'Факти: catfact.ninja', href: 'https://catfact.ninja/' },
+      ],
+      featuredTitle: 'Кіт дня',
+      actionsEyebrow: 'дії',
+      actionsText:
+        'Відкрий фото, збережи кота, який сподобався, або онови картку, якщо хочеться побачити ще одного героя дня.',
+    },
+    favorites: {
+      introTitle: 'Обране',
+      introText: 'Твоя особиста полиця з котиками, до яких хочеться повертатися.',
+      previewEyebrow: 'перегляд',
+      previewItems: [
+        'Фото відкриваються у великому перегляді',
+        'Між збереженими котиками можна гортати',
+        'Прибрати кота можна прямо з вікна перегляду',
+      ],
+      orderEyebrow: 'порядок',
+      orderText: 'Нові збереження завжди залишаються зверху.',
+      sectionTitle: 'Мої котики',
+      savedLabel: 'Збережено',
+      loginRequiredMeta: 'Потрібно увійти в акаунт',
+      authPrompt: 'Увійдіть, щоб збирати свою колекцію улюблених котиків.',
+      empty: 'В обраному поки що нічого немає.',
+      viewerAlt: 'Котик з обраного',
+      viewerAria: 'Перегляд котика з обраного',
+      addedPrefix: 'Додано:',
+      addedSeparator: 'о',
+      removedBadge: 'Прибрано з обраного',
+    },
+    battles: {
+      introTitle: 'Битви котиків',
+      introText: 'Дві мордочки, один голос. Обери того, хто сьогодні явно у формі.',
+      rulesEyebrow: 'правила',
+      rules: [
+        'Переможець отримує одне очко',
+        'Нова пара зʼявляється одразу після вибору',
+        'Кота, який сподобався, можна зберегти',
+      ],
+      currentPairTitle: 'Поточна пара',
+      currentPairMeta: 'Переможець отримує 1 очко',
+      battleImageAlt: 'Котик для битви',
+      battleViewerAria: 'Перегляд котика для битви',
+      errorTitle: 'Не вдалося завантажити битву',
+      errorDescription: 'Спробуйте ще раз.',
+      insufficientData: 'Недостатньо даних для битви.',
+      dailyLimitReached: 'Ліміт голосів на сьогодні вичерпано.',
+      voteButton: 'Обрати',
+      loginToVote: 'Увійдіть, щоб голосувати',
+    },
+    leaderboard: {
+      introTitle: 'Рейтинг',
+      introText: 'Тут збираються котики, які найчастіше виходять із битв переможцями.',
+      sortingEyebrow: 'сортування',
+      sorting: [
+        'Вище піднімаються котики з більшою кількістю очок',
+        'За однакових очок вище залишається той, хто зʼявився раніше',
+      ],
+      sectionTitle: 'Найкращі котики',
+      empty: 'Рейтинг поки що порожній.',
+      pagerAria: 'Навігація рейтингом',
+      table: {
+        photo: 'Фото',
+        link: 'Посилання',
+        score: 'Очки',
+        open: 'Відкрити',
+        viewerAlt: 'Котик із рейтингу',
+        viewerAria: 'Перегляд котика з рейтингу',
+      },
+    },
+    history: {
+      title: 'Історія битв',
+      updating: 'Оновлюємо...',
+      recent: 'Останні 10 боїв',
+      tabsLabel: 'Перемикання історії битв',
+      all: 'Усі',
+      mine: 'Моя',
+      loginRequired: 'Увійдіть, щоб подивитися свою історію.',
+      loadFailed: 'Не вдалося завантажити історію. Код:',
+      empty: 'Історія порожня.',
+      winnerAlt: 'Переможець битви',
+      loserAlt: 'Той, хто програв у битві',
+      resultWon: 'переміг',
+      viewerAria: 'Перегляд котика з історії битв',
+    },
+    featuredCat: {
+      alt: 'Кіт дня',
+      openAria: 'Відкрити картинку дня',
+      refresh: 'Інше фото',
+      refreshing: 'Оновлюємо...',
+      errorTitle: 'Не вдалося завантажити фото',
+      errorDescription: 'Спробуйте ще раз.',
+      viewerAria: 'Перегляд картинки дня',
+    },
+    auth: {
+      account: 'акаунт',
+      loggedInAs: 'Ви увійшли як',
+      login: 'Увійти',
+      logout: 'Вийти',
+      register: 'Реєстрація',
+      createAccount: 'Створити акаунт',
+      close: 'Закрити',
+      actionChoice: 'Вибір дії',
+      modalLabelLogin: 'Вхід в акаунт',
+      modalLabelRegister: 'Реєстрація',
+      emailOrLogin: 'Email або логін',
+      email: 'Email',
+      name: 'Логін',
+      password: 'Пароль',
+      helper: 'Увійдіть через бокову панель. Реєстрація відкриється в окремому вікні.',
+      collectionPrompt: 'Увійдіть, щоб збирати свою колекцію улюблених котиків.',
+      needLoginTitle: 'Потрібно увійти',
+      needLoginText: 'Обране доступне після входу.',
+      errors: {
+        enterCredentials: 'Введіть логін і пароль.',
+        fillEmailPassword: 'Введіть логін, email і пароль.',
+        loginFailed: 'Не вдалося увійти в акаунт.',
+        registerFailed: 'Не вдалося створити акаунт.',
+        rateLimited: 'Забагато спроб. Спробуйте трохи пізніше.',
+        missingUsernamePassword: 'Введіть логін і пароль.',
+        missingEmailPassword: 'Введіть логін, email і пароль.',
+        invalidEmail: 'Введіть коректний email.',
+        shortPassword: 'Пароль має містити щонайменше 8 символів.',
+        invalidCredentials: 'Неправильний логін або пароль.',
+        accountSetupIncomplete:
+          'Акаунт створено, але Keycloak усе ще вважає його незавершеним. Перевірте required actions в адмінці.',
+        accountExists: 'Акаунт із такою поштою або логіном уже існує.',
+        loadAccountFailed: 'Не вдалося завантажити дані акаунта.',
+        genericLoginFailed: 'Не вдалося увійти в акаунт.',
+        genericCreateFailed: 'Не вдалося створити акаунт.',
+      },
+    },
+    errors: {
+      genericTitle: 'Щось пішло не так',
+      genericDescription: 'Спробуйте ще раз трохи пізніше.',
+      pageTitle: 'Щось пішло не так',
+      pageDescription: 'Сторінка завантажилася не так, як треба. Спробуйте відкрити її ще раз.',
+      globalTitle: 'Сайт спіткнувся',
+      globalDescription:
+        'Спробуйте оновити сторінку. Зазвичай цього достатньо, щоб усе повернулося на місце.',
+    },
+    images: {
+      closeViewer: 'Закрити перегляд',
+      previous: 'Попереднє фото',
+      next: 'Наступне фото',
+      defaultViewerAria: 'Перегляд зображення',
+      openImageWithAlt: 'Відкрити зображення:',
+      unavailable: 'Зображення недоступне',
+    },
+    favoriteButton: {
+      add: 'Додати в обране',
+      remove: 'Прибрати з обраного',
+    },
+    catCard: {
+      age: 'Вік',
+      wins: 'Перемог',
+      likes: 'Лайків',
+      like: 'Лайк',
+    },
+  },
   en: {
     metadata: {
       description:
@@ -442,6 +659,7 @@ export const messages: Record<Locale, Messages> = {
         label: 'Language',
         ru: 'Russian',
         en: 'English',
+        uk: 'Ukrainian',
       },
     },
     footer: {
@@ -453,6 +671,8 @@ export const messages: Record<Locale, Messages> = {
       introTitle: 'CATastrophic club',
       introText:
         'A cat here, a cat there. Stop by for the cat of the day, build your favorites shelf, and settle a few fair battles for the title of the most charming face.',
+      fallbackFact:
+        'Cat facts are taking a break right now, but the club is still open for browsing, battles, and favorites.',
       sectionsEyebrow: 'sections',
       sections: [
         'Favorites for your best finds',
@@ -624,7 +844,7 @@ export const messages: Record<Locale, Messages> = {
 };
 
 export function isLocale(value: string | null | undefined): value is Locale {
-  return value === 'ru' || value === 'en';
+  return value === 'ru' || value === 'en' || value === 'uk';
 }
 
 export function normalizeLocale(value: string | null | undefined): Locale | null {

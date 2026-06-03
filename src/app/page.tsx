@@ -13,13 +13,30 @@ import {
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
 
+const fallbackFeaturedCat = {
+  id: 'fallback-cat',
+  imageUrl: '/icon.svg',
+};
+
 export default async function Page() {
-  const [fact, cat, session, { messages }] = await Promise.all([
+  const [{ messages }, session] = await Promise.all([
+    getRequestI18n(),
+    getAuthSession(),
+  ]);
+  const [factResult, catResult] = await Promise.allSettled([
     getRandomCatFact(),
     getCatOfTheDay(),
-    getAuthSession(),
-    getRequestI18n(),
   ]);
+  const fact = factResult.status === 'fulfilled' ? factResult.value.fact : messages.home.fallbackFact;
+  const cat = catResult.status === 'fulfilled' ? catResult.value : fallbackFeaturedCat;
+
+  if (factResult.status === 'rejected') {
+    console.error('Failed to load cat fact for the home page', factResult.reason);
+  }
+
+  if (catResult.status === 'rejected') {
+    console.error('Failed to load cat of the day for the home page', catResult.reason);
+  }
 
   return (
     <>
@@ -65,8 +82,8 @@ export default async function Page() {
           <FeaturedCatWidget
             id={cat.id}
             imageUrl={cat.imageUrl}
-            fact={fact.fact}
-            isAuthenticated={Boolean(session)}
+            fact={fact}
+            isAuthenticated={Boolean(session) && catResult.status === 'fulfilled'}
           />
         </PanelSection>
 

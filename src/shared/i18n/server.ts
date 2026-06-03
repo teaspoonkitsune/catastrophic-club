@@ -15,7 +15,15 @@ function resolveLocaleFromAcceptLanguage(headerValue: string | null): Locale {
     ?.trim()
     .toLowerCase();
 
-  return primaryLocale?.startsWith('ru') ? 'ru' : defaultLocale;
+  if (primaryLocale?.startsWith('uk')) {
+    return 'uk';
+  }
+
+  if (primaryLocale?.startsWith('ru')) {
+    return 'ru';
+  }
+
+  return defaultLocale;
 }
 
 export const getRequestLocale = cache(async (): Promise<Locale> => {

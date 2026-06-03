@@ -12,7 +12,7 @@ export function LocaleSwitcher() {
   const { locale, messages } = useI18n();
 
   function handleChange(nextLocale: string) {
-    if (nextLocale !== 'ru' && nextLocale !== 'en') {
+    if (nextLocale !== 'ru' && nextLocale !== 'en' && nextLocale !== 'uk') {
       return;
     }
 
@@ -33,6 +33,7 @@ export function LocaleSwitcher() {
       >
         <option value="ru">{messages.header.locale.ru}</option>
         <option value="en">{messages.header.locale.en}</option>
+        <option value="uk">{messages.header.locale.uk}</option>
       </select>
     </label>
   );
