@@ -19,20 +19,13 @@
       "secret": "catastrophic-club-local-dev-secret",
       "rootUrl": "http://localhost:3000",
       "baseUrl": "http://localhost:3000",
-      "standardFlowEnabled": true,
+      "standardFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "implicitFlowEnabled": false,
-      "redirectUris": [
-        "http://localhost:3000/api/auth/callback"
-      ],
       "webOrigins": [
         "http://localhost:3000"
-      ],
-      "attributes": {
-        "post.logout.redirect.uris": "http://localhost:3000/*",
-        "pkce.code.challenge.method": "S256"
-      }
+      ]
     }
   ]
 }

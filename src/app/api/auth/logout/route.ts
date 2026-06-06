@@ -1,21 +1,8 @@
 import { NextResponse } from 'next/server';
 import {
   clearAuthSessionFromResponse,
-  clearOauthStateFromResponse,
 } from '@/shared/auth';
-
-function sanitizeReturnTo(value: string | null) {
-  if (!value || !value.startsWith('/')) {
-    return '/';
-  }
-
-  // Avoid protocol-relative redirects such as //evil.example.
-  if (value.startsWith('//')) {
-    return '/';
-  }
-
-  return value;
-}
+import { sanitizeReturnTo } from '@/shared/auth/links';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -23,13 +10,11 @@ export async function GET(request: Request) {
 
   const response = NextResponse.redirect(new URL(returnTo, requestUrl.origin));
   clearAuthSessionFromResponse(response);
-  clearOauthStateFromResponse(response);
   return response;
 }
 
 export async function POST() {
   const response = NextResponse.json({ ok: true });
   clearAuthSessionFromResponse(response);
-  clearOauthStateFromResponse(response);
   return response;
 }

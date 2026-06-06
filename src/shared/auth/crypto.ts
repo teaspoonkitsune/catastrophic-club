@@ -15,14 +15,6 @@ function fromBase64Url(value: string) {
   return Buffer.from(normalized + padding, 'base64');
 }
 
-export function createRandomString(size = 32) {
-  return toBase64Url(randomBytes(size));
-}
-
-export function createCodeChallenge(verifier: string) {
-  return toBase64Url(createHash('sha256').update(verifier).digest());
-}
-
 function getEncryptionKey(secret: string) {
   return createHash('sha256').update(secret).digest();
 }
@@ -56,4 +48,3 @@ export function decryptPayload(value: string, secret: string) {
     decipher.final(),
   ]).toString('utf8');
 }
-

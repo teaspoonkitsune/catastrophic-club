@@ -4,7 +4,6 @@ import { getAuthSecret } from './config';
 import { decryptPayload, encryptPayload } from './crypto';
 
 const SESSION_COOKIE_NAME = 'catastrophic_club_session';
-const OAUTH_STATE_COOKIE_NAME = 'catastrophic_club_oauth_state';
 
 type AuthUser = {
   subject: string;
@@ -16,12 +15,6 @@ type AuthSession = {
   user: AuthUser;
   idToken: string | null;
   expiresAt: string;
-};
-
-type OauthState = {
-  state: string;
-  codeVerifier: string;
-  returnTo: string;
 };
 
 function getCookieOptions(maxAge: number) {
@@ -119,39 +112,6 @@ export async function clearAuthSession() {
 
 export function clearAuthSessionFromResponse(response: NextResponse) {
   deleteCookie(response, SESSION_COOKIE_NAME);
-}
-
-export async function getOauthState(): Promise<OauthState | null> {
-  const cookieStore = await cookies();
-  const value = cookieStore.get(OAUTH_STATE_COOKIE_NAME)?.value;
-
-  if (!value) {
-    return null;
-  }
-
-  return decodeValue<OauthState>(value);
-}
-
-export async function writeOauthState(state: OauthState) {
-  const cookieStore = await cookies();
-  cookieStore.set(OAUTH_STATE_COOKIE_NAME, encodeValue(state), getCookieOptions(60 * 10));
-}
-
-export function writeOauthStateToResponse(response: NextResponse, state: OauthState) {
-  response.cookies.set(
-    OAUTH_STATE_COOKIE_NAME,
-    encodeValue(state),
-    getCookieOptions(60 * 10),
-  );
-}
-
-export async function clearOauthState() {
-  const cookieStore = await cookies();
-  cookieStore.delete(OAUTH_STATE_COOKIE_NAME);
-}
-
-export function clearOauthStateFromResponse(response: NextResponse) {
-  deleteCookie(response, OAUTH_STATE_COOKIE_NAME);
 }
 
 export type { AuthSession, AuthUser };

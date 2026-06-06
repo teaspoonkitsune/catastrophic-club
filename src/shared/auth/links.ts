@@ -6,3 +6,16 @@ export function buildAuthHref(
 
   return `/api/auth/${mode}?${params.toString()}`;
 }
+
+export function sanitizeReturnTo(value: string | null) {
+  if (!value || !value.startsWith('/')) {
+    return '/';
+  }
+
+  // Avoid protocol-relative redirects such as //evil.example.
+  if (value.startsWith('//')) {
+    return '/';
+  }
+
+  return value;
+}

@@ -117,16 +117,8 @@ function getRealmBaseUrl() {
   return `${config.baseUrl}/realms/${config.realm}`;
 }
 
-export function getAuthorizationEndpoint() {
-  return `${getRealmBaseUrl()}/protocol/openid-connect/auth`;
-}
-
 export function getTokenEndpoint() {
   return `${getRealmBaseUrl()}/protocol/openid-connect/token`;
-}
-
-export function getLogoutEndpoint() {
-  return `${getRealmBaseUrl()}/protocol/openid-connect/logout`;
 }
 
 export function getUserInfoEndpoint() {
@@ -145,8 +137,4 @@ export function getKeycloakAdminUsersEndpoint() {
 
 export function getKeycloakAdminUserEndpoint(userId: string) {
   return `${getKeycloakAdminUsersEndpoint()}/${encodeURIComponent(userId)}`;
-}
-
-export function getAuthCallbackUrl(origin: string) {
-  return `${origin}/api/auth/callback`;
 }
