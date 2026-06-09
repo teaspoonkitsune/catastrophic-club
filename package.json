@@ -2,12 +2,16 @@
   "name": "catastrophic-club",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --import tsx --test src/**/*.test.ts",
+    "test:watch": "node --import tsx --test --watch src/**/*.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "db:migrate": "tsx src/shared/api/run-migrations.ts",
     "seed:battle-cats": "tsx src/script.ts"
   },
@@ -15,7 +19,7 @@
     "dotenv": "^17.3.1",
     "kysely": "^0.28.14",
     "lucide-react": "^1.7.0",
-    "next": "16.2.0",
+    "next": "^16.2.9",
     "pg": "^8.20.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"

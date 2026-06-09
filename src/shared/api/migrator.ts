@@ -6,7 +6,7 @@ import { db } from './database';
 // Reuse the in-flight migration inside one Node process so parallel requests do not race.
 let migrationPromise: Promise<void> | null = null;
 
-function shouldAutoRunMigrations() {
+export function shouldAutoRunMigrations() {
   const value = process.env.AUTO_RUN_MIGRATIONS?.trim().toLowerCase();
 
   if (value === 'true' || value === '1' || value === 'on') {

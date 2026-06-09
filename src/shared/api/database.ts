@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { Kysely, PostgresDialect } from 'kysely';
 import type { Database } from './types';
 
-function getDatabaseSslConfig(databaseUrl: string) {
+export function getDatabaseSslConfig(databaseUrl: string) {
   const value = process.env.DATABASE_SSL?.trim().toLowerCase();
 
   if (value === 'false' || value === '0' || value === 'off') {
@@ -36,7 +36,7 @@ function getDatabaseSslConfig(databaseUrl: string) {
   return true;
 }
 
-function getDatabaseConnectionString(databaseUrl: string) {
+export function getDatabaseConnectionString(databaseUrl: string) {
   const parsed = new URL(databaseUrl);
 
   parsed.searchParams.delete('sslmode');
