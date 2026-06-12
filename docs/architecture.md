@@ -127,7 +127,6 @@ API routes:
 | `/api/auth/login` | password login | `src/app/api/auth/login/route.ts` |
 | `/api/auth/register` | registration and auto-login | `src/app/api/auth/register/route.ts` |
 | `/api/auth/logout` | logout | `src/app/api/auth/logout/route.ts` |
-| `/api/auth/callback` | OAuth callback | `src/app/api/auth/callback/route.ts` |
 | `/api/favorites` | favorites CRUD | `src/app/api/favorites/route.ts` |
 | `/api/battles` | fetch pair and submit vote | `src/app/api/battles/route.ts` |
 | `/api/battles/history` | paginated battle history | `src/app/api/battles/history/route.ts` |
@@ -222,7 +221,7 @@ No Tailwind, styled-components, SCSS framework, or component library was confirm
 The architecture is coherent, but a few rough edges are visible:
 
 - login and registration logic are duplicated between mobile and desktop UI
-- auth includes both password grant and OAuth callback support, but the visible flow is centered on direct credential submission
+- auth uses embedded direct credential flows backed by Keycloak and admin-side user creation
 - repositories can trigger migrations during request handling
 - in-memory caches and rate limiting are fine for local development, but not ideal for multi-instance deployments
-- no automated test suite was confirmed
+- the automated tests are still focused on pure helpers and configuration logic, not end-to-end user flows
