@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getBattlePair, recordBattleResult } from '@/entities/battle-cat/api/repository';
 import { getAuthSession } from '@/shared/auth';
 import { createHttpCatErrorPayload } from '@/shared/lib/http-cat';
+import { createLogger } from '@/shared/lib/logger';
+
+const logger = createLogger('api.battles');
 
 function toBattleRecord(cat: Awaited<ReturnType<typeof getBattlePair>>[number]) {
   return {
@@ -14,9 +17,10 @@ function toBattleRecord(cat: Awaited<ReturnType<typeof getBattlePair>>[number]) 
 export async function GET() {
   try {
     const pair = await getBattlePair();
+    logger.debug('battles.pair_loaded', { count: pair.length });
     return NextResponse.json({ pair: pair.map(toBattleRecord) });
   } catch (error) {
-    console.error('Failed to load battle pair', error);
+    logger.error('battles.pair_load_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to load battle pair'),
       { status: 500 },
@@ -54,6 +58,9 @@ export async function POST(request: Request) {
     });
 
     if (!historyEntry) {
+      logger.warn('battles.vote_rate_limited', {
+        subject: session.user.subject,
+      });
       return NextResponse.json(
         createHttpCatErrorPayload(429, 'Daily battle vote limit exceeded'),
         { status: 429 },
@@ -61,9 +68,15 @@ export async function POST(request: Request) {
     }
 
     const pair = await getBattlePair();
+    logger.info('battles.vote_recorded', {
+      subject: session.user.subject,
+      winnerId: body.winnerId,
+      loserId: body.loserId,
+      historyEntryId: historyEntry.id,
+    });
     return NextResponse.json({ pair: pair.map(toBattleRecord), historyEntry });
   } catch (error) {
-    console.error('Failed to save battle result', error);
+    logger.error('battles.vote_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to save battle result'),
       { status: 500 },

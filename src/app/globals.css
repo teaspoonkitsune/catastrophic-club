@@ -387,6 +387,6 @@ p {
     width: 100%;
     min-height: 100dvh;
     padding: 12px;
-    box-shadow: none;
+    box-shadow: none; 
   }
 }

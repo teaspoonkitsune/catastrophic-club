@@ -133,6 +133,7 @@ type MessagesShape = {
     refreshing: string;
     errorTitle: string;
     errorDescription: string;
+    fallbackNotice: string;
     viewerAria: string;
   };
   auth: {
@@ -348,6 +349,7 @@ export const messages: Record<Locale, Messages> = {
       refreshing: 'Обновляем...',
       errorTitle: 'Не удалось загрузить фото',
       errorDescription: 'Попробуйте еще раз.',
+      fallbackNotice: 'Сейчас показана локальная заглушка, потому что внешний сервис с фото недоступен.',
       viewerAria: 'Просмотр картинки дня',
     },
     auth: {
@@ -560,6 +562,7 @@ export const messages: Record<Locale, Messages> = {
       refreshing: 'Оновлюємо...',
       errorTitle: 'Не вдалося завантажити фото',
       errorDescription: 'Спробуйте ще раз.',
+      fallbackNotice: 'Зараз показано локальну заглушку, бо зовнішній сервіс із фото недоступний.',
       viewerAria: 'Перегляд картинки дня',
     },
     auth: {
@@ -773,6 +776,7 @@ export const messages: Record<Locale, Messages> = {
       refreshing: 'Loading...',
       errorTitle: 'Could not load the photo',
       errorDescription: 'Please try again.',
+      fallbackNotice: 'A local fallback image is shown right now because the external cat photo service is unavailable.',
       viewerAria: 'Cat of the day viewer',
     },
     auth: {

@@ -55,6 +55,37 @@
   opacity: 0;
 }
 
+.imageErrorState {
+  position: absolute;
+  inset: 14px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 1.5rem;
+  border: 1px dashed color-mix(in srgb, var(--paper-rule) 45%, transparent);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18)),
+    color-mix(in srgb, var(--paper) 92%, var(--paper-accent) 8%);
+  color: color-mix(in srgb, var(--paper-ink) 78%, var(--paper-secondary) 22%);
+  font-size: 0.95rem;
+  line-height: 1.25;
+  text-align: center;
+  pointer-events: none;
+}
+
+.imageErrorState > span {
+  display: block;
+  max-width: 18rem;
+}
+
+.imageErrorIcon {
+  width: 2rem;
+  height: 2rem;
+}
+
 .skeleton {
   position: absolute;
   inset: 14px;
@@ -123,6 +154,15 @@
   background: rgba(241, 212, 71, 0.14);
   font-size: 1.05rem;
   line-height: 1.2;
+}
+
+.fallbackNotice {
+  border: 1px solid var(--paper-rule);
+  padding: 0.85rem 1rem;
+  background: rgba(184, 134, 11, 0.12);
+  color: color-mix(in srgb, var(--paper-ink) 86%, var(--paper-secondary) 14%);
+  font-size: 0.94rem;
+  line-height: 1.3;
 }
 
 @keyframes photoLoaderSpin {

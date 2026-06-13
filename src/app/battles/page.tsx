@@ -20,9 +20,6 @@ export default async function Page() {
     score: cat.score,
   }));
   const initialGlobalHistory = await getBattleHistoryPage();
-  const initialPrivateHistory = session
-    ? await getBattleHistoryPage({ userId: session.user.subject })
-    : null;
 
   return (
     <>
@@ -47,7 +44,7 @@ export default async function Page() {
         <BattlesWorkspace
           initialPair={initialPair}
           initialGlobalHistory={initialGlobalHistory}
-          initialPrivateHistory={initialPrivateHistory}
+          initialPrivateHistory={null}
           isAuthenticated={Boolean(session)}
         />
       </SitePageGrid>

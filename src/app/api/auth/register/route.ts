@@ -6,7 +6,10 @@ import {
 } from '@/shared/auth';
 import { KeycloakAuthError, loginWithKeycloakPassword, registerKeycloakUser } from '@/shared/auth/keycloak';
 import { getRequestI18n } from '@/shared/i18n/server';
+import { createLogger } from '@/shared/lib/logger';
 import { consumeRateLimit } from '@/shared/lib/rate-limit';
+
+const logger = createLogger('api.auth.register');
 
 function getRequestClientIp(request: Request) {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -31,6 +34,10 @@ export async function POST(request: Request) {
   });
 
   if (!rateLimit.success) {
+    logger.warn('auth.register_rate_limited', {
+      clientIp: getRequestClientIp(request),
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
     return NextResponse.json(
       { error: messages.auth.errors.rateLimited },
       {
@@ -72,11 +79,13 @@ export async function POST(request: Request) {
     });
 
     const { session, user } = await loginWithKeycloakPassword(username, password, username);
+    logger.info('auth.register_succeeded', { subject: user.subject });
     const response = NextResponse.json({ ok: true, user }, { status: 201 });
     writeAuthSessionToResponse(response, session);
     return response;
   } catch (error) {
     if (error instanceof KeycloakAuthError) {
+      logger.warn('auth.register_failed', { status: error.status });
       const localizedError =
         error.status === 409
           ? error.message === 'Account already exists'
@@ -89,7 +98,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: localizedError }, { status: error.status });
     }
 
-    console.error('Failed to register with Keycloak', error);
+    logger.error('auth.register_unexpected_error', error);
     return NextResponse.json({ error: messages.auth.errors.genericCreateFailed }, { status: 500 });
   }
 }

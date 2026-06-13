@@ -1,6 +1,7 @@
 import { getCatOfTheDay, getRandomCatFact } from '@/entities/cat';
 import { getAuthSession } from '@/shared/auth';
 import { getRequestI18n } from '@/shared/i18n/server';
+import { createLogger } from '@/shared/lib/logger';
 import {
   PageCopy,
   PageIntro,
@@ -14,6 +15,7 @@ import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
 
 export const dynamic = 'force-dynamic';
+const logger = createLogger('app.home');
 
 const fallbackFeaturedCat = {
   id: 'fallback-cat',
@@ -33,11 +35,13 @@ export default async function Page() {
   const cat = catResult.status === 'fulfilled' ? catResult.value : fallbackFeaturedCat;
 
   if (factResult.status === 'rejected') {
-    console.error('Failed to load cat fact for the home page', factResult.reason);
+    logger.warn('home.cat_fact_fallback_used');
+    logger.error('home.cat_fact_load_failed', factResult.reason);
   }
 
   if (catResult.status === 'rejected') {
-    console.error('Failed to load cat of the day for the home page', catResult.reason);
+    logger.warn('home.cat_of_the_day_fallback_used');
+    logger.error('home.cat_of_the_day_load_failed', catResult.reason);
   }
 
   return (
@@ -85,6 +89,7 @@ export default async function Page() {
             id={cat.id}
             imageUrl={cat.imageUrl}
             fact={fact}
+            isFallbackImage={catResult.status === 'rejected'}
             isAuthenticated={Boolean(session) && catResult.status === 'fulfilled'}
           />
         </PanelSection>

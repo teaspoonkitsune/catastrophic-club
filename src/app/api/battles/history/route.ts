@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getBattleHistoryPage } from '@/entities/battle-cat/api/repository';
+import {
+  getBattleHistoryPage,
+  getLatestBattleHistoryEntryId,
+} from '@/entities/battle-cat/api/repository';
 import { getAuthSession } from '@/shared/auth';
 import { createHttpCatErrorPayload } from '@/shared/lib/http-cat';
+import { createLogger } from '@/shared/lib/logger';
 
-const MAX_HISTORY_OFFSET = 10_000;
+const logger = createLogger('api.battles.history');
 
-function parsePositiveInteger(
-  value: string | null,
-  fallback: number,
-  maxValue: number,
-) {
+function parsePositiveInteger(value: string | null, fallback: number, maxValue: number) {
   if (!value) {
     return fallback;
   }
@@ -27,11 +27,8 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const scope = url.searchParams.get('scope') === 'mine' ? 'mine' : 'global';
-    const offset = parsePositiveInteger(
-      url.searchParams.get('offset'),
-      0,
-      MAX_HISTORY_OFFSET,
-    );
+    const headId = url.searchParams.get('headId');
+    const cursor = url.searchParams.get('cursor');
     const limit = parsePositiveInteger(url.searchParams.get('limit'), 10, 10);
 
     if (scope === 'mine') {
@@ -46,17 +43,38 @@ export async function GET(request: Request) {
 
       const page = await getBattleHistoryPage({
         userId: session.user.subject,
-        offset,
+        cursor,
         limit,
       });
 
       return NextResponse.json(page);
     }
 
-    const page = await getBattleHistoryPage({ offset, limit });
-    return NextResponse.json(page);
+    if (!cursor && headId) {
+      const latestId = await getLatestBattleHistoryEntryId();
+
+      if (latestId === headId) {
+        logger.debug('battles.history_unchanged', { scope });
+        return NextResponse.json({
+          changed: false,
+          latestId,
+        });
+      }
+    }
+
+    const page = await getBattleHistoryPage({ cursor, limit });
+
+    if (cursor) {
+      return NextResponse.json(page);
+    }
+
+    return NextResponse.json({
+      changed: true,
+      latestId: page.items[0]?.id ?? null,
+      page,
+    });
   } catch (error) {
-    console.error('Failed to load battle history', error);
+    logger.error('battles.history_load_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to load battle history'),
       { status: 500 },

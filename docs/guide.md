@@ -12,6 +12,14 @@ You need:
 
 `Docker Compose` is the default path in this repository. On systems like `NixOS`, a compatible `Podman` setup also works if Compose support is available.
 
+For production, the scripts specifically expect:
+
+- `docker compose`
+- `git`
+- `curl`
+
+The production helper scripts are written around Docker, not generic container wrappers.
+
 ## 2. Download
 
 ```bash
@@ -116,6 +124,15 @@ Use the production bootstrap on the target server:
 ./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com
 ```
 
+Before you run it, the server should already have:
+
+- this repository cloned
+- Docker installed and working
+- Docker Compose available as `docker compose`
+- a reverse proxy that can forward public traffic to local `127.0.0.1:3000` and `127.0.0.1:8080`
+- DNS records for both the app domain and the Keycloak domain
+- TLS certificates for both public hostnames
+
 The production flow is built around these files:
 
 - `docker-compose.prod.yml`
@@ -143,7 +160,51 @@ What it does not do:
 
 Those parts must be configured separately.
 
-## 8. Auth Model
+Important runtime shape:
+
+- the app container is published only on `127.0.0.1:3000`
+- Keycloak is published only on `127.0.0.1:8080`
+- public traffic is expected to arrive through your reverse proxy
+- browsers should reach the app at `https://APP_DOMAIN`
+- browsers should reach Keycloak at `https://KEYCLOAK_HOSTNAME`
+- the app itself talks to Keycloak internally at `http://keycloak:8080`
+
+This split is intentional. If the reverse proxy or DNS is wrong, auth will break even if containers are healthy.
+
+## 8. Recommended Production Order
+
+Use this order on a fresh server:
+
+1. clone the repository
+2. make DNS resolve `APP_DOMAIN` and `KEYCLOAK_HOSTNAME` to the server
+3. configure reverse proxy and TLS for both hostnames
+4. run `./scripts/bootstrap-prod.sh --app-domain ... --keycloak-hostname ...`
+5. open `https://APP_DOMAIN`
+6. verify registration, login, logout, favorites, battles, and leaderboard
+
+If you want to generate env values first and deploy later:
+
+```bash
+./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com --skip-deploy
+```
+
+Then review the generated env file and continue with:
+
+```bash
+ENV_FILE=../env/app.env ./scripts/deploy-prod.sh
+ENV_FILE=../env/app.env ./scripts/configure-keycloak.sh --prod --env-file ../env/app.env
+ENV_FILE=../env/app.env ./scripts/check-prod.sh
+```
+
+## 9. What Can Trip You Up
+
+- `deploy-prod.sh` runs `git pull --ff-only`, so the server checkout must point to the right remote and should not have local edits
+- production scripts expect the env file at `../env/app.env` unless `ENV_FILE` is overridden
+- health checks use `http://127.0.0.1:3000/api/health`, so the app container must be reachable locally on the host
+- Keycloak client configuration depends on working `KEYCLOAK_ADMIN_USERNAME` and `KEYCLOAK_ADMIN_PASSWORD`
+- the public Keycloak hostname must match `KEYCLOAK_HOSTNAME`, because the container is started with `--hostname=https://...`
+
+## 10. Auth Model
 
 Users do not get redirected to a Keycloak login page.
 
@@ -155,7 +216,7 @@ The visible auth flow stays inside the app UI, while Keycloak handles:
 
 Registration also needs working Keycloak admin credentials.
 
-## 9. If Something Breaks
+## 11. If Something Breaks
 
 Start with:
 

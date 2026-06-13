@@ -5,7 +5,10 @@ import {
   saveFavoriteCat,
 } from '@/entities/favorite-cat/api/repository';
 import { createHttpCatErrorPayload } from '@/shared/lib/http-cat';
+import { createLogger } from '@/shared/lib/logger';
 import { getAuthSession } from '@/shared/auth';
+
+const logger = createLogger('api.favorites');
 
 async function requireSession() {
   const session = await getAuthSession();
@@ -39,7 +42,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(favorites);
   } catch (error) {
-    console.error('Failed to load favorites', error);
+    logger.error('favorites.load_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to load favorites'),
       { status: 500 },
@@ -69,9 +72,13 @@ export async function POST(request: Request) {
       imageUrl: body.imageUrl,
     });
 
+    logger.info('favorites.saved', {
+      subject: session.user.subject,
+      catId: body.id,
+    });
     return NextResponse.json(favorite, { status: 201 });
   } catch (error) {
-    console.error('Failed to save favorite', error);
+    logger.error('favorites.save_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to save favorite'),
       { status: 500 },
@@ -95,9 +102,13 @@ export async function DELETE(request: Request) {
 
   try {
     await deleteFavoriteCat(session.user.subject, id);
+    logger.info('favorites.deleted', {
+      subject: session.user.subject,
+      catId: id,
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error('Failed to delete favorite', error);
+    logger.error('favorites.delete_failed', error);
     return NextResponse.json(
       createHttpCatErrorPayload(500, 'Failed to delete favorite'),
       { status: 500 },

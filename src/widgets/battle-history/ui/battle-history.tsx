@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type {
   BattleHistoryPage,
   BattleHistoryRecord,
 } from '@/entities/battle-cat';
-import { fetchBattleHistoryPage } from '@/entities/battle-cat/api';
+import {
+  fetchBattleHistoryPage,
+  refreshBattleHistoryPage,
+} from '@/entities/battle-cat/api';
 import { formatDateTime, useI18n } from '@/shared/i18n';
 import { toHttpCatError } from '@/shared/lib/http-cat';
 import { ImagePreview } from '@/shared/ui/image-preview';
@@ -14,7 +17,10 @@ import { PanelHeader, PaperPanel } from '@/shared/ui/page-surface';
 import styles from './battle-history.module.css';
 
 const HISTORY_LIMIT = 10;
-const GLOBAL_POLLING_MS = 15_000;
+const GLOBAL_POLLING_MS = 45_000;
+const GLOBAL_HISTORY_POLL_LOCK_KEY = 'catastrophic-club:battles:global-history:poll-lock';
+const GLOBAL_HISTORY_SNAPSHOT_KEY = 'catastrophic-club:battles:global-history:snapshot';
+const GLOBAL_HISTORY_POLL_LOCK_TTL_MS = 10_000;
 
 type BattleHistoryScope = 'global' | 'mine';
 
@@ -25,11 +31,87 @@ type BattleHistoryProps = {
   localEntries: BattleHistoryRecord[];
 };
 
+type BattleHistoryPageStack = {
+  activeIndex: number;
+  pages: BattleHistoryPage[];
+};
+
 type HistoryPairImage = {
   id: string;
   imageUrl: string;
   alt: string;
 };
+
+type GlobalHistoryPollLock = {
+  owner: string;
+  expiresAt: number;
+};
+
+type GlobalHistorySnapshot = {
+  page: BattleHistoryPage;
+  updatedAt: number;
+};
+
+function readStoredJson<T>(value: string | null): T | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+}
+
+function tryAcquireGlobalHistoryPollLock(owner: string) {
+  const now = Date.now();
+  const current = readStoredJson<GlobalHistoryPollLock>(
+    window.localStorage.getItem(GLOBAL_HISTORY_POLL_LOCK_KEY),
+  );
+
+  if (current && current.owner !== owner && current.expiresAt > now) {
+    return false;
+  }
+
+  const nextLock = {
+    owner,
+    expiresAt: now + GLOBAL_HISTORY_POLL_LOCK_TTL_MS,
+  };
+
+  window.localStorage.setItem(
+    GLOBAL_HISTORY_POLL_LOCK_KEY,
+    JSON.stringify(nextLock),
+  );
+
+  const confirmed = readStoredJson<GlobalHistoryPollLock>(
+    window.localStorage.getItem(GLOBAL_HISTORY_POLL_LOCK_KEY),
+  );
+
+  return confirmed?.owner === owner;
+}
+
+function releaseGlobalHistoryPollLock(owner: string) {
+  const current = readStoredJson<GlobalHistoryPollLock>(
+    window.localStorage.getItem(GLOBAL_HISTORY_POLL_LOCK_KEY),
+  );
+
+  if (current?.owner === owner) {
+    window.localStorage.removeItem(GLOBAL_HISTORY_POLL_LOCK_KEY);
+  }
+}
+
+function publishGlobalHistorySnapshot(page: BattleHistoryPage) {
+  const snapshot: GlobalHistorySnapshot = {
+    page,
+    updatedAt: Date.now(),
+  };
+
+  window.localStorage.setItem(
+    GLOBAL_HISTORY_SNAPSHOT_KEY,
+    JSON.stringify(snapshot),
+  );
+}
 
 function prependEntries(
   page: BattleHistoryPage,
@@ -78,22 +160,40 @@ export function BattleHistory({
   localEntries,
 }: BattleHistoryProps) {
   const { locale, messages } = useI18n();
+  const tabIdRef = useRef(
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `battle-history-${Math.random().toString(36).slice(2)}`,
+  );
+  const latestSnapshotUpdateRef = useRef(0);
   const [scope, setScope] = useState<BattleHistoryScope>('global');
-  const [globalHistory, setGlobalHistory] = useState(initialGlobalHistory);
-  const [privateHistory, setPrivateHistory] = useState<BattleHistoryPage | null>(
-    initialPrivateHistory,
+  const [globalHistory, setGlobalHistory] = useState<BattleHistoryPageStack>({
+    activeIndex: 0,
+    pages: [initialGlobalHistory],
+  });
+  const [privateHistory, setPrivateHistory] = useState<BattleHistoryPageStack | null>(
+    initialPrivateHistory
+      ? {
+          activeIndex: 0,
+          pages: [initialPrivateHistory],
+        }
+      : null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+  const currentGlobalPage = globalHistory.pages[globalHistory.activeIndex] ?? initialGlobalHistory;
+  const currentPrivatePage = privateHistory
+    ? privateHistory.pages[privateHistory.activeIndex] ?? privateHistory.pages[0]
+    : null;
   const displayedGlobalHistory =
-    globalHistory.offset === 0
-      ? prependEntries(globalHistory, localEntries)
-      : globalHistory;
+    globalHistory.activeIndex === 0
+      ? prependEntries(currentGlobalPage, localEntries)
+      : currentGlobalPage;
   const displayedPrivateHistory =
-    privateHistory?.offset === 0
-      ? prependEntries(privateHistory, localEntries)
-      : privateHistory;
+    privateHistory && privateHistory.activeIndex === 0
+      ? prependEntries(currentPrivatePage ?? privateHistory.pages[0], localEntries)
+      : currentPrivatePage;
   const currentPage =
     scope === 'global' ? displayedGlobalHistory : displayedPrivateHistory;
   const currentHistoryImages = currentPage
@@ -102,9 +202,120 @@ export function BattleHistory({
   const activeHistoryImage =
     activeImageIndex === null ? null : currentHistoryImages[activeImageIndex] ?? null;
 
-  async function loadHistory(nextScope: BattleHistoryScope, nextOffset: number) {
+  useEffect(() => {
+    function handleStorage(event: StorageEvent) {
+      if (event.key !== GLOBAL_HISTORY_SNAPSHOT_KEY || !event.newValue) {
+        return;
+      }
+
+      const snapshot = readStoredJson<GlobalHistorySnapshot>(event.newValue);
+
+      if (!snapshot || snapshot.updatedAt <= latestSnapshotUpdateRef.current) {
+        return;
+      }
+
+      latestSnapshotUpdateRef.current = snapshot.updatedAt;
+      setGlobalHistory((current) => {
+        const pages = [...current.pages];
+        pages[0] = snapshot.page;
+
+        return {
+          ...current,
+          pages,
+        };
+      });
+    }
+
+    window.addEventListener('storage', handleStorage);
+
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  async function loadInitialPrivateHistory() {
+    try {
+      setIsLoading(true);
+      setErrorStatus(null);
+      const page = await fetchBattleHistoryPage({
+        scope: 'mine',
+        limit: HISTORY_LIMIT,
+      });
+      setPrivateHistory({
+        activeIndex: 0,
+        pages: [page],
+      });
+      setScope('mine');
+    } catch (error) {
+      console.error('Failed to load battle history', error);
+      setErrorStatus(toHttpCatError(error).status);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (scope !== 'global' || globalHistory.activeIndex !== 0) {
+      return;
+    }
+
+    const tabId = tabIdRef.current;
+    let isRefreshing = false;
+
+    // Only poll the first global page; paginated and private views are user-driven.
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== 'visible' || isRefreshing) {
+        return;
+      }
+
+      if (!tryAcquireGlobalHistoryPollLock(tabId)) {
+        return;
+      }
+
+      isRefreshing = true;
+
+      void refreshBattleHistoryPage({
+        scope: 'global',
+        headId: displayedGlobalHistory.items[0]?.id ?? null,
+        limit: HISTORY_LIMIT,
+        })
+        .then((result) => {
+          if (result.changed) {
+            setGlobalHistory((current) => {
+              const pages = [...current.pages];
+              pages[0] = result.page;
+
+              return {
+                ...current,
+                pages,
+              };
+            });
+            publishGlobalHistorySnapshot(result.page);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to refresh global battle history', error);
+        })
+        .finally(() => {
+          releaseGlobalHistoryPollLock(tabId);
+          isRefreshing = false;
+        });
+    }, GLOBAL_POLLING_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+      releaseGlobalHistoryPollLock(tabId);
+    };
+  }, [displayedGlobalHistory, globalHistory.activeIndex, scope]);
+
+  async function loadNextPage(nextScope: BattleHistoryScope) {
     if (nextScope === 'mine' && !isAuthenticated) {
       setScope('mine');
+      return;
+    }
+
+    const currentStack = nextScope === 'global' ? globalHistory : privateHistory;
+    const currentLoadedPage = currentStack?.pages[currentStack.activeIndex] ?? null;
+
+    if (!currentLoadedPage?.nextCursor) {
       return;
     }
 
@@ -113,14 +324,29 @@ export function BattleHistory({
       setErrorStatus(null);
       const page = await fetchBattleHistoryPage({
         scope: nextScope,
-        offset: nextOffset,
+        cursor: currentLoadedPage.nextCursor,
         limit: HISTORY_LIMIT,
       });
 
       if (nextScope === 'global') {
-        setGlobalHistory(page);
+        setGlobalHistory((current) => ({
+          activeIndex: current.activeIndex + 1,
+          pages: [...current.pages.slice(0, current.activeIndex + 1), page],
+        }));
       } else {
-        setPrivateHistory(page);
+        setPrivateHistory((current) => {
+          if (!current) {
+            return {
+              activeIndex: 0,
+              pages: [page],
+            };
+          }
+
+          return {
+            activeIndex: current.activeIndex + 1,
+            pages: [...current.pages.slice(0, current.activeIndex + 1), page],
+          };
+        });
       }
 
       setScope(nextScope);
@@ -132,30 +358,28 @@ export function BattleHistory({
     }
   }
 
-  useEffect(() => {
-    if (scope !== 'global' || globalHistory.offset !== 0) {
-      return;
+  function showPreviousPage(nextScope: BattleHistoryScope) {
+    if (nextScope === 'global') {
+      setGlobalHistory((current) => ({
+        ...current,
+        activeIndex: Math.max(0, current.activeIndex - 1),
+      }));
+    } else {
+      setPrivateHistory((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return {
+          ...current,
+          activeIndex: Math.max(0, current.activeIndex - 1),
+        };
+      });
     }
 
-    // Only poll the first global page; paginated and private views are user-driven.
-    const intervalId = window.setInterval(() => {
-      if (document.visibilityState !== 'visible') {
-        return;
-      }
-
-      void fetchBattleHistoryPage({
-        scope: 'global',
-        offset: 0,
-        limit: HISTORY_LIMIT,
-      })
-        .then(setGlobalHistory)
-        .catch((error) => {
-          console.error('Failed to refresh global battle history', error);
-        });
-    }, GLOBAL_POLLING_MS);
-
-    return () => window.clearInterval(intervalId);
-  }, [globalHistory.offset, scope]);
+    setErrorStatus(null);
+    setScope(nextScope);
+  }
 
   function openViewer(entryIndex: number, imageIndex: number) {
     const nextActiveIndex = entryIndex * 2 + imageIndex;
@@ -203,14 +427,34 @@ export function BattleHistory({
           <button
             type="button"
             className={scope === 'global' ? styles.activeTab : styles.tab}
-            onClick={() => void loadHistory('global', globalHistory.offset)}
+            onClick={() => {
+              if (scope === 'global') {
+                return;
+              }
+
+              setErrorStatus(null);
+              setScope('global');
+            }}
           >
             {messages.history.all}
           </button>
           <button
             type="button"
             className={scope === 'mine' ? styles.activeTab : styles.tab}
-            onClick={() => void loadHistory('mine', privateHistory?.offset ?? 0)}
+            onClick={() => {
+              if (!isAuthenticated) {
+                setScope('mine');
+                return;
+              }
+
+              if (privateHistory) {
+                setErrorStatus(null);
+                setScope('mine');
+                return;
+              }
+
+              void loadInitialPrivateHistory();
+            }}
           >
             {messages.history.mine}
           </button>
@@ -266,12 +510,12 @@ export function BattleHistory({
             <button
               type="button"
               className={styles.pageButton}
-              onClick={() =>
-                void loadHistory(scope, Math.max(0, currentPage.offset - HISTORY_LIMIT))
-              }
+              onClick={() => showPreviousPage(scope)}
               disabled={
                 isLoading ||
-                currentPage.offset === 0 ||
+                (scope === 'global'
+                  ? globalHistory.activeIndex === 0
+                  : (privateHistory?.activeIndex ?? 0) === 0) ||
                 (scope === 'mine' && !isAuthenticated)
               }
             >
@@ -280,10 +524,10 @@ export function BattleHistory({
             <button
               type="button"
               className={styles.pageButton}
-              onClick={() => void loadHistory(scope, currentPage.offset + HISTORY_LIMIT)}
+              onClick={() => void loadNextPage(scope)}
               disabled={
                 isLoading ||
-                !currentPage.hasNext ||
+                !currentPage.nextCursor ||
                 (scope === 'mine' && !isAuthenticated)
               }
             >

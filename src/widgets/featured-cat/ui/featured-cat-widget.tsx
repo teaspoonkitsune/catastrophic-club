@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { ImageOff } from 'lucide-react';
 import { useI18n } from '@/shared/i18n';
 import { HttpCatError, toHttpCatError } from '@/shared/lib/http-cat';
 import { LazyHttpCatErrorState } from '@/shared/ui/http-cat-error';
@@ -15,6 +16,7 @@ type FeaturedCatWidgetProps = {
   id: string;
   imageUrl: string;
   fact: string;
+  isFallbackImage?: boolean;
   isAuthenticated?: boolean;
 };
 
@@ -22,6 +24,7 @@ export function FeaturedCatWidget({
   id,
   imageUrl,
   fact,
+  isFallbackImage = false,
   isAuthenticated = false,
 }: FeaturedCatWidgetProps) {
   const { messages } = useI18n();
@@ -35,11 +38,14 @@ export function FeaturedCatWidget({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const isImageFailed = failedImageUrl === cat.imageUrl;
 
   useEffect(() => {
     setCat({ id, imageUrl });
     setImageAspectRatio(null);
     setIsLoadingImage(!loadedImageUrls.has(imageUrl));
+    setFailedImageUrl(null);
   }, [id, imageUrl]);
 
   useEffect(() => {
@@ -85,6 +91,7 @@ export function FeaturedCatWidget({
 
       setImageAspectRatio(null);
       setIsLoadingImage(!loadedImageUrls.has(nextCat.imageUrl));
+      setFailedImageUrl(null);
       setCat(nextCat);
     } catch (error) {
       console.error('Failed to refresh cat image', error);
@@ -107,6 +114,7 @@ export function FeaturedCatWidget({
       loadedImageUrls.add(cat.imageUrl);
     }
 
+    setFailedImageUrl((current) => current === cat.imageUrl ? null : current);
     setIsLoadingImage(false);
   }
 
@@ -135,12 +143,22 @@ export function FeaturedCatWidget({
             loading="eager"
             fetchPriority="high"
             onLoad={handleImageLoad}
-            onError={() => setIsLoadingImage(false)}
+            onError={() => {
+              setFailedImageUrl(cat.imageUrl);
+              setIsLoadingImage(false);
+            }}
             sizes="(min-width: 1024px) 400px, 90vw"
           />
 
           {isLoadingImage && !isViewerOpen ? (
             <div className={styles.skeleton} aria-hidden="true" />
+          ) : null}
+
+          {isImageFailed ? (
+            <div className={styles.imageErrorState} aria-hidden="true">
+              <ImageOff className={styles.imageErrorIcon} />
+              <span>{messages.images.unavailable}</span>
+            </div>
           ) : null}
         </button>
 
@@ -172,6 +190,10 @@ export function FeaturedCatWidget({
           actionLabel={messages.common.hide}
           onAction={() => setErrorStatus(null)}
         />
+      ) : null}
+
+      {isFallbackImage || isImageFailed ? (
+        <p className={styles.fallbackNotice}>{messages.featuredCat.fallbackNotice}</p>
       ) : null}
 
       <p className={styles.fact}>{fact}</p>

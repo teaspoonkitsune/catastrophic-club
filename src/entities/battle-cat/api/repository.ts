@@ -12,11 +12,15 @@ import type {
 } from '../model/types';
 
 const BATTLE_HISTORY_LIMIT = 10;
-const BATTLE_HISTORY_MAX_OFFSET = 10_000;
 const BATTLE_LEADERBOARD_LIMIT = 10;
 const BATTLE_LEADERBOARD_MAX_OFFSET = 10_000;
 const DAILY_BATTLE_VOTE_LIMIT = 5;
 const BATTLE_PAIR_RANDOM_ATTEMPTS = 8;
+
+type BattleHistoryCursorData = {
+  createdAt: string;
+  id: string;
+};
 
 function getUtcDateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -38,6 +42,38 @@ function toBattleHistoryRecord(entry: {
     loserImageUrl: entry.loserImageUrl,
     createdAt: entry.createdAt.toISOString(),
   };
+}
+
+function encodeBattleHistoryCursor(entry: {
+  createdAt: Date;
+  id: string;
+}) {
+  return Buffer.from(
+    JSON.stringify({
+      createdAt: entry.createdAt.toISOString(),
+      id: entry.id,
+    } satisfies BattleHistoryCursorData),
+    'utf8',
+  ).toString('base64url');
+}
+
+function decodeBattleHistoryCursor(value: string): BattleHistoryCursorData {
+  try {
+    const parsed = JSON.parse(
+      Buffer.from(value, 'base64url').toString('utf8'),
+    ) as Partial<BattleHistoryCursorData>;
+
+    if (!parsed.createdAt || !parsed.id) {
+      throw new Error('Invalid battle history cursor');
+    }
+
+    return {
+      createdAt: parsed.createdAt,
+      id: parsed.id,
+    };
+  } catch {
+    throw new Error('Invalid battle history cursor');
+  }
 }
 
 async function getRandomBattleCatImages(): Promise<[CatImage, CatImage]> {
@@ -207,17 +243,17 @@ export async function recordBattleResult(
 
 export async function getBattleHistoryPage({
   userId,
-  offset = 0,
+  cursor,
   limit = BATTLE_HISTORY_LIMIT,
 }: {
   userId?: string;
-  offset?: number;
+  cursor?: string | null;
   limit?: number;
 } = {}): Promise<BattleHistoryPage> {
   await ensureDatabaseMigrated();
 
   const safeLimit = Math.min(Math.max(1, limit), BATTLE_HISTORY_LIMIT);
-  const safeOffset = Math.min(Math.max(0, offset), BATTLE_HISTORY_MAX_OFFSET);
+  const cursorData = cursor ? decodeBattleHistoryCursor(cursor) : null;
   const rows = await db
     .selectFrom('battle_history')
     .select([
@@ -229,17 +265,47 @@ export async function getBattleHistoryPage({
       'createdAt',
     ])
     .$if(Boolean(userId), (query) => query.where('userId', '=', userId ?? ''))
+    .$if(Boolean(cursorData), (query) =>
+      query.where((expressionBuilder) =>
+        expressionBuilder.or([
+          expressionBuilder('createdAt', '<', new Date(cursorData?.createdAt ?? '')),
+          expressionBuilder.and([
+            expressionBuilder('createdAt', '=', new Date(cursorData?.createdAt ?? '')),
+            expressionBuilder('id', '<', cursorData?.id ?? ''),
+          ]),
+        ]),
+      ),
+    )
     .orderBy('createdAt', 'desc')
     .orderBy('id', 'desc')
-    .offset(safeOffset)
     // Fetch one extra row to detect the next page without a separate count query.
     .limit(safeLimit + 1)
     .execute();
 
+  const pageItems = rows.slice(0, safeLimit);
+  const lastVisibleRow = pageItems.at(-1);
+
   return {
-    items: rows.slice(0, safeLimit).map(toBattleHistoryRecord),
+    items: pageItems.map(toBattleHistoryRecord),
     hasNext: rows.length > safeLimit,
-    offset: safeOffset,
+    nextCursor:
+      rows.length > safeLimit && lastVisibleRow
+        ? encodeBattleHistoryCursor(lastVisibleRow)
+        : null,
     limit: safeLimit,
   };
+}
+
+export async function getLatestBattleHistoryEntryId(userId?: string): Promise<string | null> {
+  await ensureDatabaseMigrated();
+
+  const row = await db
+    .selectFrom('battle_history')
+    .select('id')
+    .$if(Boolean(userId), (query) => query.where('userId', '=', userId ?? ''))
+    .orderBy('createdAt', 'desc')
+    .orderBy('id', 'desc')
+    .executeTakeFirst();
+
+  return row?.id ?? null;
 }

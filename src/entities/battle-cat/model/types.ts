@@ -36,6 +36,6 @@ export type BattleHistoryRecord = {
 export type BattleHistoryPage = {
   items: BattleHistoryRecord[];
   hasNext: boolean;
-  offset: number;
+  nextCursor: string | null;
   limit: number;
 };

@@ -21,6 +21,17 @@ type BattleSubmitResponse = BattlePairResponse | BattleVoteLimitResponse;
 
 type BattleHistoryScope = 'global' | 'mine';
 
+type BattleHistoryRefreshResponse =
+  | {
+      changed: false;
+      latestId: string | null;
+    }
+  | {
+      changed: true;
+      latestId: string | null;
+      page: BattleHistoryPage;
+    };
+
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const payload = (await response.json()) as Partial<HttpCatErrorPayload>;
@@ -62,21 +73,71 @@ export async function submitBattleResult(
 
 export async function fetchBattleHistoryPage({
   scope,
-  offset,
+  cursor,
   limit = 10,
 }: {
   scope: BattleHistoryScope;
-  offset: number;
+  cursor?: string | null;
   limit?: number;
 }): Promise<BattleHistoryPage> {
   const params = new URLSearchParams({
     scope,
-    offset: String(Math.max(0, offset)),
     limit: String(limit),
   });
+
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
+
   const response = await fetch(`/api/battles/history?${params.toString()}`, {
     cache: 'no-store',
   });
 
-  return parseJson<BattleHistoryPage>(response);
+  const data = await parseJson<BattleHistoryRefreshResponse | BattleHistoryPage>(response);
+
+  if ('items' in data) {
+    return data;
+  }
+
+  if (!data.changed) {
+    throw new Error('Expected battle history page but received unchanged refresh payload');
+  }
+
+  return data.page;
+}
+
+export async function refreshBattleHistoryPage({
+  scope,
+  headId,
+  limit = 10,
+}: {
+  scope: BattleHistoryScope;
+  headId: string | null;
+  limit?: number;
+}): Promise<BattleHistoryRefreshResponse> {
+  const params = new URLSearchParams({
+    scope,
+    offset: '0',
+    limit: String(limit),
+  });
+
+  if (headId) {
+    params.set('headId', headId);
+  }
+
+  const response = await fetch(`/api/battles/history?${params.toString()}`, {
+    cache: 'no-store',
+  });
+
+  const data = await parseJson<BattleHistoryRefreshResponse | BattleHistoryPage>(response);
+
+  if ('items' in data) {
+    return {
+      changed: true,
+      latestId: data.items[0]?.id ?? null,
+      page: data,
+    };
+  }
+
+  return data;
 }

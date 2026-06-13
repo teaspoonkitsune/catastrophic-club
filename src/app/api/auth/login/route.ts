@@ -6,7 +6,10 @@ import {
 } from '@/shared/auth';
 import { KeycloakAuthError, loginWithKeycloakPassword } from '@/shared/auth/keycloak';
 import { getRequestI18n } from '@/shared/i18n/server';
+import { createLogger } from '@/shared/lib/logger';
 import { consumeRateLimit } from '@/shared/lib/rate-limit';
+
+const logger = createLogger('api.auth.login');
 
 function getRequestClientIp(request: Request) {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -31,6 +34,10 @@ export async function POST(request: Request) {
   });
 
   if (!rateLimit.success) {
+    logger.warn('auth.login_rate_limited', {
+      clientIp: getRequestClientIp(request),
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
     return NextResponse.json(
       { error: messages.auth.errors.rateLimited },
       {
@@ -55,11 +62,13 @@ export async function POST(request: Request) {
 
   try {
     const { session, user } = await loginWithKeycloakPassword(username, password);
+    logger.info('auth.login_succeeded', { subject: user.subject });
     const response = NextResponse.json({ ok: true, user });
     writeAuthSessionToResponse(response, session);
     return response;
   } catch (error) {
     if (error instanceof KeycloakAuthError) {
+      logger.warn('auth.login_failed', { status: error.status });
       const localizedError =
         error.status === 401
           ? messages.auth.errors.invalidCredentials
@@ -72,7 +81,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: localizedError }, { status: error.status });
     }
 
-    console.error('Failed to sign in with Keycloak', error);
+    logger.error('auth.login_unexpected_error', error);
     return NextResponse.json({ error: messages.auth.errors.genericLoginFailed }, { status: 500 });
   }
 }

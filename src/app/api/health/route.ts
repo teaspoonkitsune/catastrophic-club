@@ -6,8 +6,10 @@ import {
   validateAuthEnvironment,
 } from '@/shared/auth';
 import { db } from '@/shared/api';
+import { createLogger } from '@/shared/lib/logger';
 
 export const dynamic = 'force-dynamic';
+const logger = createLogger('api.health');
 
 export async function GET() {
   const checks = {
@@ -21,17 +23,21 @@ export async function GET() {
     getAuthRateLimitWindowSeconds();
     checks.env = true;
   } catch (error) {
-    console.error('Health check env validation failed', error);
+    logger.error('health.env_check_failed', error);
   }
 
   try {
     await sql<{ ok: number }>`select 1 as ok`.execute(db);
     checks.database = true;
   } catch (error) {
-    console.error('Health check database validation failed', error);
+    logger.error('health.database_check_failed', error);
   }
 
   const ok = checks.env && checks.database;
+
+  if (!ok) {
+    logger.warn('health.unhealthy', { checks });
+  }
 
   return NextResponse.json(
     {

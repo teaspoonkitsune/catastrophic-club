@@ -1,10 +1,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { FileMigrationProvider, Migrator } from 'kysely';
+import { createLogger } from '@/shared/lib/logger';
 import { db } from './database';
 
 // Reuse the in-flight migration inside one Node process so parallel requests do not race.
 let migrationPromise: Promise<void> | null = null;
+const logger = createLogger('db.migrator');
 
 export function shouldAutoRunMigrations() {
   const value = process.env.AUTO_RUN_MIGRATIONS?.trim().toLowerCase();
@@ -38,10 +40,14 @@ export async function migrateToLatest(): Promise<void> {
   const { error, results } = await migrator.migrateToLatest();
 
   results?.forEach((result) => {
-    console.log(`[db:migrate] ${result.status}: ${result.migrationName}`);
+    logger.info('db.migration_result', {
+      status: result.status,
+      migrationName: result.migrationName,
+    });
   });
 
   if (error) {
+    logger.error('db.migrate_failed', error);
     throw error;
   }
 }
