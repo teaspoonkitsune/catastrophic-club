@@ -2,85 +2,71 @@
 
 [![CI](https://github.com/teaspoonkitsune/catastrophic-club/actions/workflows/ci.yml/badge.svg)](https://github.com/teaspoonkitsune/catastrophic-club/actions/workflows/ci.yml)
 
-`CATastrophic Club` is a cat-themed full-stack web app built with `Next.js 16`, `PostgreSQL`, and `Keycloak`.
+`CATastrophic Club` is a small full-stack app about cats, voting, favorites, and a persistent leaderboard.
 
-It combines a public landing page with interactive cat features: favorites, head-to-head battles, and a persistent leaderboard.
+It is built as a self-hosted `Next.js` project with `PostgreSQL` and `Keycloak`, and the UI is available in `English`, `Russian`, and `Ukrainian`.
 
-## Status
+## What You Get
 
-This is an application repository, not a reusable package. It is ready for local runs, demos, and self-hosted iteration. Production deployment is supported with bootstrap scripts for env generation, deploy, and Keycloak client setup.
-
-## Highlights
-
-- cat of the day with graceful fallback behavior
-- embedded login and registration without redirecting users to a Keycloak login page
-- authenticated favorites collection
-- head-to-head cat battles with persisted scores
-- leaderboard and battle history views
-- Russian, English, and Ukrainian UI
-
-## Product Surface
-
-- `/` shows the cat of the day and a cat fact
-- `/favorites` shows the signed-in user's saved cats
-- `/battles` lets signed-in users vote between two cats
-- `/leaderboard` shows battle rankings with pagination
-
-Authentication is backed by Keycloak. Persistence is backed by PostgreSQL.
+- cat of the day on the home page
+- account login and registration directly inside the site
+- personal favorites
+- cat battles with saved results
+- leaderboard and battle history
+- local bootstrap for development
+- production-oriented bootstrap for self-hosted deploys
 
 ## Stack
 
-- `Next.js 16.2.9`
-- `React 19.2.4`
-- `TypeScript 5`
-- `ESLint 9`
+- `Next.js 16`
+- `React 19`
+- `TypeScript`
 - `PostgreSQL`
 - `Kysely`
 - `Keycloak`
 - CSS Modules
 
-External runtime dependencies:
+External providers:
 
 - `cataas.com` for cat images
 - `catfact.ninja` for cat facts
 - `http.cat` for error illustrations
 
-## Verification
+## Quick Start
+
+```bash
+git clone https://github.com/teaspoonkitsune/catastrophic-club.git
+cd catastrophic-club
+npm install
+./scripts/bootstrap-local.sh
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Deploy
+
+Production bootstrap is prepared for a self-hosted server:
+
+```bash
+./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com
+```
+
+It prepares env values, deploys the stack, and wires the Keycloak client. DNS, reverse proxy, and TLS are still your responsibility.
+
+## Checks
 
 ```bash
 npm test
 npm run lint
 npm run typecheck
 npm run build
+npm run smoke
 ```
 
-## Fast Start
+## Documentation
 
-Local bootstrap:
-
-```bash
-./scripts/bootstrap-local.sh
-npm run dev
-```
-
-Production-oriented bootstrap on a server:
-
-```bash
-./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com
-```
-
-## Demo Data
-
-If you want a fuller battles/leaderboard demo locally, run:
-
-```bash
-npm run seed:battle-cats
-```
-
-This command fetches candidate cats from `cataas.com` and inserts new `battle_cats` rows into PostgreSQL. It depends on network access and on the external provider returning data.
-
-## Docs
-
-- [docs/guide.md](./docs/guide.md) covers the full path from download to local run to production deploy
-- [docs/architecture.md](./docs/architecture.md) describes the codebase structure
-- [docs/known-issues.md](./docs/known-issues.md) lists the current limitations
+- [Guide](./docs/guide.md) - from download to local run and production deploy
+- [Architecture](./docs/architecture.md) - project structure and main modules
+- [Known Issues](./docs/known-issues.md) - current limits and tradeoffs
+- [Next Steps](./docs/next-steps.md) - sensible follow-up work

@@ -1,36 +1,18 @@
 # Guide
 
-This is the single setup and deployment guide for `CATastrophic Club`.
-
-It covers:
-
-- downloading the repository
-- local development
-- local infrastructure
-- demo data
-- verification
-- production deployment
-- server-side helper scripts
-- Keycloak client bootstrap
-
-For project shape and risks, see the companion files:
-
-- [architecture.md](./architecture.md)
-- [known-issues.md](./known-issues.md)
+This is the practical setup guide for `CATastrophic Club`.
 
 ## 1. Requirements
 
 You need:
 
-- Node.js compatible with `Next.js 16`
+- `Node.js` compatible with `Next.js 16`
 - `npm`
-- Docker with the Compose plugin for the repo-provided local and production stacks
+- a container runtime with Compose support
 
-The repository uses `npm` as the package manager and already includes `package-lock.json`.
+`Docker Compose` is the default path in this repository. On systems like `NixOS`, a compatible `Podman` setup also works if Compose support is available.
 
-## 2. Download and Install
-
-Clone the repository and install dependencies:
+## 2. Download
 
 ```bash
 git clone https://github.com/teaspoonkitsune/catastrophic-club.git
@@ -38,53 +20,56 @@ cd catastrophic-club
 npm install
 ```
 
-## 3. Recommended Bootstrap Paths
+## 3. Fast Local Setup
 
-### Local one-script path
+The shortest path is:
 
 ```bash
 ./scripts/bootstrap-local.sh
 npm run dev
 ```
 
-This script:
+Then open:
 
-- generates `.env`
-- generates `AUTH_SECRET`
-- generates `KEYCLOAK_CLIENT_SECRET`
+- `http://localhost:3000`
+- `http://localhost:8080`
+
+The bootstrap script:
+
+- creates `.env` if needed
+- generates auth secrets
 - starts PostgreSQL and Keycloak
-- updates the Keycloak client to match the generated secret
-- runs DB migrations
+- configures the Keycloak client
+- runs database migrations
 
-### Production-oriented one-script path
+## 4. Manual Local Setup
+
+If you want to do it step by step, use the local compose file and `.env.example`.
+
+Start infrastructure:
 
 ```bash
-./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com
+docker compose -f docker-compose.local.yml up -d
 ```
 
-This script:
+Run migrations:
 
-- creates a production `app.env`
-- generates database and auth secrets
-- runs the deploy flow
-- configures the Keycloak client to match the generated production secret and app origin
-- runs the production health check
+```bash
+npm run db:migrate
+```
 
-In production, the app container talks to Keycloak over the local Compose network, while browsers still use your public app and auth hostnames through the reverse proxy.
+Start the app:
 
-## 4. Manual Local Development
+```bash
+npm run dev
+```
 
-### Environment
-
-The committed `.env.example` matches the local Docker Compose baseline.
-
-Core local values:
+Important local env values:
 
 ```env
 DATABASE_URL=postgres://catastrophic_club:catastrophic_club@127.0.0.1:5432/catastrophic_club
 DATABASE_SSL=false
 AUTH_SECRET=replace-with-a-long-random-string
-AUTH_SESSION_TTL_SECONDS=604800
 KEYCLOAK_BASE_URL=http://localhost:8080
 KEYCLOAK_REALM=catastrophic-club
 KEYCLOAK_CLIENT_ID=catastrophic-club-web
@@ -93,112 +78,46 @@ KEYCLOAK_ADMIN_USERNAME=admin
 KEYCLOAK_ADMIN_PASSWORD=admin
 ```
 
-Useful optional values:
-
-```env
-KEYCLOAK_SCOPE=openid profile email
-KEYCLOAK_ADMIN_REALM=master
-KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
-AUTO_RUN_MIGRATIONS=false
-AUTH_RATE_LIMIT_MAX_ATTEMPTS=10
-AUTH_RATE_LIMIT_WINDOW_SECONDS=60
-```
-
-### Local Infrastructure
-
-Bring up PostgreSQL and Keycloak:
-
-```bash
-docker compose -f docker-compose.local.yml up -d
-```
-
-This starts:
-
-- PostgreSQL on `127.0.0.1:5432`
-- Keycloak on `127.0.0.1:8080`
-
-### Migrations
-
-Apply migrations before the first run:
-
-```bash
-npm run db:migrate
-```
-
-The repositories can still call `ensureDatabaseMigrated()` during request paths, but the intended workflow is explicit migrations first.
-
-### Start the App
-
-```bash
-npm run dev
-```
-
-Open:
-
-- `http://localhost:3000`
-- `http://localhost:8080`
-
-### Local Auth Notes
-
-The visible auth flow is embedded directly in the app UI:
-
-- users log in from the site itself
-- users register from the site itself
-- Keycloak still powers the credentials and user management behind the scenes
-
-If the Keycloak admin console complains about HTTPS on localhost, the built-in `master` realm may still need a local-only override:
-
-```bash
-podman exec catastrophic-club-keycloak /bin/sh -lc '/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin >/tmp/kcadm-login.log && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE'
-```
-
-That override is for local development only.
-
 ## 5. Demo Data
 
-If you want a fuller local battles and leaderboard experience, seed extra cats:
+If you want a fuller leaderboard and battles page locally:
 
 ```bash
 npm run seed:battle-cats
 ```
 
-This script:
+This pulls cats from `cataas.com`, so it needs network access.
 
-- fetches candidate cats from `cataas.com`
-- skips IDs already known in `battle_cats`
-- inserts up to roughly `400` new rows
+## 6. Checks
 
-Because it depends on an external service, it is not fully deterministic or offline-safe.
-
-## 6. Verification
-
-Static verification:
+Use these before shipping changes:
 
 ```bash
 npm test
 npm run lint
 npm run typecheck
 npm run build
+npm run smoke
 ```
 
-Manual smoke check:
+What they cover:
 
-1. open `/`
-2. open `/favorites`
-3. register a user
-4. log in
-5. log out
-6. open `/battles`
-7. open `/leaderboard`
-8. check `/api/health`
+- `test` - node-level tests
+- `lint` - ESLint
+- `typecheck` - TypeScript validation
+- `build` - production Next.js build
+- `smoke` - local stack smoke flow with app, database, and auth
 
-## 7. Production Deployment
+## 7. Production Deploy
 
-### Production Files
+Use the production bootstrap on the target server:
 
-The repo contains:
+```bash
+./scripts/bootstrap-prod.sh --app-domain example.com --keycloak-hostname auth.example.com
+```
 
-- `Dockerfile`
+The production flow is built around these files:
+
 - `docker-compose.prod.yml`
 - `docker/production.env.example`
 - `scripts/bootstrap-prod.sh`
@@ -207,165 +126,47 @@ The repo contains:
 - `scripts/check-prod.sh`
 - `scripts/logs-prod.sh`
 
-### Production Environment
+What bootstrap does:
 
-Use `docker/production.env.example` as the baseline and supply real values for:
+- prepares production env values
+- generates secrets
+- starts the stack
+- configures the Keycloak client
+- runs health checks
 
-```env
-APP_DOMAIN=example.com
-KEYCLOAK_HOSTNAME=auth.example.com
-POSTGRES_SUPERUSER=postgres
-POSTGRES_SUPERPASSWORD=change-me
-APP_DB_NAME=catastrophic_club
-APP_DB_USER=catastrophic_club
-APP_DB_PASSWORD=change-me
-KEYCLOAK_DB_NAME=keycloak
-KEYCLOAK_DB_USER=keycloak
-KEYCLOAK_DB_PASSWORD=change-me
-DATABASE_SSL=false
-AUTO_RUN_MIGRATIONS=false
-AUTH_SECRET=replace-with-a-long-random-string
-AUTH_SESSION_TTL_SECONDS=604800
-KEYCLOAK_REALM=catastrophic-club
-KEYCLOAK_CLIENT_ID=catastrophic-club-web
-KEYCLOAK_CLIENT_SECRET=replace-with-a-production-secret
-KEYCLOAK_ADMIN_USERNAME=admin
-KEYCLOAK_ADMIN_PASSWORD=change-me
-AUTH_RATE_LIMIT_MAX_ATTEMPTS=10
-AUTH_RATE_LIMIT_WINDOW_SECONDS=60
-```
-
-### Important Production Limitation
-
-The committed Keycloak realm import is intentionally local-oriented as a baseline import.
-
-The repo now automates the app-side and client-side Keycloak bootstrap, but you still need to make sure your surrounding infrastructure is correct:
+What it does not do:
 
 - DNS
 - reverse proxy
 - TLS
-- reachable app and auth hostnames
+- external hostname routing
 
-Important detail:
+Those parts must be configured separately.
 
-- `KEYCLOAK_HOSTNAME` is the public browser-facing hostname
-- the server-side app and migration container talk to Keycloak at `http://keycloak:8080` inside Docker Compose
-- this avoids routing app auth requests back out through public DNS from inside the stack
+## 8. Auth Model
 
-### Server Layout
+Users do not get redirected to a Keycloak login page.
 
-The scripts assume a layout like:
+The visible auth flow stays inside the app UI, while Keycloak handles:
 
-```text
-/srv/catastrophic-club/
-  app/   <- this repository
-  env/
-    app.env
-```
+- user credentials
+- sessions
+- registration backend
 
-### Deploy
+Registration also needs working Keycloak admin credentials.
 
-From the repository root on the server:
+## 9. If Something Breaks
+
+Start with:
 
 ```bash
-./scripts/deploy-prod.sh
+npm run build
+npm run smoke
 ```
 
-By default the script uses:
+Then verify:
 
-- `ENV_FILE=../env/app.env`
-- `COMPOSE_FILE=./docker-compose.prod.yml`
-- `HEALTH_URL=http://127.0.0.1:3000/api/health`
-
-You can override them:
-
-```bash
-ENV_FILE=/path/to/app.env \
-COMPOSE_FILE=/path/to/docker-compose.prod.yml \
-HEALTH_URL=http://127.0.0.1:3000/api/health \
-./scripts/deploy-prod.sh
-```
-
-The deploy script does this:
-
-1. `git pull --ff-only`
-2. build `app` and `migrate`
-3. start PostgreSQL and Keycloak
-4. run migrations
-5. start the app
-6. call the health endpoint
-
-### Configure Keycloak Separately
-
-If you need to re-run Keycloak client setup without regenerating env files:
-
-Local:
-
-```bash
-./scripts/configure-keycloak.sh --local --env-file ./.env
-```
-
-Production:
-
-```bash
-ENV_FILE=/path/to/app.env ./scripts/configure-keycloak.sh --prod --env-file /path/to/app.env
-```
-
-### Check and Logs
-
-Inspect the deployed stack:
-
-```bash
-./scripts/check-prod.sh
-```
-
-Tail logs for the main services:
-
-```bash
-./scripts/logs-prod.sh
-```
-
-Or target specific services:
-
-```bash
-./scripts/logs-prod.sh app
-./scripts/logs-prod.sh keycloak postgres
-```
-
-## 8. Troubleshooting
-
-### `DATABASE_URL is not set`
-
-Check:
-
-- `.env` locally
-- `ENV_FILE` on the server
-
-Relevant file:
-
-- `src/shared/api/database.ts`
-
-### Registration fails while the app itself starts
-
-This usually means Keycloak admin credentials are wrong or incomplete.
-
-Relevant file:
-
-- `src/shared/auth/keycloak.ts`
-
-### Requests fail because migrations are triggered during runtime
-
-Keep `AUTO_RUN_MIGRATIONS=false` and run:
-
-```bash
-npm run db:migrate
-```
-
-### Home page content looks less fresh than expected
-
-The home page depends on:
-
-- `cataas.com`
-- `catfact.ninja`
-
-It now has a graceful fallback, but freshness still depends on those providers being available.
+- PostgreSQL is reachable
+- Keycloak is reachable
+- env values are present
+- the Keycloak client secret matches the app env

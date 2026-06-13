@@ -1,17 +1,46 @@
-# Known Limitations
+# Known Issues
 
-This document lists the current constraints that should be visible to GitHub readers and deployers.
+## External Dependencies
 
-## Runtime and Infrastructure
+- Cat images come from `cataas.com`.
+- Cat facts come from `catfact.ninja`.
+- Error illustrations come from `http.cat`.
 
-- Auth rate limiting is process-local and stored in memory, so limits are not shared between multiple app instances.
-- The favorite-state cache lives in the browser runtime and can become briefly stale across tabs or sessions.
-- The home page still depends on external cat and fact services. It now falls back gracefully, but freshness and variety still depend on those providers.
-- Registration depends on working Keycloak admin credentials in addition to normal client credentials.
-- Production bootstrap is much smoother now, but it still assumes working DNS, reverse proxy, and TLS around the generated app and auth hostnames.
+If those services are slow or unavailable, the app falls back where it can, but it cannot be fully independent from them yet.
 
-## Product and Codebase
+## Runtime Limits
 
-- The test layer is still narrow. CI now runs `test`, `lint`, `typecheck`, and `build`, but coverage is focused on stable helpers and configuration logic rather than end-to-end browser flows.
-- Repositories can still call `ensureDatabaseMigrated()`, so DB migration problems may surface on normal request paths if configuration drifts.
-- `npm run seed:battle-cats` depends on `cataas.com` availability and network access, so demo seeding is not fully offline or deterministic.
+- auth rate limiting is process-local
+- favorites cache is browser-local
+- registration needs Keycloak admin credentials
+- some repository paths can still trigger migration checks during requests
+
+These are acceptable for a small self-hosted project, but they are not ideal for a larger multi-instance deployment.
+
+## Deploy Scope
+
+The production bootstrap helps with:
+
+- env generation
+- stack startup
+- Keycloak client wiring
+- health checks
+
+It does not handle:
+
+- DNS
+- reverse proxy
+- TLS
+- public infrastructure layout
+
+## Testing Scope
+
+The repository includes:
+
+- node tests
+- lint
+- typecheck
+- production build validation
+- local stack smoke flow
+
+There is still no browser e2e layer.
