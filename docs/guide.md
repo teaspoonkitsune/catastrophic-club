@@ -70,6 +70,8 @@ This script:
 - configures the Keycloak client to match the generated production secret and app origin
 - runs the production health check
 
+In production, the app container talks to Keycloak over the local Compose network, while browsers still use your public app and auth hostnames through the reverse proxy.
+
 ## 4. Manual Local Development
 
 ### Environment
@@ -243,6 +245,12 @@ The repo now automates the app-side and client-side Keycloak bootstrap, but you 
 - reverse proxy
 - TLS
 - reachable app and auth hostnames
+
+Important detail:
+
+- `KEYCLOAK_HOSTNAME` is the public browser-facing hostname
+- the server-side app and migration container talk to Keycloak at `http://keycloak:8080` inside Docker Compose
+- this avoids routing app auth requests back out through public DNS from inside the stack
 
 ### Server Layout
 

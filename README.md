@@ -30,7 +30,7 @@ Authentication is backed by Keycloak. Persistence is backed by PostgreSQL.
 
 ## Stack
 
-- `Next.js 16.2.0`
+- `Next.js 16.2.9`
 - `React 19.2.4`
 - `TypeScript 5`
 - `ESLint 9`
