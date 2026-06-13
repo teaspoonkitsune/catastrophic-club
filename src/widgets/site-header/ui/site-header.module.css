@@ -160,3 +160,14 @@
     border-bottom: 1px solid var(--paper-rule);
   }
 }
+
+@media (max-width: 520px) {
+  .title {
+    font-size: clamp(2rem, 9.6vw, 3.2rem);
+    line-height: 0.92;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+}
