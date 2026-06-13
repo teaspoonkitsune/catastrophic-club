@@ -25,6 +25,20 @@ echo "Starting application..."
 compose up -d app
 
 echo "Checking health endpoint..."
-curl -f "${health_url}"
+attempt=1
+max_attempts=30
+
+until curl -fsS "${health_url}"; do
+  if [[ "${attempt}" -ge "${max_attempts}" ]]; then
+    echo
+    echo "Health check failed after ${max_attempts} attempts." >&2
+    exit 1
+  fi
+
+  echo
+  echo "Health check attempt ${attempt}/${max_attempts} failed. Waiting 2s..."
+  attempt=$((attempt + 1))
+  sleep 2
+done
 echo
 echo "Deploy complete."
