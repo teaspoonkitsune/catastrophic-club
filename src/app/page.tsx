@@ -13,6 +13,8 @@ import {
 import { FeaturedCatWidget } from '@/widgets/featured-cat';
 import { SitePageGrid } from '@/widgets/site-layout';
 
+export const dynamic = 'force-dynamic';
+
 const fallbackFeaturedCat = {
   id: 'fallback-cat',
   imageUrl: '/icon.svg',

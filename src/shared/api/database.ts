@@ -44,20 +44,44 @@ export function getDatabaseConnectionString(databaseUrl: string) {
   return parsed.toString();
 }
 
-const databaseUrl = process.env.DATABASE_URL;
+let dbInstance: Kysely<Database> | null = null;
 
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL is not set');
+function createDatabase() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not set');
+  }
+
+  const dialect = new PostgresDialect({
+    pool: new Pool({
+      connectionString: getDatabaseConnectionString(databaseUrl),
+      ssl: getDatabaseSslConfig(databaseUrl),
+      max: 10,
+    }),
+  });
+
+  return new Kysely<Database>({
+    dialect,
+  });
 }
 
-const dialect = new PostgresDialect({
-  pool: new Pool({
-    connectionString: getDatabaseConnectionString(databaseUrl),
-    ssl: getDatabaseSslConfig(databaseUrl),
-    max: 10,
-  }),
-});
+export function getDb() {
+  if (!dbInstance) {
+    dbInstance = createDatabase();
+  }
 
-export const db = new Kysely<Database>({
-  dialect,
+  return dbInstance;
+}
+
+export const db = new Proxy({} as Kysely<Database>, {
+  get(_target, property) {
+    const value = Reflect.get(getDb(), property);
+
+    if (typeof value === 'function') {
+      return value.bind(getDb());
+    }
+
+    return value;
+  },
 });
